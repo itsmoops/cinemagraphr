@@ -22,7 +22,7 @@ class Cinemagraph extends React.Component {
         super()
         this.state = {
             source:
-                'https://firebasestorage.googleapis.com/v0/b/cinemagraphr-dev.appspot.com/o/cinemagraphs%2FRBQRk35.mp4?alt=media&token=d6f3dccd-e901-4c55-9d45-3fe9d99fccd5'
+                'https://firebasestorage.googleapis.com/v0/b/cinemagraphr-dev.appspot.com/o/cinemagraphs%2FRBQRk35.mp4?alt=media&token=71b34e10-d7fd-407e-a1e7-cfb193bdeadb'
         }
     }
     componentDidMount() {

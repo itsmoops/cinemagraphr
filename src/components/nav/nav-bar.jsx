@@ -69,14 +69,16 @@ class NavBar extends React.Component {
         })
     }
     render() {
-        const activeRoute = this.props.location.pathname.replace('/', '') || ''
         return (
             <Menu styles={styles} right isOpen={this.state.menuOpen}>
                 <a id="home" className="menu-item" onClick={() => this.handleClick('/')}>
                     Home
                 </a>
-                <a id="upload" className="menu-item" onClick={() => this.handleClick('/upload')}>
-                    Upload
+                <a id="create" className="menu-item" onClick={() => this.handleClick('/create')}>
+                    Create
+                </a>
+                <a id="browse" className="menu-item" onClick={() => this.handleClick('/browse')}>
+                    Browse
                 </a>
                 <a id="contact" className="menu-item" onClick={() => this.handleClick('/login')}>
                     Login
