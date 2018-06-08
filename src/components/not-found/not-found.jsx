@@ -2,7 +2,8 @@ import { Box, Heading, Container } from 'rebass'
 import Flex from '../shared/flex'
 
 class NotFound extends React.Component {
-    componentWillMount() {
+    constructor() {
+        super()
         document.title = 'Page Not Found'
     }
     render() {

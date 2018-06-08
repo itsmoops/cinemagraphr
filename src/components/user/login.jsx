@@ -14,7 +14,8 @@ class Login extends React.Component {
         email: '',
         password: ''
     }
-    componentWillMount() {
+    constructor() {
+        super()
         document.title = 'Login'
     }
     componentWillUnmount() {

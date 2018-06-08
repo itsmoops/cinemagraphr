@@ -5,34 +5,33 @@ import 'firebase/storage'
 import Dropzone from 'react-dropzone'
 import Flex from '../shared/flex'
 import Message from '../shared/message'
-import * as globalActions from '../../actions/global-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 
-class Create extends React.Component {
+class Upload extends React.Component {
+    constructor() {
+        super()
+        document.title = 'Upload'
+    }
     onDrop = async (acceptedFiles, rejectedFiles) => {
-        const acceptedFileTypes = ['video/mp4', 'image/gif']
         if (acceptedFiles && acceptedFiles.length === 1) {
             const file = acceptedFiles[0]
-            if (acceptedFileTypes.includes(file.type)) {
-                await this.props.firebaseActions.uploadFile({
-                    file: file,
-                    directory: 'cinemagraphs',
-                    name: file.name
-                })
-            } else {
-                throw new Error('Invalid file type')
-            }
+            await this.props.firebaseActions.uploadFile({
+                file: file,
+                directory: 'cinemagraphs',
+                name: file.name,
+                type: file.type,
+                validFileTypes: ['video/mp4', 'image/gif']
+            })
         } else {
             throw new Error('Invalid file')
         }
     }
     render() {
-        const { error } = this.props.firebase
-        debugger
+        const { message } = this.props.firebase
         return (
             <Flex>
                 <Dropzone onDrop={this.onDrop} multiple={false} />
-                {error && <Message>{error}</Message>}
+                {message && <Message>{message}</Message>}
             </Flex>
         )
     }
@@ -40,19 +39,17 @@ class Create extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        global: state.global,
         firebase: state.firebase
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        firebaseActions: bindActionCreators(firebaseActions, dispatch),
-        globalActions: bindActionCreators(globalActions, dispatch)
+        firebaseActions: bindActionCreators(firebaseActions, dispatch)
     }
 }
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Create)
+)(Upload)

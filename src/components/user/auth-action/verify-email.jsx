@@ -5,8 +5,11 @@ import * as userActions from '../../../actions/user-actions'
 import Message from '../../shared/message'
 
 class VerifyEmail extends React.Component {
-    componentWillMount() {
+    constructor() {
+        super()
         document.title = 'Verify Email'
+    }
+    componentDidMount() {
         this.props.actions.verifyEmailCode(this.props.params.oobCode)
     }
     componentWillUnmount() {
@@ -36,4 +39,7 @@ function mapDispatchToProps(dispatch) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VerifyEmail)
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(VerifyEmail)

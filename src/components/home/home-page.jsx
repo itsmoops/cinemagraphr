@@ -1,7 +1,8 @@
 import Cinemagraph from '../cinemagraph/cinemagraph'
 
 class HomePage extends React.Component {
-    componentWillMount() {
+    constructor() {
+        super()
         document.title = 'Home'
     }
     render() {

@@ -4,12 +4,12 @@ import Flex from '../../shared/flex'
 import ProfilePhotoEditor from './profile-photo-editor'
 
 class Profile extends React.Component {
-    componentWillMount() {
+    constructor() {
+        super()
         document.title = 'Profile'
     }
     componentWillReceiveProps(nextProps) {
         if (nextProps.user && !nextProps.user.authenticated) {
-            debugger
             this.props.history.push('/')
         }
     }
