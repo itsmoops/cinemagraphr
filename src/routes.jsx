@@ -1,8 +1,6 @@
 import { Switch, Route } from 'react-router-dom'
 import NavBar from './components/nav/nav-bar'
 import HomePage from './components/home/home-page'
-import About from './components/about/about'
-import Help from './components/help/help'
 import SignUp from './components/user/sign-up/sign-up'
 import Login from './components/user/login'
 import UpdatePassword from './components/user/update-password'
@@ -19,8 +17,6 @@ export default (
         <Route component={NavBar} />
         <Switch>
             <Route exact path="/" component={HomePage} />
-            <Route exact path="/about" component={About} />
-            <Route exact path="/help" component={Help} />
             <Route exact path="/sign-up" component={SignUp} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/update-password" component={UpdatePassword} />

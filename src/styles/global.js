@@ -7,6 +7,8 @@ const global = `
     background: ${colors.background};
     font-family: Helvetica;
     font-family: 'Montserrat', sans-serif;
+    // font-family: 'Amatic SC', cursive;
+    // font-size:30px;
     font-weight: 300;
     color: ${colors.font1};
   }

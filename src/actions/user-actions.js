@@ -1,3 +1,6 @@
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import 'firebase/database'
 import * as types from './action-types'
 import { loadingStateChange } from './global-actions'
 import { sanitizeUserErrorMessage } from '../utilities/utilities'

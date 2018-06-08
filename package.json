@@ -37,6 +37,7 @@
 		"prop-types": "^15.5.10",
 		"react": "^16.4.0",
 		"react-avatar-editor": "^10.3.0",
+		"react-burger-menu": "^2.5.0",
 		"react-dom": "^16.4.0",
 		"react-icons-kit": "^1.1.5",
 		"react-onclickoutside": "^6.7.1",
