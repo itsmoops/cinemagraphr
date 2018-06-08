@@ -5,6 +5,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 module.exports = {
     entry: ['./src/index.jsx'],
     target: 'web',
+    mode: 'development',
     output: {
         path: path.join(__dirname, 'dist'),
         filename: 'bundle.js'
@@ -41,7 +42,6 @@ module.exports = {
             PropTypes: 'prop-types',
             Icon: ['react-icons-kit', 'Icon'],
             horizontalCenter: ['react-icons-kit', 'horizontalCenter'],
-            firebase: 'firebase',
             colors: 'colors'
         }),
         new CopyWebpackPlugin([{ from: './src/index.html', to: 'index.html' }])

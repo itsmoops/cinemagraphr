@@ -2,6 +2,7 @@ const webpack = require('webpack')
 const webpackConfig = require('./webpack.config')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
+webpackConfig.mode = 'production'
 // remove dev process.env flag
 webpackConfig.plugins.splice(0, 1)
 
