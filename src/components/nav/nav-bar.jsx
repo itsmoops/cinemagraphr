@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router'
-import { slide as Menu } from 'react-burger-menu'
+import { pushRotate as Menu } from 'react-burger-menu'
 import * as globalActions from '../../actions/global-actions'
 import * as userActions from '../../actions/user-actions'
 
@@ -52,7 +52,7 @@ const styles = {
         cursor: 'pointer'
     },
     bmOverlay: {
-        background: 'rgba(0, 0, 0, 0.3)'
+        background: 'rgba(0, 0, 0, 0.5)'
     }
 }
 class NavBar extends React.Component {
@@ -68,8 +68,17 @@ class NavBar extends React.Component {
             menuOpen: false
         })
     }
+    handleLogout = () => {
+        this.setState({
+            menuOpen: false
+        })
+        this.props.userActions.userLogout()
+        this.props.history.push('/')
+    }
+
     render() {
-        return (
+        const { user } = this.props
+        const userNav = (
             <Menu styles={styles} right isOpen={this.state.menuOpen}>
                 <a id="home" className="menu-item" onClick={() => this.handleClick('/')}>
                     Home
@@ -80,14 +89,31 @@ class NavBar extends React.Component {
                 <a id="browse" className="menu-item" onClick={() => this.handleClick('/browse')}>
                     Browse
                 </a>
-                <a id="contact" className="menu-item" onClick={() => this.handleClick('/login')}>
+                <a id="logout" className="menu-item" onClick={this.handleLogout}>
+                    Logout
+                </a>
+            </Menu>
+        )
+        const guestNav = (
+            <Menu styles={styles} right isOpen={this.state.menuOpen}>
+                <a id="home" className="menu-item" onClick={() => this.handleClick('/')}>
+                    Home
+                </a>
+                <a id="create" className="menu-item" onClick={() => this.handleClick('/login')}>
+                    Create
+                </a>
+                <a id="browse" className="menu-item" onClick={() => this.handleClick('/browse')}>
+                    Browse
+                </a>
+                <a id="login" className="menu-item" onClick={() => this.handleClick('/login')}>
                     Login
                 </a>
-                <a id="contact" className="menu-item" onClick={() => this.handleClick('/sign-up')}>
+                <a id="sign-up" className="menu-item" onClick={() => this.handleClick('/sign-up')}>
                     Sign Up
                 </a>
             </Menu>
         )
+        return <div>{user.authenticated ? userNav : guestNav}</div>
     }
 }
 

@@ -1,6 +1,6 @@
 const colors = {
     background: '#111111',
-    font1: '#111111',
+    font1: '#ffffff',
     accent1: '#222222',
     buttonBackground: '#ffffff',
     messageSuccess: '#c7ffc4',
