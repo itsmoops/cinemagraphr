@@ -2,8 +2,17 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router'
 import { pushRotate as Menu } from 'react-burger-menu'
+import styled from 'styled-components'
 import * as globalActions from '../../actions/global-actions'
 import * as userActions from '../../actions/user-actions'
+
+const Footer = styled.div`
+    position: absolute;
+    bottom: 15px;
+    margin-bottom: unset !important;
+    font-size: 0.8em !important;
+    text-align: center;
+`
 
 const styles = {
     bmBurgerButton: {
@@ -28,15 +37,16 @@ const styles = {
     },
     bmMenu: {
         background: '#111111',
-        padding: '2.5em 1.5em 0',
+        padding: '4.5em 1.5em 0',
         fontSize: '1.15em'
     },
     bmMorphShape: {
         fill: '#373a47'
     },
     bmItemList: {
-        textAlign: 'center',
-        display: 'grid',
+        height: '100%',
+        textAlign: 'right',
+        // display: 'grid',
         justifyContent: 'center',
         alignItems: 'center',
         padding: '0.8em',
@@ -92,6 +102,9 @@ class NavBar extends React.Component {
                 <a id="logout" className="menu-item" onClick={this.handleLogout}>
                     Logout
                 </a>
+                <Footer id="nav-footer">
+                    <a onClick={() => this.handleClick('/profile')}>{user.displayName}</a>
+                </Footer>
             </Menu>
         )
         const guestNav = (
@@ -117,7 +130,7 @@ class NavBar extends React.Component {
     }
 }
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
     return {
         global: state.global,
         user: state.user

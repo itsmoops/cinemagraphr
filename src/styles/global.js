@@ -20,6 +20,8 @@ const global = `
   h5,
   h6 {
     text-align: center;
+    // font-family: 'Amatic SC', cursive;
+    // font-size:30px;
   }
 `
 

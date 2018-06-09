@@ -1,6 +1,10 @@
-import firebase from 'firebase/app'
-import 'firebase/storage'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { withRouter } from 'react-router'
 import styled from 'styled-components'
+import * as globalActions from '../../actions/global-actions'
+import * as userActions from '../../actions/user-actions'
+import * as firebaseActions from '../../actions/firebase-actions'
 
 const Theater = styled.div`
     background: black;
@@ -21,21 +25,40 @@ class Cinemagraph extends React.Component {
     constructor() {
         super()
         this.state = {
-            source:
-                'https://firebasestorage.googleapis.com/v0/b/cinemagraphr-dev.appspot.com/o/cinemagraphs%2FRBQRk35.mp4?alt=media&token=71b34e10-d7fd-407e-a1e7-cfb193bdeadb'
+            defaultSource:
+                'https://firebasestorage.googleapis.com/v0/b/cinemagraphr-dev.appspot.com/o/cinemagraphs%2FRBQRk35.mp4?alt=media&token=887ca4b4-a454-4020-a92d-e48e4af6a4f9'
         }
-    }
-    componentDidMount() {
-        // const graphsRef = firebase.storage().ref('cinemagraphs')
-        // const url = graphsRef.child('RBQRk35.mp4').getDownloadURL()
     }
     render() {
         return (
             <Theater>
-                <Video src={this.state.source} autoPlay loop theater={false} />
+                <Video
+                    src={this.props.source || this.state.defaultSource}
+                    autoPlay
+                    loop
+                    theater={false} />
             </Theater>
         )
     }
 }
 
-export default Cinemagraph
+function mapStateToProps(state) {
+    return {
+        global: state.global,
+        user: state.user,
+        firebase: state.firebase
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        globalActions: bindActionCreators(globalActions, dispatch),
+        userActions: bindActionCreators(userActions, dispatch),
+        firebaseActions: bindActionCreators(firebaseActions, dispatch)
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(withRouter(Cinemagraph))

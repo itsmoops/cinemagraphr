@@ -39,15 +39,16 @@ class ForgotPassword extends React.Component {
         const thankYou = (
             <Container>
                 <Heading mb={20}>Recover Password</Heading>
-                <Text>Thanks! Please check your email for reset instructions.</Text>
+                <Text align="center">Please check your email for reset instructions.</Text>
             </Container>
         )
         const resetForm = (
             <Container>
                 <form onSubmit={this.onHandleSubmit}>
                     <Heading mb={20}>Recover Password</Heading>
-                    <Text>
-                        Enter your email address and a password reset email will be sent to you.
+                    <Text mb={20}>
+                        Enter your email address and an email to recover your password will be sent
+                        to you.
                     </Text>
                     <Input
                         placeholder="Email"
@@ -71,7 +72,7 @@ class ForgotPassword extends React.Component {
     }
 }
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
     return { user: state.user }
 }
 
