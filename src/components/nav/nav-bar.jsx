@@ -44,7 +44,7 @@ const styles = {
         fill: '#373a47'
     },
     bmItemList: {
-        height: '100%',
+        height: 'unset',
         textAlign: 'right',
         // display: 'grid',
         justifyContent: 'center',
