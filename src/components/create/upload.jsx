@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import { Text } from 'rebass'
 import firebase from 'firebase/app'
 import 'firebase/storage'
 import Dropzone from 'react-dropzone'
@@ -30,7 +31,9 @@ class Upload extends React.Component {
         const { message } = this.props.firebase
         return (
             <Flex>
-                <Dropzone onDrop={this.onDrop} multiple={false} />
+                <Dropzone onDrop={this.onDrop} multiple={false}>
+                    <Text>Upload</Text>
+                </Dropzone>
                 {message && <Message>{message}</Message>}
             </Flex>
         )

@@ -71,7 +71,7 @@ class UpdatePassword extends React.Component {
     }
 }
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
     return {
         user: state.user
     }

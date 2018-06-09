@@ -3,7 +3,7 @@ import Cinemagraph from '../cinemagraph/cinemagraph'
 class HomePage extends React.Component {
     constructor() {
         super()
-        document.title = 'Home'
+        document.title = 'cinemagraphr.io'
     }
     render() {
         return <Cinemagraph />

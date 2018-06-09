@@ -4,7 +4,6 @@ import { Box, Heading, Container, Text } from 'rebass'
 import * as userActions from '../../../actions/user-actions'
 import Flex from '../../shared/flex'
 import CreateUser from './create-user'
-import CompleteProfile from './complete-profile'
 import ThankYou from './thank-you'
 
 class SignUp extends React.Component {
@@ -35,9 +34,6 @@ class SignUp extends React.Component {
             case 'createUser':
                 ActiveState = CreateUser
                 break
-            case 'completeProfile':
-                ActiveState = CompleteProfile
-                break
             case 'thankYou':
                 ActiveState = ThankYou
                 break
@@ -58,7 +54,7 @@ class SignUp extends React.Component {
     }
 }
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
     return {
         user: state.user
     }

@@ -1,3 +1,4 @@
+import { withRouter } from 'react-router'
 import { Box, Heading, Container, Text } from 'rebass'
 import Flex from '../../shared/flex'
 import ResetPassword from './reset-password'
@@ -7,8 +8,7 @@ class AuthAction extends React.PureComponent {
     state = {
         result: {}
     }
-    constructor() {
-        super()
+    componentDidMount() {
         const query = this.props.location.search.substring(1)
         if (query === '') {
             this.props.history.push('/')
@@ -46,4 +46,4 @@ class AuthAction extends React.PureComponent {
     }
 }
 
-export default AuthAction
+export default withRouter(AuthAction)

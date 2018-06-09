@@ -1,7 +1,6 @@
 import { connect } from 'react-redux'
-import { Box } from 'rebass'
+import { Box, Text } from 'rebass'
 import Flex from '../../shared/flex'
-import ProfilePhotoEditor from './profile-photo-editor'
 
 class Profile extends React.Component {
     constructor() {
@@ -17,7 +16,7 @@ class Profile extends React.Component {
         return (
             <Flex>
                 <Box w={[1, 3 / 4, 2 / 3, 1 / 2]} m="auto">
-                    <ProfilePhotoEditor />
+                    <Text align="center">Profile</Text>
                 </Box>
             </Flex>
         )

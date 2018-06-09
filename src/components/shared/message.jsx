@@ -1,34 +1,33 @@
 import styled, { css } from 'styled-components'
 
 const StyledDiv = styled.div`
-	overflow: hidden;
-	clear: both;
+    overflow: hidden;
+    clear: both;
 `
 
 const StyledMessage = styled.div`
-	clear: both;
-	border-radius: ${props => props.theme.borderRadius};
-	padding: 10px;
-	margin-top: 10px;
-	${(props) => {
+    clear: both;
+    padding: 10px;
+    margin-top: 10px;
+    ${(props) => {
         if (props.success) {
             return css`
-				background-color: ${colors.messageSuccess};
-				border-color: ${colors.messageSuccess.darken(0.7)};
-				color: ${colors.messageSuccess.darken(0.7)};
-			`
+                background-color: ${colors.messageSuccess};
+                border-color: ${colors.messageSuccess.darken(0.7)};
+                color: ${colors.messageSuccess.darken(0.7)};
+            `
         } else if (props.warn) {
             return css`
-				background-color: ${colors.messageWarn};
-				border-color: ${colors.messageWarn.darken(0.7)};
-				color: ${colors.messageWarn.darken(0.7)};
-			`
+                background-color: ${colors.messageWarn};
+                border-color: ${colors.messageWarn.darken(0.7)};
+                color: ${colors.messageWarn.darken(0.7)};
+            `
         }
         return css`
-			background-color: ${colors.messageError};
-			border-color: ${colors.messageError.darken(0.7)};
-			color: ${colors.messageError.darken(0.7)};
-		`
+            background-color: ${colors.messageError};
+            border-color: ${colors.messageError.darken(0.7)};
+            color: ${colors.messageError.darken(0.7)};
+        `
     }};
 `
 
