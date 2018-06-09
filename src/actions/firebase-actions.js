@@ -1,5 +1,6 @@
 import firebase from 'firebase/app'
 import 'firebase/storage'
+import 'firebase/database'
 import * as types from './action-types'
 import { loadingStateChange } from './global-actions'
 import { sanitizeUserErrorMessage } from '../utilities/utilities'
@@ -22,6 +23,156 @@ export function sanitizeFirebaseErrorState() {
         reset
     }
 }
+
+function fetchDataSuccess(data) {
+    return {
+        type: types.FETCH_DATA_SUCCESS,
+        data
+    }
+}
+
+function fetchDataFailure(error) {
+    return {
+        type: types.FETCH_DATA_FAILURE,
+        error
+    }
+}
+
+export function fetchData(endpoint) {
+    return async (dispatch) => {
+        try {
+            dispatch(loadingStateChange(true))
+            await firebase
+                .database()
+                .ref(endpoint)
+                .once('value', (snapshot) => {
+                    dispatch(fetchDataSuccess(snapshot.val()))
+                    dispatch(loadingStateChange(false))
+                })
+        } catch (err) {
+            err.message = err.code && sanitizeUserErrorMessage(err)
+            dispatch(fetchDataFailure(err))
+            dispatch(loadingStateChange(false))
+        }
+    }
+}
+
+function writeDataSuccess(data) {
+    return {
+        type: types.WRITE_DATA_SUCCESS,
+        data
+    }
+}
+
+function writeDataFailure(error) {
+    return {
+        type: types.WRITE_DATA_FAILURE,
+        error
+    }
+}
+
+export function writeData(endpoint, data) {
+    return async (dispatch) => {
+        try {
+            if (endpoint && data) {
+                dispatch(loadingStateChange(true))
+                const ref = firebase.database().ref(endpoint)
+                ref.once('value', async (snapshot) => {
+                    function onWriteCompleted(err) {
+                        if (err) {
+                            err.message = err.code && sanitizeUserErrorMessage(err)
+                            dispatch(writeDataFailure(err))
+                            dispatch(loadingStateChange(false))
+                        } else {
+                            dispatch(writeDataSuccess(this))
+                            dispatch(loadingStateChange(false))
+                        }
+                    }
+                    if (snapshot.exists()) {
+                        await ref.update(data, onWriteCompleted.bind(data))
+                    } else {
+                        await ref.set(data, onWriteCompleted.bind(data))
+                    }
+                })
+            }
+        } catch (err) {
+            err.message = err.code && sanitizeUserErrorMessage(err)
+            dispatch(writeDataFailure(err))
+            dispatch(loadingStateChange(false))
+        }
+    }
+}
+
+function updateDataSuccess(data) {
+    return {
+        type: types.UPDATE_DATA_SUCCESS,
+        data
+    }
+}
+
+function updateDataFailure(error) {
+    return {
+        type: types.UPDATE_DATA_FAILURE,
+        error
+    }
+}
+
+export function updateData(endpoint, data) {
+    return async (dispatch) => {
+        try {
+            dispatch(loadingStateChange(true))
+            if (endpoint && data) {
+                dispatch(loadingStateChange(true))
+                const ref = firebase.database().ref(endpoint)
+                await ref.update(data, (err) => {
+                    if (err) {
+                        err.message = err.code && sanitizeUserErrorMessage(err)
+                        dispatch(writeDataFailure(err))
+                        dispatch(loadingStateChange(false))
+                    } else {
+                        dispatch(writeDataSuccess(data))
+                        dispatch(loadingStateChange(false))
+                    }
+                })
+            }
+            dispatch(updateDataSuccess(true))
+            dispatch(loadingStateChange(false))
+        } catch (err) {
+            err.message = err.code && sanitizeUserErrorMessage(err)
+            dispatch(updateDataFailure(err))
+            dispatch(loadingStateChange(false))
+        }
+    }
+}
+
+function deleteDataSuccess(data) {
+    return {
+        type: types.DELETE_DATA_SUCCESS,
+        data
+    }
+}
+
+function deleteDataFailure(error) {
+    return {
+        type: types.DELETE_DATA_FAILURE,
+        error
+    }
+}
+
+export function deleteData(endpoint) {
+    return async (dispatch) => {
+        try {
+            dispatch(loadingStateChange(true))
+            dispatch(deleteDataSuccess(true))
+            dispatch(loadingStateChange(false))
+        } catch (err) {
+            err.message = err.code && sanitizeUserErrorMessage(err)
+            dispatch(deleteDataFailure(err))
+            dispatch(loadingStateChange(false))
+        }
+    }
+}
+
 function uploadFileSuccess(fileURL) {
     return {
         type: types.UPLOAD_FILE_SUCCESS,
@@ -40,7 +191,6 @@ export function uploadFile(file) {
     return async (dispatch) => {
         try {
             dispatch(loadingStateChange(true))
-            debugger
             if (!file.validFileTypes || file.validFileTypes.includes(file.type)) {
                 const storageRef = firebase.storage().ref(`/${file.directory}/${file.name}`)
                 const task = storageRef.put(file.file)

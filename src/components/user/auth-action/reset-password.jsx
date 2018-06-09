@@ -1,17 +1,23 @@
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router'
 import { bindActionCreators } from 'redux'
+import { Container, Heading, Text } from 'rebass'
+import styled from 'styled-components'
 import * as userActions from '../../../actions/user-actions'
 import Input from '../../shared/input'
 import Button from '../../shared/button'
 import Message from '../../shared/message'
+import Link from '../../shared/link'
 
 class ResetPassword extends React.Component {
     constructor() {
         super()
         document.title = 'Reset Password'
     }
-    componentDidMount() {
-        this.props.actions.verifyPasswordResetCode(this.props.params.oobCode)
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.params !== this.props.params && nextProps.params.oobCode) {
+            this.props.actions.verifyPasswordResetCode(nextProps.params.oobCode)
+        }
     }
     componentWillUnmount() {
         this.props.actions.sanitizeUserState()
@@ -36,7 +42,9 @@ class ResetPassword extends React.Component {
         const thankYou = (
             <Container>
                 <Heading mb={20}>Password Changed</Heading>
-                <Text>Thanks! You can now sign in with your new password.</Text>
+                <Text align="center">
+                    You can now <Link to={'login'}>log in</Link> with your new password.
+                </Text>
             </Container>
         )
         const resetForm = (
@@ -74,4 +82,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(ResetPassword)
+)(withRouter(ResetPassword))

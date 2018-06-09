@@ -1,11 +1,23 @@
 import * as types from '../actions/action-types'
 
-const defaultState = {
-    authenticated: false
-}
-
-export default function firebaseReducer(state = defaultState, action) {
+export default function firebaseReducer(state = {}, action) {
     switch (action.type) {
+        case types.FETCH_DATA_SUCCESS:
+            return { ...state, ...action.data }
+        case types.FETCH_DATA_FAILURE:
+            return { ...state, ...action.data }
+        case types.WRITE_DATA_SUCCESS:
+            return { ...state, ...action.data }
+        case types.WRITE_DATA_FAILURE:
+            return { ...state, ...action.data }
+        case types.UPDATE_DATA_SUCCESS:
+            return { ...state, ...action.data }
+        case types.UPDATE_DATA_FAILURE:
+            return { ...state, ...action.data }
+        case types.DELETE_DATA_SUCCESS:
+            return { ...state, ...action.data }
+        case types.DELETE_DATA_FAILURE:
+            return { ...state, ...action.data }
         case types.UPLOAD_FILE_SUCCESS:
             return { ...state, ...{ fileURL: action.fileURL } }
         case types.UPLOAD_FILE_FAILURE:
