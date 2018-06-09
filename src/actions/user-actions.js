@@ -213,16 +213,16 @@ export function userLogin(email, password) {
     return async (dispatch) => {
         try {
             dispatch(loadingStateChange(true))
-            const user = await firebase.auth().signInWithEmailAndPassword(email, password)
+            const auth = await firebase.auth().signInWithEmailAndPassword(email, password)
             const userData = {
                 authenticated: true,
-                email: user.email,
-                emailVerified: user.emailVerified,
-                displayName: user.displayName,
-                isAnonymous: user.isAnonymous,
-                phoneNumber: user.phoneNumber,
-                photoURL: user.photoURL,
-                refreshToken: user.refreshToken
+                email: auth.user.email,
+                emailVerified: auth.user.emailVerified,
+                displayName: auth.user.displayName,
+                isAnonymous: auth.user.isAnonymous,
+                phoneNumber: auth.user.phoneNumber,
+                photoURL: auth.user.photoURL,
+                refreshToken: auth.user.refreshToken
             }
             dispatch(userLoginSuccess(userData))
             dispatch(loadingStateChange(false))
