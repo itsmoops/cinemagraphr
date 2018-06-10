@@ -1,7 +1,9 @@
 import { Switch, Route } from 'react-router-dom'
 import NavBar from './components/nav/nav-bar'
-import HomePage from './components/home/home-page'
 import Create from './components/create/create'
+import HomePage from './components/home/home-page'
+import Browse from './components/browse/browse'
+import Feed from './components/feed/feed'
 import SignUp from './components/user/sign-up/sign-up'
 import Login from './components/user/login'
 import UpdatePassword from './components/user/update-password'
@@ -19,6 +21,8 @@ export default (
         <Switch>
             <Route exact path="/" component={HomePage} />
             <Route exact path="/create" component={Create} />
+            <Route exact path="/browse" component={Browse} />
+            <Route exact path="/feed" component={Feed} />
             <Route exact path="/sign-up" component={SignUp} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/update-password" component={UpdatePassword} />

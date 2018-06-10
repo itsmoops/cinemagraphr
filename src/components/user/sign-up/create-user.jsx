@@ -4,6 +4,7 @@ import { Box, Heading, Container, Text } from 'rebass'
 import * as userActions from '../../../actions/user-actions'
 import Flex from '../../shared/flex'
 import Input from '../../shared/input'
+import Link from '../../shared/link'
 import Button from '../../shared/button'
 import Message from '../../shared/message'
 
@@ -29,38 +30,40 @@ class CreateUser extends React.Component {
         }
     }
     render() {
-        console.log(this.props.user.authenticated)
         const { message } = this.props.user
         return (
             <Container>
-                <form onSubmit={this.onHandleSubmit} autoComplete="on">
+                <form onSubmit={this.onHandleSubmit}>
                     <Heading mb={20}>Sign up</Heading>
                     <Input
                         placeholder="Username"
                         type="text"
                         name="username"
+                        autoComplete="off"
                         onChange={this.handleInputChange}
-                        autocomplete="off"
                         required
                     />
                     <Input
                         placeholder="Email"
                         type="email"
                         name="email"
+                        autoComplete="email"
                         onChange={this.handleInputChange}
-                        autocomplete="email"
                         required
                     />
                     <Input
                         placeholder="Password"
                         type="password"
                         name="password"
+                        autoComplete="password"
                         onChange={this.handleInputChange}
-                        autocomplete="password"
                         required
                         toggleHiddenText
                     />
                     <Button>Sign Up</Button>
+                    <Text mt={10} right>
+                        Already signed up? <Link to="/login">Login</Link>
+                    </Text>
                     {message && <Message>{message}</Message>}
                 </form>
             </Container>

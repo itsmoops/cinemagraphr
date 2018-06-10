@@ -14,12 +14,16 @@ export default function firebaseReducer(state = {}, action) {
             return { ...state, ...action.data }
         case types.UPDATE_DATA_FAILURE:
             return { ...state, ...action.data }
+        case types.PUSH_DATA_SUCCESS:
+            return { ...state, ...action.data }
+        case types.PUSH_DATA_FAILURE:
+            return { ...state, ...action.data }
         case types.DELETE_DATA_SUCCESS:
             return { ...state, ...action.data }
         case types.DELETE_DATA_FAILURE:
             return { ...state, ...action.data }
         case types.UPLOAD_FILE_SUCCESS:
-            return { ...state, ...{ fileURL: action.fileURL } }
+            return { ...state, ...action.data }
         case types.UPLOAD_FILE_FAILURE:
             return { ...state, ...action.error }
         case types.SANITIZE_FIREBASE_STATE:

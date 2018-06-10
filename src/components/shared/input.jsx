@@ -58,7 +58,7 @@ class Input extends React.Component {
             <div>
                 <StyledInput
                     id={this.props.id}
-                    autocomplete={this.props.autocomplete}
+                    autoComplete={this.props.autoComplete}
                     placeholder={this.props.placeholder}
                     type={this.state.inputType}
                     name={this.props.name}

@@ -1,13 +1,10 @@
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-const StyledLinkContainer = styled.div`
+const StyledLink = styled(Link)`
     display: inline;
     margin-top: ${props => props.theme.bufferTop};
     float: ${props => props.right && 'right'};
-`
-
-const StyledLink = styled(Link)`
     text-decoration: none;
     color: ${colors.link};
     &:active {
@@ -27,9 +24,9 @@ const StyledLink = styled(Link)`
 
 function WrappedLink(props) {
     return (
-        <StyledLinkContainer right={props.right}>
-            <StyledLink to={props.to}>{props.children}</StyledLink>
-        </StyledLinkContainer>
+        <StyledLink right={props.right} to={props.to}>
+            {props.children}
+        </StyledLink>
     )
 }
 

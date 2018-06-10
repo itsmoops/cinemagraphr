@@ -98,60 +98,58 @@ function userSignUpFailure(error) {
 
 export function userSignUp(username, email, password) {
     return async dispatch =>
-        new Promise((resolve, reject) => {
-            firebase
-                .database()
-                .ref(`usernames/${username}`)
-                .once('value', async (snapshot) => {
-                    dispatch(loadingStateChange(true))
-                    if (snapshot.exists()) {
-                        dispatch(
-                            userSignUpFailure({
-                                message: 'That username already taken'
+        firebase
+            .database()
+            .ref(`usernames/${username}`)
+            .once('value', async (snapshot) => {
+                dispatch(loadingStateChange(true))
+                if (snapshot.exists()) {
+                    dispatch(
+                        userSignUpFailure({
+                            message: 'That username already taken'
+                        })
+                    )
+                    dispatch(loadingStateChange(false))
+                } else {
+                    try {
+                        await firebase.auth().createUserWithEmailAndPassword(email, password)
+                        const user = await firebase.auth().currentUser
+                        await dispatch(
+                            writeData(`users/${user.uid}`, {
+                                email,
+                                username
                             })
                         )
-                        reject(dispatch(loadingStateChange(false)))
-                    } else {
-                        try {
-                            await firebase.auth().createUserWithEmailAndPassword(email, password)
-                            const user = await firebase.auth().currentUser
-                            await dispatch(
-                                writeData(`users/${user.uid}`, {
-                                    email,
-                                    username
-                                })
-                            )
-                            await dispatch(
-                                writeData('usernames', {
-                                    [username]: {
-                                        uid: user.uid,
-                                        email
-                                    }
-                                })
-                            )
-                            await user.updateProfile({ displayName: username })
-                            const userData = {
-                                authenticated: true,
-                                email: user.email,
-                                emailVerified: user.emailVerified,
-                                displayName: user.displayName,
-                                isAnonymous: user.isAnonymous,
-                                phoneNumber: user.phoneNumber,
-                                photoURL: user.photoURL,
-                                refreshToken: user.refreshToken,
-                                message: undefined
-                            }
-                            dispatch(userSignUpSuccess(userData))
-                            dispatch(sanitizeUserErrorState())
-                            resolve(dispatch(loadingStateChange(false)))
-                        } catch (err) {
-                            err.message = err.code && sanitizeUserErrorMessage(err)
-                            dispatch(userSignUpFailure(err))
-                            reject(dispatch(loadingStateChange(false)))
+                        await dispatch(
+                            writeData('usernames', {
+                                [username]: {
+                                    uid: user.uid,
+                                    email
+                                }
+                            })
+                        )
+                        await user.updateProfile({ displayName: username })
+                        const userData = {
+                            authenticated: true,
+                            email: user.email,
+                            emailVerified: user.emailVerified,
+                            displayName: user.displayName,
+                            isAnonymous: user.isAnonymous,
+                            phoneNumber: user.phoneNumber,
+                            photoURL: user.photoURL,
+                            refreshToken: user.refreshToken,
+                            message: undefined
                         }
+                        dispatch(userSignUpSuccess(userData))
+                        dispatch(sanitizeUserErrorState())
+                        dispatch(loadingStateChange(false))
+                    } catch (err) {
+                        err.message = err.code && sanitizeUserErrorMessage(err)
+                        dispatch(userSignUpFailure(err))
+                        dispatch(loadingStateChange(false))
                     }
-                })
-        })
+                }
+            })
 }
 
 function userCompleteProfileSuccess(user) {

@@ -43,7 +43,7 @@ class Login extends React.Component {
         const { message } = this.props.user
         return (
             <Flex>
-                <Box w={[1, 3 / 4, 2 / 3, 1 / 2]} m="auto">
+                <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto">
                     <Heading mb={20}>Login</Heading>
                     <Container>
                         <form onSubmit={this.onHandleSubmit}>
@@ -53,18 +53,21 @@ class Login extends React.Component {
                                 name="email"
                                 onChange={this.handleInputChange}
                                 required
-                                autocomplete="email"
+                                autoComplete="email"
                             />
                             <Input
                                 placeholder="Password"
                                 type="password"
                                 name="password"
-                                autocomplete="current-password"
+                                autoComplete="password"
                                 onChange={this.handleInputChange}
                                 required
                             />
                             <Button>Login</Button>
-                            <Link to="/forgot-password" right>
+                            <Text mt={10} right>
+                                No account yet? <Link to="/sign-up">Sign up</Link>
+                            </Text>
+                            <Link to="/forgot-password" right="true">
                                 I forgot my password
                             </Link>
                             {message && <Message>{message}</Message>}

@@ -1,8 +1,8 @@
 import styled, { css } from 'styled-components'
 
 const StyledButton = styled.button`
-    background: ${colors.buttonBackground};
-    color: ${colors.font1};
+    background: ${props => props.background || colors.buttonBackground};
+    color: ${props => props.color || colors.font1};
     width: ${props => props.width};
     float: ${props => props.align};
     height: 50px;
@@ -31,6 +31,8 @@ class Button extends React.PureComponent {
                 onClick={this.props.onClick}
                 align={this.props.align}
                 width={this.props.width}
+                color={this.props.color}
+                background={this.props.background}
                 disabled={this.props.disabled}>
                 {this.props.children}
             </StyledButton>

@@ -63,7 +63,7 @@ class UpdatePassword extends React.Component {
         )
         return (
             <Flex>
-                <Box w={[1, 2 / 3, 1 / 2]} m="auto">
+                <Box w={[1, 2 / 3, 1 / 3]} m="auto">
                     {passwordUpdated ? success : updateForm}
                 </Box>
             </Flex>

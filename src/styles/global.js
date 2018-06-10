@@ -23,6 +23,15 @@ const global = `
     // font-family: 'Amatic SC', cursive;
     // font-size:30px;
   }
+
+  svg:hover {
+    content: "";
+    display: block;
+    position: absolute;
+    background-color: transparent;
+    cursor: pointer;
+    /* plus width and height of the SVG */
+  }
 `
 
 export default injectGlobal`

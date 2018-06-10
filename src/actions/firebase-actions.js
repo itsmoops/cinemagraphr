@@ -1,6 +1,7 @@
 import firebase from 'firebase/app'
 import 'firebase/storage'
 import 'firebase/database'
+import uuidV4 from 'uuid/v4'
 import * as types from './action-types'
 import { loadingStateChange } from './global-actions'
 import { sanitizeUserErrorMessage } from '../utilities/utilities'
@@ -145,6 +146,39 @@ export function updateData(endpoint, data) {
     }
 }
 
+function pushDataSuccess(data) {
+    return {
+        type: types.PUSH_DATA_SUCCESS,
+        data
+    }
+}
+
+function pushDataFailure(error) {
+    return {
+        type: types.PUSH_DATA_FAILURE,
+        error
+    }
+}
+
+export function pushData(endpoint, data) {
+    return async (dispatch) => {
+        try {
+            if (endpoint && data) {
+                dispatch(loadingStateChange(true))
+                const ref = await firebase.database().ref(endpoint)
+                const newRef = await ref.push()
+                await newRef.set(data)
+                dispatch(pushDataSuccess(newRef))
+                dispatch(loadingStateChange(false))
+            }
+        } catch (err) {
+            err.message = err.code && sanitizeUserErrorMessage(err)
+            dispatch(pushDataFailure(err))
+            dispatch(loadingStateChange(false))
+        }
+    }
+}
+
 function deleteDataSuccess(data) {
     return {
         type: types.DELETE_DATA_SUCCESS,
@@ -173,10 +207,10 @@ export function deleteData(endpoint) {
     }
 }
 
-function uploadFileSuccess(fileURL) {
+function uploadFileSuccess(data) {
     return {
         type: types.UPLOAD_FILE_SUCCESS,
-        fileURL
+        data
     }
 }
 
@@ -192,7 +226,12 @@ export function uploadFile(file) {
         try {
             dispatch(loadingStateChange(true))
             if (!file.validFileTypes || file.validFileTypes.includes(file.type)) {
-                const storageRef = firebase.storage().ref(`/${file.directory}/${file.name}`)
+                const typeShort = file.validFileTypes
+                    .filter(type => type === file.type)[0]
+                    .split('/')[1]
+                const uniqueName = `${file.name.split(`.${typeShort}`)[0]}-${uuidV4()}.${typeShort}`
+
+                const storageRef = firebase.storage().ref(`/${file.directory}/${uniqueName}`)
                 const task = storageRef.put(file.file)
                 task.on(
                     'state_changed',
@@ -206,8 +245,10 @@ export function uploadFile(file) {
                     },
                     async () => {
                         // photo successfully uploaded
+                        const metadata = await storageRef.getMetadata()
                         const fileURL = await storageRef.getDownloadURL()
-                        dispatch(uploadFileSuccess(fileURL))
+                        const fileData = { ...metadata, fileURL }
+                        dispatch(uploadFileSuccess(fileData))
                         dispatch(sanitizeFirebaseErrorState())
                         dispatch(loadingStateChange(false))
                     }

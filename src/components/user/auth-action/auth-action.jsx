@@ -38,7 +38,7 @@ class AuthAction extends React.PureComponent {
         }
         return (
             <Flex>
-                <Box w={[1, 3 / 4, 2 / 3, 1 / 2]} m="auto">
+                <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto">
                     <Action params={this.state.result} />
                 </Box>
             </Flex>

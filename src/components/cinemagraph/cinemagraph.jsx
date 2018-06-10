@@ -2,11 +2,14 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router'
 import styled from 'styled-components'
+import Controls from './controls'
 import * as globalActions from '../../actions/global-actions'
 import * as userActions from '../../actions/user-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 
 const Theater = styled.div`
+    position: absolute;
+    z-index: -1;
     background: black;
     display: flex;
     width: 100%;
@@ -15,30 +18,43 @@ const Theater = styled.div`
     justify-content: center;
 `
 
+const Gif = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: ${props => (props.theater ? 'contain' : 'cover')};
+`
+
 const Video = styled.video`
     width: 100%;
     height: 100%;
     object-fit: ${props => (props.theater ? '' : 'cover')};
 `
 
-class Cinemagraph extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            defaultSource:
-                'https://firebasestorage.googleapis.com/v0/b/cinemagraphr-dev.appspot.com/o/cinemagraphs%2FRBQRk35.mp4?alt=media&token=887ca4b4-a454-4020-a92d-e48e4af6a4f9'
-        }
-    }
+class Cinemagraph extends React.PureComponent {
     render() {
-        return (
-            <Theater>
-                <Video
-                    src={this.props.source || this.state.defaultSource}
-                    autoPlay
-                    loop
-                    theater={false} />
-            </Theater>
-        )
+        const { contentType } = this.props.firebase
+        if (this.props.source) {
+            return (
+                <div>
+                    <Theater>
+                        {contentType === 'image/gif' ? (
+                            <Gif src={this.props.source} theater={this.props.theater} />
+                        ) : (
+                            <Video
+                                src={this.props.source}
+                                autoPlay
+                                loop
+                                theater={this.props.theater} />
+                        )}
+                    </Theater>
+                    <Controls
+                        handleAudio={this.props.handleAudio}
+                        toggleTheaterMode={this.props.toggleTheaterMode}
+                        handleSave={this.props.handleSave} />
+                </div>
+            )
+        }
+        return null
     }
 }
 
