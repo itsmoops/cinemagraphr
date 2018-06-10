@@ -36,11 +36,11 @@ const BigCircle = styled.div`
     ${(props) => {
         if (props.animate && props.rotate && props.rotate === 'forward') {
             return css`
-                animation: ${rotate} 2s linear infinite;
+                animation: ${rotate} ${props.animationTime}s linear infinite;
             `
         } else if (props.animate && props.rotate && props.rotate === 'reverse') {
             return css`
-                animation: ${rotateReverse} 2s linear infinite;
+                animation: ${rotateReverse} ${props.animationTime}s linear infinite;
             `
         }
     }};
@@ -89,7 +89,7 @@ const InfinityTape = styled.div`
 `
 
 const Logo = (props) => {
-    const { size, animate } = props
+    const { size, animate, animationTime } = props
     return (
         <Container>
             <BigCircle
@@ -97,7 +97,8 @@ const Logo = (props) => {
                 width={size}
                 margin={size * 0.175}
                 rotate="forward"
-                animate={animate}>
+                animate={animate}
+                animationTime={animationTime}>
                 <CenterCircle height={size * 0.175} width={size * 0.175} background="black" />
                 <CircleContainer height={size * 0.875}>
                     <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
@@ -124,7 +125,8 @@ const Logo = (props) => {
                 width={size}
                 margin={size * 0.175}
                 rotate="reverse"
-                animate={animate}>
+                animate={animate}
+                animationTime={animationTime}>
                 <CenterCircle height={size * 0.175} width={size * 0.175} background="black" />
                 <CircleContainer height={size * 0.875}>
                     <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
