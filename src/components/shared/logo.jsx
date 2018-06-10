@@ -27,18 +27,18 @@ const BigCircle = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 15;
+    margin: 0 ${props => props.margin};
     background: ${props => props.background || 'white'};
     border-radius: 50%;
-    height: ${props => props.height};
-    width: ${props => props.width};
+    height: ${props => `${props.height}px`};
+    width: ${props => `${props.width}px`};
 
     ${(props) => {
-        if (props.rotate && props.rotate === 'forward') {
+        if (props.animate && props.rotate && props.rotate === 'forward') {
             return css`
                 animation: ${rotate} 2s linear infinite;
             `
-        } else if (props.rotate && props.rotate === 'reverse') {
+        } else if (props.animate && props.rotate && props.rotate === 'reverse') {
             return css`
                 animation: ${rotateReverse} 2s linear infinite;
             `
@@ -50,80 +50,100 @@ const CenterCircle = styled.div`
     display: flex;
     background: ${props => props.background || 'black'};
     border-radius: 50%;
-    height: ${props => props.height};
-    width: ${props => props.width};
+    height: ${props => `${props.height}px`};
+    width: ${props => `${props.width}px`};
 `
 
 const CircleContainer = styled.div`
     position: absolute;
-    height: ${props => props.height || '90px'};
+    height: ${props => `${props.height}px`};
     transform: rotate(${props => props.rotate || '0'}deg);
 `
 
 const SmallCircle = styled.div`
     background: ${props => props.background || 'black'};
     border-radius: 50%;
-    height: ${props => props.height};
-    width: ${props => props.width};
+    height: ${props =>
+        css`
+            ${props.height}px;
+        `};
+    width: ${props =>
+        css`
+            ${props.width}px;
+        `};
     margin-top: 2.9%;
 `
 
 const TapeContainer = styled.div`
     display: flex;
     justify-content: center;
+    align-items: center;
 `
 
 const InfinityTape = styled.div`
     position: absolute;
-    height: ${props => props.height || '100px'};
-    width: ${props => props.width || '5px'};
+    height: ${props => `${props.height}px`};
+    width: ${props => `${props.width}px`};
     background: ${props => props.background || 'white'};
     transform: rotate(${props => props.rotate || '0'}deg);
 `
 
-const Logo = props => (
-    <Container>
-        <BigCircle height="100px" width="100px" rotate="forward">
-            <CenterCircle height="20px" width="20px" background="black" />
-            <CircleContainer>
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-            <CircleContainer rotate="72">
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-            <CircleContainer rotate="144">
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-            <CircleContainer rotate="-72">
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-            <CircleContainer rotate="-144">
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-        </BigCircle>
-        <TapeContainer>
-            <InfinityTape rotate="44" />
-            <InfinityTape rotate="-44" />
-        </TapeContainer>
-        <BigCircle height="100px" width="100px" rotate="reverse">
-            <CenterCircle height="20px" width="20px" background="black" />
-            <CircleContainer>
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-            <CircleContainer rotate="72">
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-            <CircleContainer rotate="144">
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-            <CircleContainer rotate="-72">
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-            <CircleContainer rotate="-144">
-                <SmallCircle height="30px" width="30px" background="black" />
-            </CircleContainer>
-        </BigCircle>
-    </Container>
-)
+const Logo = (props) => {
+    const { size, animate } = props
+    return (
+        <Container>
+            <BigCircle
+                height={size}
+                width={size}
+                margin={size * 0.175}
+                rotate="forward"
+                animate={animate}>
+                <CenterCircle height={size * 0.175} width={size * 0.175} background="black" />
+                <CircleContainer height={size * 0.875}>
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+                <CircleContainer height={size * 0.875} rotate="72">
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+                <CircleContainer height={size * 0.875} rotate="144">
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+                <CircleContainer height={size * 0.875} rotate="-72">
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+                <CircleContainer height={size * 0.875} rotate="-144">
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+            </BigCircle>
+            <TapeContainer>
+                <InfinityTape height={size * 0.03} width={size * 0.9} rotate="45" />
+                <InfinityTape height={size * 0.03} width={size * 0.9} rotate="-45" />
+            </TapeContainer>
+            <BigCircle
+                height={size}
+                width={size}
+                margin={size * 0.175}
+                rotate="reverse"
+                animate={animate}>
+                <CenterCircle height={size * 0.175} width={size * 0.175} background="black" />
+                <CircleContainer height={size * 0.875}>
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+                <CircleContainer height={size * 0.875} rotate="72">
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+                <CircleContainer height={size * 0.875} rotate="144">
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+                <CircleContainer height={size * 0.875} rotate="-72">
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+                <CircleContainer height={size * 0.875} rotate="-144">
+                    <SmallCircle height={size * 0.3} width={size * 0.3} background="black" />
+                </CircleContainer>
+            </BigCircle>
+        </Container>
+    )
+}
 
 export default Logo

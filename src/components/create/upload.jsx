@@ -94,7 +94,7 @@ class Upload extends React.Component {
                 />
                 <Flex>
                     <StyledDropzone onDrop={this.onDrop} />
-                    {!fileURL && <Logo />}
+                    {!fileURL && <Logo size={50} animate />}
                     <Text>
                         {!fileURL
                             ? 'Click or drag to upload a cinemagraph (.gif or .mp4)'
