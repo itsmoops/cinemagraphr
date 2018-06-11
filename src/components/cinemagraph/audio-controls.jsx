@@ -37,26 +37,32 @@ class AudioControls extends React.Component {
     constructor() {
         super()
         this.state = {
-            loop: true,
+            loop: false,
             volume: 1,
             muted: false
         }
     }
     componentDidMount() {
         const { track } = this.props
-        this.track = new Howl({
-            src: [track.preview],
-            format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
-            loopStart: 2,
-            autoplay: true,
-            loop: this.state.loop,
-            volume: this.state.volume,
-            onend: function() {
-                console.log('Finished!')
-            }
+        const audioTag = document.createElement('audio')
+        audioTag.src = track.preview
+        audioTag.addEventListener('loadedmetadata', () => {
+            this.track = new Howl({
+                src: [track.preview],
+                sprite: {
+                    track: [0, audioTag.duration * 1000, true]
+                },
+                format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
+                // loopStart: 2,
+                autoplay: true,
+                loop: this.state.loop,
+                volume: this.state.volume,
+                onend: function() {
+                    console.log('Finished!')
+                }
+            })
+            this.track.play('track')
         })
-
-        this.track.play()
     }
     toggleLoopAudio = () => {
         this.setState(
