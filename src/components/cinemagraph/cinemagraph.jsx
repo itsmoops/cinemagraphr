@@ -38,7 +38,7 @@ class Cinemagraph extends React.PureComponent {
     render() {
         const { cinemagraph } = this.props
         const source = cinemagraph && (cinemagraph.preview || cinemagraph.fileURL)
-        if (source) {
+        if (true || source) {
             return (
                 <Container blur={this.props.global.loading}>
                     <Theater>

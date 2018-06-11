@@ -1,5 +1,6 @@
 import ReactTooltip from 'react-tooltip'
 import { Text } from 'rebass'
+import { Howl, Howler } from 'howler'
 import styled from 'styled-components'
 import { Icon } from 'react-icons-kit'
 import { music_tape as tape } from 'react-icons-kit/linea/music_tape'
@@ -36,16 +37,26 @@ class AudioControls extends React.Component {
     constructor() {
         super()
         this.state = {
-            loop: false,
+            loop: true,
             volume: 1,
             muted: false
         }
     }
     componentDidMount() {
-        this.audio.loop = this.state.loop
-        this.audio.muted = this.state.muted
-        this.audio.volume = this.state.volume
-        this.audio.play()
+        const { track } = this.props
+        this.track = new Howl({
+            src: [track.preview],
+            format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
+            loopStart: 2,
+            autoplay: true,
+            loop: this.state.loop,
+            volume: this.state.volume,
+            onend: function() {
+                console.log('Finished!')
+            }
+        })
+
+        this.track.play()
     }
     toggleLoopAudio = () => {
         this.setState(
@@ -53,7 +64,7 @@ class AudioControls extends React.Component {
                 loop: !prevState.loop
             }),
             () => {
-                this.audio.loop = this.state.loop
+                this.track.loop(this.state.loop)
             }
         )
     }
@@ -64,7 +75,7 @@ class AudioControls extends React.Component {
                     volume: prevState.volume + 0.1
                 }),
                 () => {
-                    this.audio.volume = this.state.volume
+                    this.track.volume([this.state.volume])
                 }
             )
     }
@@ -75,7 +86,7 @@ class AudioControls extends React.Component {
                     volume: prevState.volume - 0.1
                 }),
                 () => {
-                    this.audio.volume = this.state.volume
+                    this.track.volume([this.state.volume])
                 }
             )
     }
@@ -85,7 +96,7 @@ class AudioControls extends React.Component {
                 muted: !prevState.muted
             }),
             () => {
-                this.audio.muted = this.state.muted
+                this.track.mute(this.state.muted)
             }
         )
     }
@@ -99,7 +110,7 @@ class AudioControls extends React.Component {
         return (
             <Container>
                 <audio ref={a => (this.audio = a)}>
-                    <source src={this.props.track.preview} />>
+                    // <source src={this.props.track.preview} />> //{' '}
                 </audio>
                 <StyledIcon size={size} icon={tape} />
                 <StyledText>{this.props.trackNumber}</StyledText>

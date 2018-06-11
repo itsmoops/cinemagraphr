@@ -42,11 +42,13 @@ const StyledDropzone = styled(Dropzone)`
 const TheaterMode = styled.div`
     position: absolute;
     left: 0;
+    bottom: 0;
 `
 
 const Save = styled.div`
     position: absolute;
     right: 0;
+    bottom: 0;
 `
 
 const Plus = styled(Icon)`
