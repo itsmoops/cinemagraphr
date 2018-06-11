@@ -37,18 +37,15 @@ const Video = styled.video`
 class Cinemagraph extends React.PureComponent {
     render() {
         const { cinemagraph } = this.props
-        if (true || cinemagraph.preview) {
+        const source = cinemagraph && (cinemagraph.preview || cinemagraph.fileURL)
+        if (source) {
             return (
                 <Container blur={this.props.global.loading}>
                     <Theater>
                         {cinemagraph.type === 'image/gif' ? (
-                            <Gif src={cinemagraph.preview} theater={this.props.theater} />
+                            <Gif src={source} theater={this.props.theater} />
                         ) : (
-                            <Video
-                                src={cinemagraph.preview}
-                                theater={this.props.theater}
-                                autoPlay
-                                loop />
+                            <Video src={source} theater={this.props.theater} autoPlay loop />
                         )}
                     </Theater>
                     <Controls

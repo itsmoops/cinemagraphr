@@ -1,8 +1,6 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Text, Box } from 'rebass'
-import firebase from 'firebase/app'
-import 'firebase/storage'
 import Dropzone from 'react-dropzone'
 import styled from 'styled-components'
 import { Icon } from 'react-icons-kit'
