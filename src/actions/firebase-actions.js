@@ -161,22 +161,25 @@ function pushDataFailure(error) {
 }
 
 export function pushData(endpoint, data) {
-    return async (dispatch) => {
-        try {
-            if (endpoint && data) {
-                dispatch(loadingStateChange(true))
-                const ref = await firebase.database().ref(endpoint)
-                const newRef = await ref.push()
-                await newRef.set(data)
-                dispatch(pushDataSuccess(newRef))
+    return async dispatch =>
+        new Promise((resolve, reject) => {
+            try {
+                if (endpoint && data) {
+                    dispatch(loadingStateChange(true))
+                    const ref = firebase.database().ref(endpoint)
+                    const newRef = ref.push()
+                    newRef.set(data)
+                    dispatch(pushDataSuccess(newRef.key))
+                    dispatch(loadingStateChange(false))
+                    resolve(newRef.key)
+                }
+            } catch (err) {
+                err.message = err.code && sanitizeUserErrorMessage(err)
+                dispatch(pushDataFailure(err))
                 dispatch(loadingStateChange(false))
+                reject()
             }
-        } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
-            dispatch(pushDataFailure(err))
-            dispatch(loadingStateChange(false))
-        }
-    }
+        })
 }
 
 function deleteDataSuccess(data) {
@@ -222,13 +225,11 @@ function uploadFileFailure(error) {
 }
 
 export function uploadFile(file) {
-    return async (dispatch) => {
-        try {
-            dispatch(loadingStateChange(true))
-            if (!file.validFileTypes || file.validFileTypes.includes(file.type)) {
-                const typeShort = file.validFileTypes
-                    .filter(type => type === file.type)[0]
-                    .split('/')[1]
+    return async dispatch =>
+        new Promise((resolve, reject) => {
+            try {
+                dispatch(loadingStateChange(true))
+                const typeShort = file.type === 'audio/x-m4a' ? 'm4a' : file.type.split('/')[1]
                 const uniqueName = `${file.name.split(`.${typeShort}`)[0]}-${uuidV4()}.${typeShort}`
 
                 const storageRef = firebase.storage().ref(`/${file.directory}/${uniqueName}`)
@@ -242,29 +243,23 @@ export function uploadFile(file) {
                         err.message = err.code && sanitizeUserErrorMessage(err)
                         dispatch(uploadFileFailure(err))
                         dispatch(loadingStateChange(false))
+                        reject()
                     },
                     async () => {
-                        // photo successfully uploaded
                         const metadata = await storageRef.getMetadata()
                         const fileURL = await storageRef.getDownloadURL()
                         const fileData = { ...metadata, fileURL }
                         dispatch(uploadFileSuccess(fileData))
                         dispatch(sanitizeFirebaseErrorState())
                         dispatch(loadingStateChange(false))
+                        resolve(fileData)
                     }
                 )
-            } else {
-                dispatch(
-                    uploadFileFailure({
-                        message: 'Invalid file type'
-                    })
-                )
+            } catch (err) {
+                err.message = err.code && sanitizeUserErrorMessage(err)
+                dispatch(uploadFileFailure(err))
                 dispatch(loadingStateChange(false))
+                reject()
             }
-        } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
-            dispatch(uploadFileFailure(err))
-            dispatch(loadingStateChange(false))
-        }
-    }
+        })
 }

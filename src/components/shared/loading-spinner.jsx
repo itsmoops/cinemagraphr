@@ -1,9 +1,19 @@
 import { connect } from 'react-redux'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 import Logo from './logo'
 
+const StyledContainer = styled.div`
+	display: flex;
+	width 100%;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+    top: 0;
+`
+
 const StyledOverlay = styled.div`
-    opacity: 0.4;
+    opacity: 0.6;
     filter: alpha(opacity=20);
     background-color: ${colors.accent1.darken(0.2)};
     width: 100%;
@@ -14,23 +24,13 @@ const StyledOverlay = styled.div`
     z-index: 998;
 `
 
-const StyledContainer = styled.div`
-	display: flex;
-	width 100%;
-	height: 100%;
-	justify-content: center;
-	align-items: center;
-	position: absolute;
-	top: 0;
-`
-
 function LoadingSpinner(props) {
     const animationTime = '1.5'
     if (props.global.loading) {
         return (
             <StyledContainer>
+                <Logo size={75} animate animationTime={animationTime} loading />
                 <StyledOverlay />
-                <Logo size={100} animate animationTime={animationTime} />
             </StyledContainer>
         )
     }

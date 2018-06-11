@@ -1,12 +1,12 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Text } from 'rebass'
+import { Text, Box } from 'rebass'
 import firebase from 'firebase/app'
 import 'firebase/storage'
 import Dropzone from 'react-dropzone'
 import styled from 'styled-components'
 import { Icon } from 'react-icons-kit'
-import { basic_upload } from 'react-icons-kit/linea/basic_upload'
+import { basic_video as basicVideo } from 'react-icons-kit/linea/basic_video'
 import Flex from '../shared/flex'
 import Message from '../shared/message'
 import Logo from '../shared/logo'
@@ -16,27 +16,36 @@ import Cinemagraph from '../cinemagraph/cinemagraph'
 
 const StyledIcon = styled(Icon)`
     cursor: pointer;
-    margin: 0 15 0 15;
+    margin: 0 15 15 15;
     &:hover > svg {
         position: relative;
     }
 `
 
 const StyledDropzone = styled(Dropzone)`
-    position: absolute;
     z-index: 999;
-    width: 700px;
     height: 200px;
     border-width: 1px;
     border-color: rgb(102, 102, 102);
     border-style: dashed;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20 0 20;
+    text-align: center;
 `
+
+const Container = styled.div``
 class Upload extends React.Component {
     constructor() {
         super()
         document.title = 'Upload'
-        this.state = {}
+        this.state = {
+            message: '',
+            cinemagraph: {},
+            audio: []
+        }
     }
     componentDidUpdate(prevProps) {
         if (prevProps !== this.props && this.props.firebase.fileURL) {
@@ -54,37 +63,141 @@ class Upload extends React.Component {
             })
         }
     }
-    onDrop = async (acceptedFiles, rejectedFiles) => {
-        if (acceptedFiles && acceptedFiles.length === 1) {
-            const file = acceptedFiles[0]
-            await this.props.firebaseActions.uploadFile({
-                file: file,
-                directory: 'cinemagraphs',
-                name: file.name,
-                type: file.type,
-                validFileTypes: ['video/mp4', 'image/gif']
+    validateFile = (file, validTypes, maxSize) => {
+        if (!validTypes.includes(file.type)) {
+            this.setState({
+                message: 'Invalid file type'
             })
-            // await this.props.firebaseActions.pushData({
-
-            // })
+            return
+        }
+        if (file.size > maxSize) {
+            this.setState({
+                message: `File too large, must be less than ${maxSize / 1000000}MB`
+            })
+            return
+        }
+        this.setState({ message: '' })
+        return file
+    }
+    handleUploadCinemagraph = async (acceptedFiles, rejectedFiles) => {
+        if (acceptedFiles && acceptedFiles.length === 1) {
+            const file = this.validateFile(acceptedFiles[0], ['video/mp4', 'image/gif'], 5000000)
+            if (file) {
+                this.setState({
+                    cinemagraph: file
+                })
+            }
         } else {
             throw new Error('Invalid file')
         }
     }
-    handleAudio = () => {
+    handleUploadAudio = async (acceptedFiles, rejectedFiles) => {
+        if (acceptedFiles && acceptedFiles.length === 1) {
+            const file = this.validateFile(acceptedFiles[0], ['audio/mp3', 'audio/x-m4a'], 10000000)
+            if (file && this.state.audio.length < 3) {
+                const mergedAudio = [...this.state.audio, file]
+                this.setState({
+                    audio: mergedAudio
+                })
+            }
+        }
+    }
+    handleRemoveAudio = track => {
         debugger
     }
-    handleSave = () => {
-        debugger
+    handleSave = async () => {
+        if (Object.keys(this.state.cinemagraph).length > 0) {
+            // first upload files
+            const { cinemagraph, audio } = this.state
+            // upload cinemegraph
+            const cinemagraphData = await this.props.firebaseActions.uploadFile({
+                file: cinemagraph,
+                directory: 'cinemagraphs',
+                name: cinemagraph.name,
+                type: cinemagraph.type
+            })
+            const audioData = []
+            // upload audio
+            if (audio.length > 0) {
+                for (const track of audio) {
+                    audioData.push(
+                        await this.props.firebaseActions.uploadFile({
+                            file: track,
+                            directory: 'audio',
+                            name: track.name,
+                            type: track.type
+                        })
+                    )
+                }
+            }
+
+            Object.keys(cinemagraphData).forEach(key => {
+                if (cinemagraphData[key] === undefined) {
+                    delete cinemagraphData[key]
+                }
+            })
+
+            audioData.forEach(track => {
+                Object.keys(track).forEach(key => {
+                    if (track[key] === undefined) {
+                        delete track[key]
+                    }
+                })
+            })
+
+            const data = {
+                user: {
+                    uid: this.props.user.uid,
+                    username: this.props.user.displayName
+                },
+                bucket: cinemagraphData.bucket,
+                type: cinemagraphData.contentType,
+                fileURL: cinemagraphData.fileURL,
+                fullPath: cinemagraphData.fullPath,
+                name: cinemagraphData.name,
+                size: cinemagraphData.size,
+                timeCreated: cinemagraphData.timeCreated,
+                theater: false,
+                upvotes: 0,
+                downvotes: 0,
+                audio: audioData.map(track => ({
+                    bucket: track.bucket,
+                    type: track.contentType,
+                    fileURL: track.fileURL,
+                    fullPath: track.fullPath,
+                    name: track.name,
+                    size: track.size,
+                    timeCreated: track.timeCreated,
+                    loop: true,
+                    volume: 1
+                }))
+            }
+            const postKey = await this.props.firebaseActions.pushData('cinemagraphs', data)
+            await this.props.firebaseActions.updateData(
+                `users/${this.props.user.uid}/cinemagraphs`,
+                {
+                    [postKey]: {
+                        fileURL: cinemagraphData.fileURL
+                    }
+                }
+            )
+        } else {
+            this.setState({
+                message: 'No cinemagraph uplaoded'
+            })
+        }
     }
     render() {
-        const { message, fileURL } = this.props.firebase
+        const { cinemagraph, message } = this.state
         return (
             <div>
                 <Cinemagraph
-                    source={this.state.url}
+                    creatorMode={true}
+                    cinemagraph={cinemagraph}
+                    audio={this.state.audio}
                     theater={this.state.theater}
-                    handleAudio={this.handleAudio}
+                    handleUploadAudio={this.handleUploadAudio}
+                    handleRemoveAudio={this.handleRemoveAudio}
                     toggleTheaterMode={() =>
                         this.setState(prevState => ({
                             theater: !prevState.theater
@@ -93,14 +206,19 @@ class Upload extends React.Component {
                     handleSave={this.handleSave}
                 />
                 <Flex>
-                    <StyledDropzone onDrop={this.onDrop} />
-                    {!fileURL && <Logo size={75} animate />}
-                    <Text>
-                        {!fileURL
-                            ? 'Click or drag to upload a cinemagraph (.gif or .mp4)'
-                            : 'Start over'}
-                    </Text>
-                    {message && <Message>{message}</Message>}
+                    <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto" ml={20} mr={20}>
+                        <StyledDropzone onDrop={this.handleUploadCinemagraph}>
+                            <Container>
+                                <StyledIcon size={64} icon={basicVideo} />
+                                <Text>
+                                    {!cinemagraph.preview
+                                        ? 'Click or drag a file to upload a cinemagraph (.gif or .mp4)'
+                                        : 'Upload a different file'}
+                                </Text>
+                            </Container>
+                        </StyledDropzone>
+                        {message && <Message>{message}</Message>}
+                    </Box>
                 </Flex>
             </div>
         )

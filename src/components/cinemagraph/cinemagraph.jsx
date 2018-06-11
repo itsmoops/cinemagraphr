@@ -7,6 +7,10 @@ import * as globalActions from '../../actions/global-actions'
 import * as userActions from '../../actions/user-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 
+const Container = styled.div`
+    filter: ${props => props.blur && 'blur(4px)'};
+`
+
 const Theater = styled.div`
     position: absolute;
     z-index: -1;
@@ -32,26 +36,29 @@ const Video = styled.video`
 
 class Cinemagraph extends React.PureComponent {
     render() {
-        const { contentType } = this.props.firebase
-        if (this.props.source) {
+        const { cinemagraph } = this.props
+        if (true || cinemagraph.preview) {
             return (
-                <div>
+                <Container blur={this.props.global.loading}>
                     <Theater>
-                        {contentType === 'image/gif' ? (
-                            <Gif src={this.props.source} theater={this.props.theater} />
+                        {cinemagraph.type === 'image/gif' ? (
+                            <Gif src={cinemagraph.preview} theater={this.props.theater} />
                         ) : (
                             <Video
-                                src={this.props.source}
+                                src={cinemagraph.preview}
+                                theater={this.props.theater}
                                 autoPlay
-                                loop
-                                theater={this.props.theater} />
+                                loop />
                         )}
                     </Theater>
                     <Controls
-                        handleAudio={this.props.handleAudio}
+                        creatorMode={this.props.creatorMode}
+                        handleUploadAudio={this.props.handleUploadAudio}
+                        handleRemoveAudio={this.props.handleRemoveAudio}
+                        audio={this.props.audio}
                         toggleTheaterMode={this.props.toggleTheaterMode}
                         handleSave={this.props.handleSave} />
-                </div>
+                </Container>
             )
         }
         return null

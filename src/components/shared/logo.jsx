@@ -21,6 +21,7 @@ const rotateReverse = keyframes`
 `
 
 const Container = styled.div`
+    z-index: ${props => props.loading && '999'};
     display: inline-flex;
 `
 const BigCircle = styled.div`
@@ -89,9 +90,9 @@ const InfinityTape = styled.div`
 `
 
 const Logo = (props) => {
-    const { size, animate, animationTime } = props
+    const { size, animate, animationTime, loading } = props
     return (
-        <Container>
+        <Container loading={loading}>
             <BigCircle
                 height={size}
                 width={size}
