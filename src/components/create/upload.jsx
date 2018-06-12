@@ -56,7 +56,7 @@ class Upload extends React.Component {
                 url: this.props.firebase.fileURL,
                 type: this.props.firebase.contentType,
                 theater: false,
-                audio: {},
+                audio: [],
                 upvotes: 0,
                 downvotes: 0
             })
