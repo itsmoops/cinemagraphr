@@ -62,25 +62,27 @@ const Plus = styled(Icon)`
 
 class Controls extends React.Component {
     shouldComponentUpdate(nextProps) {
-        if (nextProps.audio !== this.props.audio) {
+        if (nextProps.audio !== this.props.audio || nextProps.cinemagraph) {
             return true
         }
         return false
     }
     render() {
         const size = 32
-        const { creatorMode, audio } = this.props
+        const { creatorMode, audio, cinemagraph } = this.props
         return (
             <StyledContainer>
-                <Theater>
-                    <StyledIcon
-                        data-tip="Toggle theater mode"
-                        data-for="theater"
-                        onClick={this.props.toggleTheaterMode}
-                        icon={display}
-                        size={size} />
-                    <ReactTooltip id="theater" place="top" effect="solid" delayShow={1000} />
-                </Theater>
+                {cinemagraph && (
+                    <Theater>
+                        <StyledIcon
+                            data-tip="Toggle theater mode"
+                            data-for="theater"
+                            onClick={this.props.toggleTheaterMode}
+                            icon={display}
+                            size={size} />
+                        <ReactTooltip id="theater" place="top" effect="solid" delayShow={1000} />
+                    </Theater>
+                )}
                 {!!audio.length &&
                     audio.map((track, idx) => (
                         <div key={uuidV4()}>
@@ -92,7 +94,8 @@ class Controls extends React.Component {
                         </div>
                     ))}
                 <div>
-                    {audio.length <= 2 && (
+                    {cinemagraph &&
+                        audio.length <= 2 && (
                         <StyledDropzone onDrop={this.props.handleUploadAudio}>
                             <StyledIcon
                                 data-tip="Upload audio track (.mp3 or .m4a)"
@@ -112,7 +115,8 @@ class Controls extends React.Component {
                         </StyledDropzone>
                     )}
                 </div>
-                {creatorMode && (
+                {cinemagraph &&
+                    creatorMode && (
                     <Save>
                         <StyledIcon
                             data-tip="Save cinemagraph"

@@ -18,9 +18,12 @@ class HomePage extends React.Component {
         const cinemagraphsRef = firebase.database().ref('cinemagraphs')
         cinemagraphsRef.once('value', (snapshot) => {
             // for now just choose one
-            if (snapshot.val() !== null) {
+            const data = snapshot.val()
+            if (data !== null) {
                 this.setState({
-                    cinemagraph: Object.values(snapshot.val())[0]
+                    cinemagraph: Object.values(data)[
+                        Math.ceil(Math.random() * (Object.values(data).length - 1))
+                    ]
                 })
             }
         })

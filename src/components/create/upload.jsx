@@ -192,7 +192,7 @@ class Upload extends React.Component {
             )
         } else {
             this.setState({
-                message: 'No cinemagraph uplaoded'
+                message: 'No cinemagraph uploaded'
             })
         }
     }
@@ -202,8 +202,9 @@ class Upload extends React.Component {
             <div>
                 <Cinemagraph cinemagraph={cinemagraph} theater={this.state.theater} />
                 <Controls
-                    audio={audio}
                     creatorMode
+                    cinemagraph={!!Object.keys(cinemagraph).length}
+                    audio={audio}
                     handleUploadAudio={this.handleUploadAudio}
                     handleRemoveAudio={this.handleRemoveAudio}
                     handleSave={this.handleSave}
@@ -221,7 +222,7 @@ class Upload extends React.Component {
                                 <Text>
                                     {!cinemagraph.preview
                                         ? 'Click or drag a file to upload a cinemagraph (.gif or .mp4)'
-                                        : 'Upload a different file'}
+                                        : 'Choose a different file'}
                                 </Text>
                             </Container>
                         </StyledDropzone>
