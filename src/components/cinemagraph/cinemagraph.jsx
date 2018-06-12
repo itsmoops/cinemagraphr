@@ -38,23 +38,16 @@ class Cinemagraph extends React.PureComponent {
     render() {
         const { cinemagraph } = this.props
         const source = cinemagraph && (cinemagraph.preview || cinemagraph.fileURL)
-        if (true || source) {
+        if (source) {
             return (
                 <Container blur={this.props.global.loading}>
                     <Theater>
                         {cinemagraph.type === 'image/gif' ? (
                             <Gif src={source} theater={this.props.theater} />
                         ) : (
-                            <Video src={source} theater={this.props.theater} autoPlay loop />
+                            <Video src={source} theater={this.props.theater} autoPlay muted loop />
                         )}
                     </Theater>
-                    <Controls
-                        creatorMode={this.props.creatorMode}
-                        handleUploadAudio={this.props.handleUploadAudio}
-                        handleRemoveAudio={this.props.handleRemoveAudio}
-                        audio={this.props.audio}
-                        toggleTheaterMode={this.props.toggleTheaterMode}
-                        handleSave={this.props.handleSave} />
                 </Container>
             )
         }

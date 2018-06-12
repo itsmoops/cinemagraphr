@@ -39,7 +39,7 @@ const StyledDropzone = styled(Dropzone)`
     cursor: pointer;
 `
 
-const TheaterMode = styled.div`
+const Theater = styled.div`
     position: absolute;
     left: 0;
     bottom: 0;
@@ -60,13 +60,19 @@ const Plus = styled(Icon)`
     }
 `
 
-class Controls extends React.PureComponent {
+class Controls extends React.Component {
+    shouldComponentUpdate(nextProps) {
+        if (nextProps.audio !== this.props.audio) {
+            return true
+        }
+        return false
+    }
     render() {
         const size = 32
         const { creatorMode, audio } = this.props
         return (
             <StyledContainer>
-                <TheaterMode>
+                <Theater>
                     <StyledIcon
                         data-tip="Toggle theater mode"
                         data-for="theater"
@@ -74,13 +80,14 @@ class Controls extends React.PureComponent {
                         icon={display}
                         size={size} />
                     <ReactTooltip id="theater" place="top" effect="solid" delayShow={1000} />
-                </TheaterMode>
+                </Theater>
                 {!!audio.length &&
                     audio.map((track, idx) => (
                         <div key={uuidV4()}>
                             <AudioControls
                                 track={track}
                                 trackNumber={idx + 1}
+                                handleUpdateAudio={this.props.handleUpdateAudio}
                                 handleRemoveAudio={this.props.handleRemoveAudio} />
                         </div>
                     ))}

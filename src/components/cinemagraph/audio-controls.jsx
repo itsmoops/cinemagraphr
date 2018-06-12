@@ -43,28 +43,27 @@ class AudioControls extends React.Component {
         }
     }
     componentDidMount() {
-        const { track } = this.props
+        const { track, trackNumber } = this.props
         const audioTag = document.createElement('audio')
         audioTag.src = track.preview
         audioTag.addEventListener('loadedmetadata', () => {
             this.track = new Howl({
                 src: [track.preview],
-                sprite: {
-                    track: [0, audioTag.duration * 1000, true]
-                },
-                format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
-                // loopStart: 2,
-                autoplay: true,
                 loop: this.state.loop,
-                volume: this.state.volume,
-                onend: function() {
-                    console.log('Finished!')
-                }
+                format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
+                loopStart: 0,
+                loopEnd: audioTag.duration * 1000,
+                autoplay: true,
+                volume: this.state.volume
             })
-            this.track.play('track')
+            this.track.play()
         })
     }
+    componentWillUnmount() {
+        this.track.unload()
+    }
     toggleLoopAudio = () => {
+        !this.track.playing() && this.track.play()
         this.setState(
             prevState => ({
                 loop: !prevState.loop
@@ -106,18 +105,11 @@ class AudioControls extends React.Component {
             }
         )
     }
-    handleRemoveAudio = () => {
-        // if (confirm('Are you sure you want to remove this track?')) {
-        //     this.props.handleRemoveAudio(this.props.track.preview)
-        // }
-    }
     render() {
         const size = 20
+        const { track } = this.props
         return (
             <Container>
-                <audio ref={a => (this.audio = a)}>
-                    // <source src={this.props.track.preview} />> //{' '}
-                </audio>
                 <StyledIcon size={size} icon={tape} />
                 <StyledText>{this.props.trackNumber}</StyledText>
                 <StyledIcon
@@ -153,7 +145,11 @@ class AudioControls extends React.Component {
                 <StyledIcon
                     data-tip={'Remove this audio track'}
                     data-for="remove"
-                    onClick={this.handleRemoveAudio}
+                    id={track.name}
+                    onClick={e => {
+                        this.track.unload()
+                        this.props.handleRemoveAudio(e)
+                    }}
                     size={size}
                     icon={trash}
                 />

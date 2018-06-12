@@ -11,6 +11,7 @@ import Logo from '../shared/logo'
 import * as userActions from '../../actions/firebase-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
+import Controls from '../cinemagraph/controls'
 
 const StyledIcon = styled(Icon)`
     cursor: pointer;
@@ -74,6 +75,12 @@ class Upload extends React.Component {
             })
             return
         }
+        if (this.state.audio.find(track => track.name === file.name)) {
+            this.setState({
+                message: `Audio files must have unique names`
+            })
+            return
+        }
         this.setState({ message: '' })
         return file
     }
@@ -100,8 +107,12 @@ class Upload extends React.Component {
             }
         }
     }
-    handleRemoveAudio = track => {
-        debugger
+    handleRemoveAudio = e => {
+        const trackName = e.currentTarget.id
+        const filteredAudio = this.state.audio.filter(track => track.name !== trackName)
+        this.setState({
+            audio: filteredAudio
+        })
     }
     handleSave = async () => {
         if (Object.keys(this.state.cinemagraph).length > 0) {
@@ -186,22 +197,21 @@ class Upload extends React.Component {
         }
     }
     render() {
-        const { cinemagraph, message } = this.state
+        const { cinemagraph, audio, message } = this.state
         return (
             <div>
-                <Cinemagraph
-                    creatorMode={true}
-                    cinemagraph={cinemagraph}
-                    audio={this.state.audio}
-                    theater={this.state.theater}
+                <Cinemagraph cinemagraph={cinemagraph} theater={this.state.theater} />
+                <Controls
+                    audio={audio}
+                    creatorMode
                     handleUploadAudio={this.handleUploadAudio}
                     handleRemoveAudio={this.handleRemoveAudio}
+                    handleSave={this.handleSave}
                     toggleTheaterMode={() =>
                         this.setState(prevState => ({
                             theater: !prevState.theater
                         }))
                     }
-                    handleSave={this.handleSave}
                 />
                 <Flex>
                     <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto" ml={20} mr={20}>
