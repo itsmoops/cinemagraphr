@@ -86,7 +86,11 @@ class Upload extends React.Component {
     }
     handleUploadCinemagraph = async (acceptedFiles, rejectedFiles) => {
         if (acceptedFiles && acceptedFiles.length === 1) {
-            const file = this.validateFile(acceptedFiles[0], ['video/mp4', 'image/gif'], 5000000)
+            const file = this.validateFile(
+                acceptedFiles[0],
+                ['image/gif', 'video/mp4', 'video/webm'],
+                5000000
+            )
             if (file) {
                 this.setState({
                     cinemagraph: file
@@ -221,7 +225,7 @@ class Upload extends React.Component {
                                 <StyledIcon size={64} icon={basicVideo} />
                                 <Text>
                                     {!cinemagraph.preview
-                                        ? 'Click or drag a file to upload a cinemagraph (.gif or .mp4)'
+                                        ? 'Click or drag a file to upload a cinemagraph (.gif, .mp4 or .webm)'
                                         : 'Choose a different file'}
                                 </Text>
                             </Container>

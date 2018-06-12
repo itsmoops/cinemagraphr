@@ -32,6 +32,9 @@ const StyledIcon = styled(Icon)`
     cursor: pointer;
     overflow: scroll;
     color: ${colors.accent1};
+    &:hover > svg {
+        position: relative;
+    }
 `
 
 class Input extends React.Component {
