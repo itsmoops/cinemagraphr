@@ -15,6 +15,8 @@ class HomePage extends React.Component {
         }
     }
     componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
+
         const cinemagraphsRef = firebase.database().ref('cinemagraphs')
         cinemagraphsRef.once('value', (snapshot) => {
             // for now just choose one

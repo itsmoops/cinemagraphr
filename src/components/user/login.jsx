@@ -2,6 +2,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { Box, Heading, Container, Text } from 'rebass'
+import styled from 'styled-components'
 import * as userActions from '../../actions/user-actions'
 import Flex from '../shared/flex'
 import Input from '../shared/input'
@@ -9,6 +10,9 @@ import Button from '../shared/button'
 import Message from '../shared/message'
 import Link from '../shared/link'
 
+const StyledContainer = styled(Container)`
+    text-align: center;
+`
 class Login extends React.Component {
     state = {
         email: '',
@@ -17,6 +21,9 @@ class Login extends React.Component {
     constructor() {
         super()
         document.title = 'Login'
+    }
+    componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
     }
     componentWillUnmount() {
         this.props.actions.sanitizeUserState()
@@ -64,13 +71,13 @@ class Login extends React.Component {
                                 required
                             />
                             <Button>Login</Button>
-                            <Text mt={10} right>
-                                No account yet? <Link to="/sign-up">Sign up</Link>
-                            </Text>
-                            <Link to="/forgot-password" right="true">
-                                I forgot my password
-                            </Link>
                             {message && <Message>{message}</Message>}
+                            <StyledContainer mt={25}>
+                                <Text mt={10} mb={20}>
+                                    No account yet? <Link to="/sign-up">Sign up</Link>
+                                </Text>
+                                <Link to="/forgot-password">I forgot my password</Link>
+                            </StyledContainer>
                         </form>
                     </Container>
                 </Box>

@@ -22,6 +22,9 @@ if (process.env.NODE_ENV === 'production') {
 // merge styles for theme
 const theme = Object.assign({}, common, colors)
 
+// analytics
+ReactGA.initialize('UA-120888774-1')
+
 ReactDOM.render(
     <Provider store={store}>
         <ThemeProvider theme={theme}>

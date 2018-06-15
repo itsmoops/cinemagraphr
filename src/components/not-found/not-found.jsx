@@ -6,6 +6,9 @@ class NotFound extends React.Component {
         super()
         document.title = 'Page Not Found'
     }
+    componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
+    }
     render() {
         return (
             <Flex>

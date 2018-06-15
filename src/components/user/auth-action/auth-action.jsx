@@ -9,6 +9,8 @@ class AuthAction extends React.PureComponent {
         result: {}
     }
     componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
+
         const query = this.props.location.search.substring(1)
         if (query === '') {
             this.props.history.push('/')

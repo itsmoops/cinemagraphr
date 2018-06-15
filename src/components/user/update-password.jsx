@@ -16,6 +16,9 @@ class UpdatePassword extends React.Component {
         super()
         document.title = 'Update Password'
     }
+    componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
+    }
     componentWillUnmount() {
         this.props.actions.sanitizeUserState()
         this.props.actions.sanitizeUserErrorState()

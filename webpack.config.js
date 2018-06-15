@@ -40,6 +40,7 @@ module.exports = {
             React: 'react',
             ReactDOM: 'react-dom',
             PropTypes: 'prop-types',
+            ReactGA: 'react-ga',
             Icon: ['react-icons-kit', 'Icon'],
             horizontalCenter: ['react-icons-kit', 'horizontalCenter'],
             colors: 'colors'

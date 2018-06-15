@@ -61,7 +61,7 @@ class CreateUser extends React.Component {
                         toggleHiddenText
                     />
                     <Button>Sign Up</Button>
-                    <Text mt={10} right>
+                    <Text mt={25} center>
                         Already signed up? <Link to="/login">Login</Link>
                     </Text>
                     {message && <Message>{message}</Message>}

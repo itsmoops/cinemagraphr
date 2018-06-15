@@ -7,6 +7,9 @@ class Account extends React.Component {
         super()
         document.title = 'Account'
     }
+    componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
+    }
     render() {
         return (
             <Flex>

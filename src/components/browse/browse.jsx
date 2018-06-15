@@ -7,6 +7,9 @@ class Browse extends React.Component {
         super()
         document.title = 'Browse'
     }
+    componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
+    }
     componentWillReceiveProps(nextProps) {
         if (nextProps.user && !nextProps.user.authenticated) {
             this.props.history.push('/')

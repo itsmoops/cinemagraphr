@@ -16,6 +16,9 @@ class ForgotPassword extends React.Component {
         super()
         document.title = 'Forgot Password'
     }
+    componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
+    }
     componentWillUnmount() {
         this.props.actions.sanitizeUserState()
         this.props.actions.sanitizeUserErrorState()

@@ -14,6 +14,9 @@ class SignUp extends React.Component {
         super()
         document.title = 'Sign Up'
     }
+    componentDidMount() {
+        ReactGA.pageview(window.location.pathname)
+    }
     componentWillUnmount() {
         this.props.actions.sanitizeUserState()
         this.props.actions.sanitizeUserErrorState()

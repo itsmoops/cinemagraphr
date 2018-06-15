@@ -41,6 +41,7 @@
         "react-burger-menu": "^2.5.0",
         "react-dom": "^16.4.0",
         "react-dropzone": "^4.2.11",
+        "react-ga": "^2.5.3",
         "react-icons-kit": "^1.1.5",
         "react-onclickoutside": "^6.7.1",
         "react-redux": "^5.0.7",
@@ -57,7 +58,7 @@
         "uglifyjs-webpack-plugin": "^1.2.5",
         "uuid": "^3.2.1",
         "webpack": "^4.11.1",
-        "webpack-cli": "^3.0.3"
+        "webpack-cli": "^3.0.6"
     },
     "devDependencies": {
         "babel-core": "^6.24.1",
