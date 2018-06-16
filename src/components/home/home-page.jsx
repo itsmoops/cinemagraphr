@@ -9,7 +9,7 @@ import Cinemagraph from '../cinemagraph/cinemagraph'
 class HomePage extends React.Component {
     constructor() {
         super()
-        document.title = 'cinemagraphr.io'
+        document.title = 'Cinemagraphr'
         this.state = {
             cinemagraph: {}
         }
