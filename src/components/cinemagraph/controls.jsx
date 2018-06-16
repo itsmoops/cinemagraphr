@@ -89,12 +89,18 @@ class Controls extends React.Component {
                             <AudioControls
                                 track={track}
                                 trackNumber={idx + 1}
-                                handleUpdateAudio={this.props.handleUpdateAudio}
+                                loop={track.loop}
+                                volume={track.volume}
+                                mute={track.mute}
+                                handleLoop={this.props.handleLoop}
+                                handleVolumeUp={this.props.handleVolumeUp}
+                                handleVolumeDown={this.props.handleVolumeDown}
+                                handleMute={this.props.handleMute}
                                 handleRemoveAudio={this.props.handleRemoveAudio} />
                         </div>
                     ))}
                 <div>
-                    {cinemagraph &&
+                    {true &&
                         audio.length <= 2 && (
                         <StyledDropzone onDrop={this.props.handleUploadAudio}>
                             <StyledIcon

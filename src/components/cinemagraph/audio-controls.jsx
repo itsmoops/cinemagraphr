@@ -34,27 +34,19 @@ const StyledIcon = styled(Icon)`
 `
 
 class AudioControls extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            loop: false,
-            volume: 1,
-            muted: false
-        }
-    }
     componentDidMount() {
-        const { track, trackNumber } = this.props
         const audioTag = document.createElement('audio')
-        audioTag.src = track.preview
+        const { track } = this.props
+        audioTag.src = this.props.track.preview
         audioTag.addEventListener('loadedmetadata', () => {
             this.track = new Howl({
                 src: [track.preview],
-                loop: this.state.loop,
+                loop: track.loop || false,
                 format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
                 loopStart: 0,
                 loopEnd: audioTag.duration * 1000,
                 autoplay: true,
-                volume: this.state.volume
+                volume: track.volume || 1
             })
             this.track.play()
         })
@@ -62,7 +54,7 @@ class AudioControls extends React.Component {
     componentWillUnmount() {
         this.track.unload()
     }
-    toggleLoopAudio = () => {
+    handleLoop = e => {
         !this.track.playing() && this.track.play()
         this.setState(
             prevState => ({
@@ -73,7 +65,7 @@ class AudioControls extends React.Component {
             }
         )
     }
-    handleVolumeUp = () => {
+    handleVolumeUp = e => {
         this.state.volume <= 0.9 &&
             this.setState(
                 prevState => ({
@@ -84,7 +76,7 @@ class AudioControls extends React.Component {
                 }
             )
     }
-    handleVolumeDown = () => {
+    handleVolumeDown = e => {
         this.state.volume >= 0.1 &&
             this.setState(
                 prevState => ({
@@ -95,60 +87,68 @@ class AudioControls extends React.Component {
                 }
             )
     }
-    handleMute = () => {
+    handleMute = e => {
         this.setState(
             prevState => ({
-                muted: !prevState.muted
+                mute: !prevState.mute
             }),
             () => {
-                this.track.mute(this.state.muted)
+                this.track.mute(this.state.mute)
             }
         )
     }
     render() {
-        const size = 20
         const { track } = this.props
+        const size = 20
         return (
             <Container>
                 <StyledIcon size={size} icon={tape} />
                 <StyledText>{this.props.trackNumber}</StyledText>
                 <StyledIcon
-                    data-tip={this.state.loop ? 'Stop looping' : 'Loop audio (off by default)'}
+                    data-track-name={track.name}
+                    data-name="loop"
+                    data-tip={track.loop ? 'Stop looping' : 'Loop audio (off by default)'}
                     data-for="loop"
-                    onClick={this.toggleLoopAudio}
-                    active={this.state.loop.toString()}
+                    onClick={this.props.handleLoop}
+                    active={track.loop && track.loop.toString()}
                     size={size}
                     icon={loop}
                 />
                 <StyledIcon
+                    data-track-name={track.name}
+                    data-name="volume"
                     data-tip="Decrease volume"
                     data-for="volumeDown"
-                    onClick={this.handleVolumeDown}
+                    onClick={this.props.handleVolumeDown}
                     size={size}
                     icon={volumeDown}
                 />
                 <StyledIcon
+                    data-track-name={track.name}
+                    data-name="volume"
                     data-tip="Increase volume"
                     data-for="volumeUp"
-                    onClick={this.handleVolumeUp}
+                    onClick={this.props.handleVolumeUp}
                     size={size}
                     icon={volumeUp}
                 />
                 <StyledIcon
-                    data-tip={this.state.muted ? 'Unmute' : 'Mute'}
+                    data-track-name={track.name}
+                    data-name="mute"
+                    data-tip={track.mute ? 'Unmute' : 'Mute'}
                     data-for="mute"
-                    onClick={this.handleMute}
-                    active={this.state.muted.toString()}
+                    onClick={this.props.handleMute}
+                    active={track.mute && track.mute.toString()}
                     size={size}
                     icon={mute}
                 />
                 <StyledIcon
+                    data-track-name={track.name}
                     data-tip={'Remove this audio track'}
                     data-for="remove"
-                    id={track.name}
                     onClick={e => {
                         this.track.unload()
-                        this.props.handleRemoveAudio(e)
+                        this.props.handleRemoveAudio && this.props.handleRemoveAudio(e)
                     }}
                     size={size}
                     icon={trash}
