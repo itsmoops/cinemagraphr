@@ -104,6 +104,9 @@ class Upload extends React.Component {
         if (acceptedFiles && acceptedFiles.length === 1) {
             const file = this.validateFile(acceptedFiles[0], ['audio/mp3', 'audio/x-m4a'], 10000000)
             if (file && this.state.audio.length < 3) {
+                file.volume = 1
+                file.loop = false
+                file.mute = false
                 const mergedAudio = [...this.state.audio, file]
                 this.setState({
                     audio: mergedAudio
@@ -112,11 +115,15 @@ class Upload extends React.Component {
         }
     }
     handleRemoveAudio = e => {
-        const trackName = e.currentTarget.id
+        const trackName = e.currentTarget.dataset.trackName
         const filteredAudio = this.state.audio.filter(track => track.name !== trackName)
         this.setState({
             audio: filteredAudio
         })
+    }
+    handleUpdateAudio = (name, type, value) => {
+        const track = this.state.audio.filter(track => track.name === name)[0]
+        track[type] = value
     }
     handleSave = async () => {
         if (Object.keys(this.state.cinemagraph).length > 0) {
@@ -133,14 +140,17 @@ class Upload extends React.Component {
             // upload audio
             if (audio.length > 0) {
                 for (const track of audio) {
-                    audioData.push(
-                        await this.props.firebaseActions.uploadFile({
+                    audioData.push({
+                        ...(await this.props.firebaseActions.uploadFile({
                             file: track,
                             directory: 'audio',
                             name: track.name,
                             type: track.type
-                        })
-                    )
+                        })),
+                        volume: track.volume,
+                        loop: track.loop,
+                        mute: track.mute
+                    })
                 }
             }
 
@@ -180,9 +190,10 @@ class Upload extends React.Component {
                     fullPath: track.fullPath,
                     name: track.name,
                     size: track.size,
-                    timeCreated: track.timeCreated,
-                    loop: true,
-                    volume: 1
+                    loop: track.loop,
+                    volume: track.volume,
+                    mute: track.mute,
+                    timeCreated: track.timeCreated
                 }))
             }
             const postKey = await this.props.firebaseActions.pushData('cinemagraphs', data)
@@ -211,6 +222,7 @@ class Upload extends React.Component {
                     audio={audio}
                     handleUploadAudio={this.handleUploadAudio}
                     handleRemoveAudio={this.handleRemoveAudio}
+                    handleUpdateAudio={this.handleUpdateAudio}
                     handleSave={this.handleSave}
                     toggleTheaterMode={() =>
                         this.setState(prevState => ({

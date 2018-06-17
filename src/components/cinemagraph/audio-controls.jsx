@@ -39,7 +39,7 @@ class AudioControls extends React.Component {
         this.state = {
             loop: false,
             volume: 1,
-            muted: false
+            mute: false
         }
     }
     componentDidMount() {
@@ -60,9 +60,10 @@ class AudioControls extends React.Component {
         })
     }
     componentWillUnmount() {
-        this.track.unload()
+        this.track && this.track.unload()
     }
-    toggleLoopAudio = () => {
+    handleLoop = e => {
+        const { trackName, trackType } = e.currentTarget.dataset
         !this.track.playing() && this.track.play()
         this.setState(
             prevState => ({
@@ -70,38 +71,49 @@ class AudioControls extends React.Component {
             }),
             () => {
                 this.track.loop(this.state.loop)
+                this.props.handleUpdateAudio &&
+                    this.props.handleUpdateAudio(trackName, trackType, this.state.loop)
             }
         )
     }
-    handleVolumeUp = () => {
+    handleVolumeUp = e => {
+        const { trackName, trackType } = e.currentTarget.dataset
         this.state.volume <= 0.9 &&
             this.setState(
                 prevState => ({
-                    volume: prevState.volume + 0.1
+                    volume: parseFloat((prevState.volume + 0.1).toFixed(1))
                 }),
                 () => {
                     this.track.volume([this.state.volume])
+                    this.props.handleUpdateAudio &&
+                        this.props.handleUpdateAudio(trackName, trackType, this.state.volume)
                 }
             )
     }
-    handleVolumeDown = () => {
+    handleVolumeDown = e => {
+        const { trackName, trackType } = e.currentTarget.dataset
         this.state.volume >= 0.1 &&
             this.setState(
                 prevState => ({
-                    volume: prevState.volume - 0.1
+                    volume: parseFloat((prevState.volume - 0.1).toFixed(1))
                 }),
                 () => {
                     this.track.volume([this.state.volume])
+                    this.props.handleUpdateAudio &&
+                        this.props.handleUpdateAudio(trackName, trackType, this.state.volume)
                 }
             )
     }
-    handleMute = () => {
+    handleMute = e => {
+        const { trackName, trackType } = e.currentTarget.dataset
         this.setState(
             prevState => ({
-                muted: !prevState.muted
+                mute: !prevState.mute
             }),
             () => {
-                this.track.mute(this.state.muted)
+                this.track.mute(this.state.mute)
+                this.props.handleUpdateAudio &&
+                    this.props.handleUpdateAudio(trackName, trackType, this.state.mute)
             }
         )
     }
@@ -113,14 +125,18 @@ class AudioControls extends React.Component {
                 <StyledIcon size={size} icon={tape} />
                 <StyledText>{this.props.trackNumber}</StyledText>
                 <StyledIcon
+                    data-track-name={track.name}
+                    data-track-type="loop"
                     data-tip={this.state.loop ? 'Stop looping' : 'Loop audio (off by default)'}
                     data-for="loop"
-                    onClick={this.toggleLoopAudio}
+                    onClick={this.handleLoop}
                     active={this.state.loop.toString()}
                     size={size}
                     icon={loop}
                 />
                 <StyledIcon
+                    data-track-name={track.name}
+                    data-track-type="volume"
                     data-tip="Decrease volume"
                     data-for="volumeDown"
                     onClick={this.handleVolumeDown}
@@ -128,6 +144,8 @@ class AudioControls extends React.Component {
                     icon={volumeDown}
                 />
                 <StyledIcon
+                    data-track-name={track.name}
+                    data-track-type="volume"
                     data-tip="Increase volume"
                     data-for="volumeUp"
                     onClick={this.handleVolumeUp}
@@ -135,17 +153,19 @@ class AudioControls extends React.Component {
                     icon={volumeUp}
                 />
                 <StyledIcon
-                    data-tip={this.state.muted ? 'Unmute' : 'Mute'}
+                    data-track-name={track.name}
+                    data-track-type="mute"
+                    data-tip={this.state.mute ? 'Unmute' : 'Mute'}
                     data-for="mute"
                     onClick={this.handleMute}
-                    active={this.state.muted.toString()}
+                    active={this.state.mute.toString()}
                     size={size}
                     icon={mute}
                 />
                 <StyledIcon
+                    data-track-name={track.name}
                     data-tip={'Remove this audio track'}
                     data-for="remove"
-                    id={track.name}
                     onClick={e => {
                         this.track.unload()
                         this.props.handleRemoveAudio(e)
