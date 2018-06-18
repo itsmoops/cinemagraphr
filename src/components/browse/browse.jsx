@@ -30,7 +30,11 @@ class Browse extends React.Component {
             const data = snapshot.val()
             if (data !== null) {
                 this.setState({
-                    cinemagraphs: Object.values(data).map(cinemagraph => cinemagraph)
+                    cinemagraphs: Object.entries(data).map(([key, value]) => {
+                        const cinemagraph = value
+                        cinemagraph.postId = key
+                        return cinemagraph
+                    })
                 })
             }
         })

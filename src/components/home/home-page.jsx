@@ -20,19 +20,34 @@ class HomePage extends React.Component {
     componentDidMount() {
         ReactGA.pageview(window.location.pathname)
 
-        const cinemagraphsRef = firebase.database().ref('cinemagraphs')
-        cinemagraphsRef.once('value', (snapshot) => {
-            // for now just choose one
-            const data = snapshot.val()
-            const idx = Math.ceil(Math.random() * (Object.values(data).length - 1))
-            if (data !== null) {
-                this.setState({
-                    cinemagraph: Object.values(data)[idx],
-                    audio: Object.values(data)[idx].audio || [],
-                    theater: Object.values(data)[idx].theater
-                })
-            }
-        })
+        if (window.location.search) {
+            const postId = window.location.search.split('=')[1]
+            const cinemagraphsRef = firebase.database().ref(`cinemagraphs/-${postId}`)
+            cinemagraphsRef.once('value', (snapshot) => {
+                const data = snapshot.val()
+                if (data !== null) {
+                    this.setState({
+                        cinemagraph: data,
+                        audio: data.audio || [],
+                        theater: data.theater
+                    })
+                }
+            })
+        } else {
+            const cinemagraphsRef = firebase.database().ref('cinemagraphs')
+            cinemagraphsRef.once('value', (snapshot) => {
+                // for now just choose one
+                const data = snapshot.val()
+                const idx = Math.ceil(Math.random() * (Object.values(data).length - 1))
+                if (data !== null) {
+                    this.setState({
+                        cinemagraph: Object.values(data)[idx],
+                        audio: Object.values(data)[idx].audio || [],
+                        theater: Object.values(data)[idx].theater
+                    })
+                }
+            })
+        }
     }
     shouldComponentUpdate(nextProps, nextState) {
         if (nextState.audio !== this.state.audio || nextState.theater !== this.state.theater) {

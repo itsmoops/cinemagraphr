@@ -1,3 +1,4 @@
+import { withRouter } from 'react-router'
 import styled from 'styled-components'
 import { Box, Text, Heading } from 'rebass'
 import { Icon } from 'react-icons-kit'
@@ -87,11 +88,14 @@ const StyledIcon = styled(Icon)`
 `
 
 class Card extends React.PureComponent {
+    handleRedirect = () => {
+        this.props.history.push(`/?id=${this.props.cinemagraph.postId.replace('-', '')}`)
+    }
     render() {
         const size = 16
         const { cinemagraph } = this.props
         return (
-            <Container w={[1, 1 / 2, 1 / 2, 1 / 3]}>
+            <Container w={[1, 1 / 2, 1 / 2, 1 / 3]} onClick={this.handleRedirect}>
                 <ImageContainer>
                     <StyledHeading mb={20}>{cinemagraph.title}</StyledHeading>
                     <BottomLeftText>{cinemagraph.user.username}</BottomLeftText>
@@ -101,14 +105,16 @@ class Card extends React.PureComponent {
                             data-for="upvote"
                             onClick={this.handleUpvote}
                             size={size}
-                            icon={upvote} />
+                            icon={upvote}
+                        />
                         <Text>{cinemagraph.upvotes}</Text>
                         <StyledIcon
                             data-tip={'Downvote'}
                             data-for="downvote"
                             onClick={this.handleDownvote}
                             size={size}
-                            icon={downvote} />
+                            icon={downvote}
+                        />
                         <Text>{cinemagraph.downvotes}</Text>
                     </VoteControls>
 
@@ -123,4 +129,4 @@ class Card extends React.PureComponent {
     }
 }
 
-export default Card
+export default withRouter(Card)
