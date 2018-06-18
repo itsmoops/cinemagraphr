@@ -1,14 +1,39 @@
 import { connect } from 'react-redux'
-import { Box, Text } from 'rebass'
-import Flex from '../shared/flex'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
+import firebase from 'firebase/app'
+import 'firebase/database'
+import Card from './card'
 
+const FlexContainer = styled(Flex)`
+    overflow: hidden;
+    flex-wrap: wrap;
+`
 class Browse extends React.Component {
     constructor() {
         super()
         document.title = 'Browse'
+
+        this.state = {
+            cinemagraphs: []
+        }
     }
     componentDidMount() {
         ReactGA.pageview(window.location.pathname)
+
+        const cinemagraphsRef = firebase
+            .database()
+            .ref('cinemagraphs')
+            .orderByChild('timeCreated')
+            .limitToFirst(50)
+        cinemagraphsRef.once('value', (snapshot) => {
+            const data = snapshot.val()
+            if (data !== null) {
+                this.setState({
+                    cinemagraphs: Object.values(data).map(cinemagraph => cinemagraph)
+                })
+            }
+        })
     }
     componentWillReceiveProps(nextProps) {
         if (nextProps.user && !nextProps.user.authenticated) {
@@ -16,12 +41,13 @@ class Browse extends React.Component {
         }
     }
     render() {
+        const { cinemagraphs } = this.state
         return (
-            <Flex>
-                <Box w={[1, 3 / 4, 2 / 3, 1 / 2]} m="auto">
-                    <Text align="center">Browse</Text>
-                </Box>
-            </Flex>
+            <FlexContainer>
+                {cinemagraphs.map(cinemagraph => (
+                    <Card key={cinemagraph.name} cinemagraph={cinemagraph} />
+                ))}
+            </FlexContainer>
         )
     }
 }

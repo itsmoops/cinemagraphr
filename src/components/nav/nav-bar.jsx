@@ -99,9 +99,9 @@ class NavBar extends React.Component {
                 <a id="browse" className="menu-item" onClick={() => this.handleClick('/browse')}>
                     Browse
                 </a>
-                <a id="feed" className="menu-item" onClick={() => this.handleClick('/feed')}>
+                {/* <a id="feed" className="menu-item" onClick={() => this.handleClick('/feed')}>
                     My Feed
-                </a>
+                </a> */}
                 <a id="logout" className="menu-item" onClick={this.handleLogout}>
                     Logout
                 </a>

@@ -8,6 +8,7 @@ import { basic_video as basicVideo } from 'react-icons-kit/linea/basic_video'
 import Flex from '../shared/flex'
 import Message from '../shared/message'
 import Logo from '../shared/logo'
+import Input from '../shared/input'
 import * as userActions from '../../actions/firebase-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
@@ -35,7 +36,15 @@ const StyledDropzone = styled(Dropzone)`
     text-align: center;
 `
 
-const Container = styled.div``
+const StyledInput = styled(Input)`
+    margin-top: 10px;
+    text-align: center;
+
+    // border-bottom: unset;
+    // &:focus {
+    //     border-bottom: unset;
+    // }
+`
 class Upload extends React.Component {
     constructor() {
         super()
@@ -43,7 +52,8 @@ class Upload extends React.Component {
         this.state = {
             message: '',
             cinemagraph: {},
-            audio: []
+            audio: [],
+            title: ''
         }
     }
     componentDidUpdate(prevProps) {
@@ -178,6 +188,7 @@ class Upload extends React.Component {
                 fileURL: cinemagraphData.fileURL,
                 fullPath: cinemagraphData.fullPath,
                 name: cinemagraphData.name,
+                title: this.state.title,
                 size: cinemagraphData.size,
                 timeCreated: cinemagraphData.timeCreated,
                 theater: false,
@@ -211,6 +222,11 @@ class Upload extends React.Component {
             })
         }
     }
+    handleInputChange = e => {
+        const name = e.target.name
+        const value = e.target.value
+        this.setState({ [name]: value })
+    }
     render() {
         const { cinemagraph, audio, message } = this.state
         return (
@@ -233,15 +249,21 @@ class Upload extends React.Component {
                 <Flex>
                     <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto" ml={20} mr={20}>
                         <StyledDropzone onDrop={this.handleUploadCinemagraph}>
-                            <Container>
+                            <div>
                                 <StyledIcon size={64} icon={basicVideo} />
                                 <Text>
                                     {!cinemagraph.preview
                                         ? 'Click or drag a file to upload a cinemagraph (.gif, .mp4 or .webm)'
                                         : 'Choose a different file'}
                                 </Text>
-                            </Container>
+                            </div>
                         </StyledDropzone>
+                        <StyledInput
+                            name="title"
+                            placeholder="Title"
+                            onChange={this.handleInputChange}
+                            required
+                        />
                         {message && <Message>{message}</Message>}
                     </Box>
                 </Flex>

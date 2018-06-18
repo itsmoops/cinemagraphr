@@ -5,13 +5,16 @@ import 'firebase/database'
 import * as userActions from '../../actions/user-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
+import Controls from '../cinemagraph/controls'
 
 class HomePage extends React.Component {
     constructor() {
         super()
         document.title = 'Cinemagraphr'
         this.state = {
-            cinemagraph: {}
+            cinemagraph: {},
+            audio: [],
+            theater: false
         }
     }
     componentDidMount() {
@@ -21,23 +24,40 @@ class HomePage extends React.Component {
         cinemagraphsRef.once('value', (snapshot) => {
             // for now just choose one
             const data = snapshot.val()
+            const idx = Math.ceil(Math.random() * (Object.values(data).length - 1))
             if (data !== null) {
                 this.setState({
-                    cinemagraph: Object.values(data)[
-                        Math.ceil(Math.random() * (Object.values(data).length - 1))
-                    ]
+                    cinemagraph: Object.values(data)[idx],
+                    audio: Object.values(data)[idx].audio || [],
+                    theater: Object.values(data)[idx].theater
                 })
             }
         })
     }
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextState.audio !== this.state.audio || nextState.theater !== this.state.theater) {
+            return true
+        }
+        return false
+    }
     render() {
-        const { cinemagraph } = this.state
+        const { cinemagraph, audio } = this.state
         return (
-            <Cinemagraph
-                creatorMode
-                cinemagraph={cinemagraph}
-                audio={cinemagraph.audio}
-                theater={cinemagraph.theater} />
+            <div>
+                <Cinemagraph creatorMode cinemagraph={cinemagraph} theater={this.state.theater} />
+                <Controls
+                    creatorMode={false}
+                    cinemagraph={!!Object.keys(cinemagraph).length}
+                    audio={audio}
+                    handleUploadAudio={this.handleUploadAudio}
+                    handleRemoveAudio={this.handleRemoveAudio}
+                    handleUpdateAudio={this.handleUpdateAudio}
+                    toggleTheaterMode={() => {
+                        this.setState(prevState => ({
+                            theater: !prevState.theater
+                        }))
+                    }} />
+            </div>
         )
     }
 }

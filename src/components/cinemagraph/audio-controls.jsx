@@ -5,8 +5,6 @@ import styled from 'styled-components'
 import { Icon } from 'react-icons-kit'
 import { music_tape as tape } from 'react-icons-kit/linea/music_tape'
 import { music_mute as mute } from 'react-icons-kit/linea/music_mute'
-import { music_pause_button as pause } from 'react-icons-kit/linea/music_pause_button'
-import { music_pause_button as play } from 'react-icons-kit/linea/music_pause_button'
 import { music_volume_up as volumeUp } from 'react-icons-kit/linea/music_volume_up'
 import { music_volume_down as volumeDown } from 'react-icons-kit/linea/music_volume_down'
 import { music_repeat_button as loop } from 'react-icons-kit/linea/music_repeat_button'
@@ -33,10 +31,19 @@ const StyledIcon = styled(Icon)`
     }
 `
 
+const StyledIconNoPointer = styled(Icon)`
+    margin: 0 5 0 5;
+    &:hover > svg {
+        cursor: default;
+        position: relative;
+    }
+`
+
 class AudioControls extends React.Component {
     constructor() {
         super()
         this.state = {
+            fileURL: '',
             loop: false,
             volume: 1,
             mute: false
@@ -44,33 +51,63 @@ class AudioControls extends React.Component {
     }
     componentDidMount() {
         const { track, trackNumber } = this.props
-        const audioTag = document.createElement('audio')
-        audioTag.src = track.preview
-        audioTag.addEventListener('loadedmetadata', () => {
-            this.track = new Howl({
-                src: [track.preview],
-                loop: this.state.loop,
-                format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
-                loopStart: 0,
-                loopEnd: audioTag.duration * 1000,
-                autoplay: true,
-                volume: this.state.volume
-            })
-            this.track.play()
-        })
+        this.setState(
+            prevState => ({
+                fileURL: track.preview || track.fileURL,
+                loop: this.props.loopOnLoad || prevState.loop,
+                volume: this.props.volumeOnLoad || prevState.volume,
+                mute: this.props.muteOnLoad || prevState.mute
+            }),
+            () => {
+                const audioTag = document.createElement('audio')
+                audioTag.src = this.state.fileURL
+                audioTag.addEventListener('loadedmetadata', () => {
+                    this.track = new Howl({
+                        src: [this.state.fileURL],
+                        loop: this.state.loop,
+                        format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
+                        loopStart: 0,
+                        loopEnd: audioTag.duration * 1000,
+                        volume: this.state.volume
+                    })
+                    window.audio.push(this.track)
+                    this.track.once('load', () => {
+                        this.track.play()
+                    })
+                })
+            }
+        )
     }
     componentWillUnmount() {
         this.track && this.track.unload()
     }
+    // checkAllReady = () => {
+    //     // trying to build a function that starts all tracks at the same time
+    //     const checkReady = setInterval(() => {
+    //         if (window.audio.every(track => track.state() === 'loaded')) {
+    //             this.track.play()
+    //             clearInterval(checkReady)
+    //         }
+    //     }, 50)
+    // }
     handleLoop = e => {
         const { trackName, trackType } = e.currentTarget.dataset
-        !this.track.playing() && this.track.play()
+
         this.setState(
             prevState => ({
                 loop: !prevState.loop
             }),
             () => {
                 this.track.loop(this.state.loop)
+
+                if (!this.state.loop && this.track.playing()) {
+                    this.track.stop()
+                } else if (!this.state.loop && !this.track.playing()) {
+                    this.track.play()
+                } else if (this.state.loop && !this.track.playing()) {
+                    this.track.play()
+                }
+
                 this.props.handleUpdateAudio &&
                     this.props.handleUpdateAudio(trackName, trackType, this.state.loop)
             }
@@ -121,64 +158,73 @@ class AudioControls extends React.Component {
         const size = 20
         const { track } = this.props
         return (
-            <Container>
-                <StyledIcon size={size} icon={tape} />
-                <StyledText>{this.props.trackNumber}</StyledText>
-                <StyledIcon
-                    data-track-name={track.name}
-                    data-track-type="loop"
-                    data-tip={this.state.loop ? 'Stop looping' : 'Loop audio (off by default)'}
-                    data-for="loop"
-                    onClick={this.handleLoop}
-                    active={this.state.loop.toString()}
-                    size={size}
-                    icon={loop}
-                />
-                <StyledIcon
-                    data-track-name={track.name}
-                    data-track-type="volume"
-                    data-tip="Decrease volume"
-                    data-for="volumeDown"
-                    onClick={this.handleVolumeDown}
-                    size={size}
-                    icon={volumeDown}
-                />
-                <StyledIcon
-                    data-track-name={track.name}
-                    data-track-type="volume"
-                    data-tip="Increase volume"
-                    data-for="volumeUp"
-                    onClick={this.handleVolumeUp}
-                    size={size}
-                    icon={volumeUp}
-                />
-                <StyledIcon
-                    data-track-name={track.name}
-                    data-track-type="mute"
-                    data-tip={this.state.mute ? 'Unmute' : 'Mute'}
-                    data-for="mute"
-                    onClick={this.handleMute}
-                    active={this.state.mute.toString()}
-                    size={size}
-                    icon={mute}
-                />
-                <StyledIcon
-                    data-track-name={track.name}
-                    data-tip={'Remove this audio track'}
-                    data-for="remove"
-                    onClick={e => {
-                        this.track.unload()
-                        this.props.handleRemoveAudio(e)
-                    }}
-                    size={size}
-                    icon={trash}
-                />
-                <ReactTooltip id="loop" place="top" effect="solid" delayShow={1000} />
-                <ReactTooltip id="volumeUp" place="top" effect="solid" delayShow={1000} />
-                <ReactTooltip id="volumeDown" place="top" effect="solid" delayShow={1000} />
-                <ReactTooltip id="mute" place="top" effect="solid" delayShow={1000} />
-                <ReactTooltip id="remove" place="top" effect="solid" delayShow={1000} />
-            </Container>
+            <div>
+                {this.props.creatorMode && (
+                    <Container>
+                        <StyledIconNoPointer size={size} icon={tape} />
+                        <StyledText>{this.props.trackNumber}</StyledText>
+                        <StyledIcon
+                            data-track-name={track.name}
+                            data-track-type="loop"
+                            data-tip={
+                                this.state.loop ? 'Stop looping' : 'Loop audio (off by default)'
+                            }
+                            data-for="loop"
+                            onClick={this.handleLoop}
+                            active={this.state.loop.toString()}
+                            size={size}
+                            icon={loop}
+                        />
+                        <StyledIcon
+                            data-track-name={track.name}
+                            data-track-type="volume"
+                            data-tip="Decrease volume"
+                            data-for="volumeDown"
+                            onClick={this.handleVolumeDown}
+                            size={size}
+                            icon={volumeDown}
+                        />
+                        <StyledIcon
+                            data-track-name={track.name}
+                            data-track-type="volume"
+                            data-tip="Increase volume"
+                            data-for="volumeUp"
+                            onClick={this.handleVolumeUp}
+                            size={size}
+                            icon={volumeUp}
+                        />
+                        <StyledIcon
+                            data-track-name={track.name}
+                            data-track-type="mute"
+                            data-tip={this.state.mute ? 'Unmute' : 'Mute'}
+                            data-for="mute"
+                            onClick={this.handleMute}
+                            active={this.state.mute.toString()}
+                            size={size}
+                            icon={mute}
+                        />
+                        {this.props.creatorMode && (
+                            <StyledIcon
+                                data-track-name={track.name}
+                                data-tip={'Remove this audio track'}
+                                data-for="remove"
+                                onClick={e => {
+                                    this.track.unload()
+                                    this.props.handleRemoveAudio(e)
+                                }}
+                                size={size}
+                                icon={trash}
+                            />
+                        )}
+
+                        <ReactTooltip id="loop" place="top" effect="solid" delayShow={1000} />
+                        <ReactTooltip id="volumeUp" place="top" effect="solid" delayShow={1000} />
+                        <ReactTooltip id="volumeDown" place="top" effect="solid" delayShow={1000} />
+                        <ReactTooltip id="mute" place="top" effect="solid" delayShow={1000} />
+                        <ReactTooltip id="remove" place="top" effect="solid" delayShow={1000} />
+                    </Container>
+                )}
+            </div>
         )
     }
 }
