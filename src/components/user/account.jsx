@@ -14,7 +14,7 @@ class Account extends React.Component {
         return (
             <Flex>
                 <Box w={[1, 3 / 4, 2 / 3, 1 / 2]} m="auto">
-                    <Heading mb={20}>Account Settings</Heading>
+                    <Heading mb={20} f={40}>Account Settings</Heading>
                     <Container>
                         <Text>
                             But I must explain to you how all this mistaken idea of denouncing

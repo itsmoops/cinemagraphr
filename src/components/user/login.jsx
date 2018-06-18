@@ -51,7 +51,7 @@ class Login extends React.Component {
         return (
             <Flex>
                 <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto">
-                    <Heading mb={20}>Login</Heading>
+                    <Heading mb={20} f={40}>Login</Heading>
                     <Container>
                         <form onSubmit={this.onHandleSubmit}>
                             <Input

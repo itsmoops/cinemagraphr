@@ -1,3 +1,4 @@
+import { withRouter } from 'react-router'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Text, Box } from 'rebass'
@@ -36,14 +37,34 @@ const StyledDropzone = styled(Dropzone)`
     text-align: center;
 `
 
-const StyledInput = styled(Input)`
-    margin-top: 10px;
-    text-align: center;
+const InputContainer = styled.div`
+    display: flex;
+    justify-content: center;
+`
 
-    // border-bottom: unset;
-    // &:focus {
-    //     border-bottom: unset;
-    // }
+const StyledInput = styled.input`
+    background: transparent;
+    color: ${colors.font1};
+    width: 75%;
+    min-height: 35px;
+    font-size: 2em;
+    font-weight: 300;
+    padding: 5 0 5 15;
+    margin: 10 0 10 0;
+    border: none;
+    border-bottom: 2px solid ${colors.font1};
+    outline: none;
+    overflow: auto;
+    box-shadow: none;
+    border-radius: 0px;
+    text-transform: lowercase;
+    &:focus {
+        border-bottom: 2px solid ${colors.font1};
+    }
+    text-align: center;
+    ::placeholder {
+        color: ${colors.font1};
+    }
 `
 class Upload extends React.Component {
     constructor() {
@@ -136,6 +157,10 @@ class Upload extends React.Component {
         track[type] = value
     }
     handleSave = async () => {
+        if (!this.form.checkValidity()) {
+            this.submitButton.click()
+            return
+        }
         if (Object.keys(this.state.cinemagraph).length > 0) {
             // first upload files
             const { cinemagraph, audio } = this.state
@@ -191,7 +216,7 @@ class Upload extends React.Component {
                 title: this.state.title,
                 size: cinemagraphData.size,
                 timeCreated: cinemagraphData.timeCreated,
-                theater: false,
+                theater: this.state.theater,
                 upvotes: 0,
                 downvotes: 0,
                 audio: audioData.map(track => ({
@@ -216,6 +241,7 @@ class Upload extends React.Component {
                     }
                 }
             )
+            this.props.history.push(`/?id=${postKey.replace('-', '')}`)
         } else {
             this.setState({
                 message: 'No cinemagraph uploaded'
@@ -248,22 +274,34 @@ class Upload extends React.Component {
                 />
                 <Flex>
                     <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto" ml={20} mr={20}>
-                        <StyledDropzone onDrop={this.handleUploadCinemagraph}>
-                            <div>
-                                <StyledIcon size={64} icon={basicVideo} />
-                                <Text>
-                                    {!cinemagraph.preview
-                                        ? 'Click or drag a file to upload a cinemagraph (.gif, .mp4 or .webm)'
-                                        : 'Choose a different file'}
-                                </Text>
-                            </div>
-                        </StyledDropzone>
-                        <StyledInput
-                            name="title"
-                            placeholder="Title"
-                            onChange={this.handleInputChange}
-                            required
-                        />
+                        {Object.keys(cinemagraph).length > 0 ? (
+                            <form ref={f => (this.form = f)}>
+                                <InputContainer>
+                                    <StyledInput
+                                        name="title"
+                                        placeholder="Title"
+                                        onChange={this.handleInputChange}
+                                        required
+                                    />
+                                </InputContainer>
+                                <button
+                                    style={{ display: 'none' }}
+                                    type="submit"
+                                    ref={b => (this.submitButton = b)}
+                                />
+                            </form>
+                        ) : (
+                            <StyledDropzone onDrop={this.handleUploadCinemagraph}>
+                                <div>
+                                    <StyledIcon size={64} icon={basicVideo} />
+                                    <Text>
+                                        {!cinemagraph.preview
+                                            ? 'Click or drag a file to upload a cinemagraph (.gif, .mp4 or .webm)'
+                                            : 'Choose a different file'}
+                                    </Text>
+                                </div>
+                            </StyledDropzone>
+                        )}
                         {message && <Message>{message}</Message>}
                     </Box>
                 </Flex>
@@ -289,4 +327,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Upload)
+)(withRouter(Upload))

@@ -36,7 +36,7 @@ class UpdatePassword extends React.Component {
         const { message, passwordUpdated } = this.props.user
         const success = (
             <Container>
-                <Heading mb={20}>Update Password</Heading>
+                <Heading mb={20} f={40}>Update Password</Heading>
                 <Text>Success! Your password has been changed.</Text>
             </Container>
         )

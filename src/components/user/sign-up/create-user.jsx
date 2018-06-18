@@ -34,7 +34,7 @@ class CreateUser extends React.Component {
         return (
             <Container>
                 <form onSubmit={this.onHandleSubmit}>
-                    <Heading mb={20}>Sign up</Heading>
+                    <Heading mb={20} f={40}>Sign up</Heading>
                     <Input
                         placeholder="Username"
                         type="text"
