@@ -23,70 +23,112 @@ class Browse extends React.Component {
     }
     componentDidMount() {
         ReactGA.pageview(window.location.pathname)
-        this.fetchData()
         this.handleInfiniteScroll()
+        this.fetchData()
     }
     componentWillReceiveProps(nextProps) {
         if (nextProps.user && !nextProps.user.authenticated) {
             this.props.history.push('/')
         }
     }
-    fetchData = () => {
-        const cinemagraphsRef = firebase
-            .database()
-            .ref('cinemagraphs')
-            .orderByKey()
-            .limitToLast(9)
-        cinemagraphsRef.once('value', snapshot => {
-            const data = snapshot.val()
-            if (data !== null) {
-                const reversedKeys = Object.keys(data).reverse()
-                const reversedCinemagraphs = Object.entries(data)
-                    .map(([key, value]) => {
-                        const cinemagraph = value
-                        cinemagraph.postId = key
-                        return cinemagraph
-                    })
-                    .reverse()
-                this.setState({
-                    cinemagraphs: reversedCinemagraphs,
-                    lastKey: reversedKeys[reversedKeys.length - 1]
-                })
-            }
-        })
-    }
     handleInfiniteScroll = () => {
         window.onscroll = () => {
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                this.fetchMore()
+                this.fetchData()
             }
         }
     }
-    fetchMore = () => {
-        const cinemagraphsRef = firebase
-            .database()
-            .ref('cinemagraphs')
-            .orderByKey()
-            .endAt(this.state.lastKey)
-            .limitToLast(10)
-        cinemagraphsRef.once('value', snapshot => {
-            const data = snapshot.val()
-            if (data !== null) {
-                const reversedKeys = Object.keys(data).reverse()
-                const reversedCinemagraphs = Object.entries(data)
-                    .map(([key, value]) => {
-                        const cinemagraph = value
-                        cinemagraph.postId = key
-                        return cinemagraph
-                    })
-                    .reverse()
-                    .slice(1)
-                this.setState(prevState => ({
-                    cinemagraphs: [...prevState.cinemagraphs, ...reversedCinemagraphs],
-                    lastKey: reversedKeys[reversedKeys.length - 1]
-                }))
+    fetchData = () => {
+        const itemsPerPage = 9
+        if (!this.state.endAt) {
+            let cinemagraphsRef
+            switch (this.state.sortType) {
+                case 'Top':
+                    cinemagraphsRef = firebase
+                        .database()
+                        .ref('cinemagraphs')
+                        .orderByKey()
+                        .limitToLast(itemsPerPage)
+                    break
+                case 'New':
+                    cinemagraphsRef = firebase
+                        .database()
+                        .ref('cinemagraphs')
+                        .orderByKey()
+                        .limitToLast(itemsPerPage)
+                    break
+                case 'Rising':
+                    cinemagraphsRef = firebase
+                        .database()
+                        .ref('cinemagraphs')
+                        .orderByKey()
+                        .limitToLast(itemsPerPage)
+                    break
             }
-        })
+            cinemagraphsRef.once('value', snapshot => {
+                const data = snapshot.val()
+                if (data !== null) {
+                    const reversedKeys = Object.keys(data).reverse()
+                    const reversedCinemagraphs = Object.entries(data)
+                        .map(([key, value]) => {
+                            const cinemagraph = value
+                            cinemagraph.postId = key
+                            return cinemagraph
+                        })
+                        .reverse()
+                    this.setState({
+                        cinemagraphs: reversedCinemagraphs,
+                        endAt: reversedKeys[reversedKeys.length - 1]
+                    })
+                }
+            })
+        } else {
+            let cinemagraphsRef
+            switch (this.state.sortType) {
+                case 'Top':
+                    cinemagraphsRef = firebase
+                        .database()
+                        .ref('cinemagraphs')
+                        .orderByKey()
+                        .endAt(this.state.endAt)
+                        .limitToLast(itemsPerPage + 1)
+                    break
+                case 'New':
+                    cinemagraphsRef = firebase
+                        .database()
+                        .ref('cinemagraphs')
+                        .orderByKey()
+                        .endAt(this.state.endAt)
+                        .limitToLast(itemsPerPage + 1)
+                    break
+                case 'Rising':
+                    cinemagraphsRef = firebase
+                        .database()
+                        .ref('cinemagraphs')
+                        .orderByKey()
+                        .endAt(this.state.endAt)
+                        .limitToLast(itemsPerPage + 1)
+                    break
+            }
+            cinemagraphsRef.once('value', snapshot => {
+                const data = snapshot.val()
+                if (data !== null) {
+                    const reversedKeys = Object.keys(data).reverse()
+                    const reversedCinemagraphs = Object.entries(data)
+                        .map(([key, value]) => {
+                            const cinemagraph = value
+                            cinemagraph.postId = key
+                            return cinemagraph
+                        })
+                        .reverse()
+                        .slice(1)
+                    this.setState(prevState => ({
+                        cinemagraphs: [...prevState.cinemagraphs, ...reversedCinemagraphs],
+                        endAt: reversedKeys[reversedKeys.length - 1]
+                    }))
+                }
+            })
+        }
     }
     handleSelectSortType = e => {
         const { value } = e.target

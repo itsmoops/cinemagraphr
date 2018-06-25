@@ -5,7 +5,7 @@ const Div = styled.div`
     position: fixed;
     top: 36;
     left: ${props => props.left || '36'};
-    z-index: 1;
+    z-index: 2;
     padding: 10px;
     width: ${props => props.width || '65px'};
     height: 20px;
