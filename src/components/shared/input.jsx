@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
-import { eye } from 'react-icons-kit/fa/eye'
-import { eyeSlash } from 'react-icons-kit/fa/eyeSlash'
+import { basic_eye as eye } from 'react-icons-kit/linea/basic_eye'
+import { basic_eye_closed as eyeSlash } from 'react-icons-kit/linea/basic_eye_closed'
 
 const StyledInput = styled.input`
     width: 100%;
@@ -28,7 +28,7 @@ const StyledInput = styled.input`
 const StyledIcon = styled(Icon)`
     float: right;
     margin-right: 10px;
-    margin-top: -45px;
+    margin-top: -50px;
     cursor: pointer;
     overflow: scroll;
     color: ${colors.accent1};
@@ -52,9 +52,9 @@ class Input extends React.Component {
         let icon
         if (this.props.toggleHiddenText) {
             if (!this.state.showText) {
-                icon = <StyledIcon icon={eye} size={20} onClick={this.handleIconClick} />
+                icon = <StyledIcon icon={eye} size={30} onClick={this.handleIconClick} />
             } else {
-                icon = <StyledIcon icon={eyeSlash} size={20} onClick={this.handleIconClick} />
+                icon = <StyledIcon icon={eyeSlash} size={30} onClick={this.handleIconClick} />
             }
         }
         return (

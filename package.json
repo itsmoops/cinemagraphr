@@ -39,6 +39,7 @@
         "react": "^16.4.0",
         "react-avatar-editor": "^10.3.0",
         "react-burger-menu": "^2.5.0",
+        "react-click-outside": "tj/react-click-outside",
         "react-dom": "^16.4.0",
         "react-dropzone": "^4.2.11",
         "react-ga": "^2.5.3",
