@@ -10,7 +10,7 @@ import Controls from '../cinemagraph/controls'
 class HomePage extends React.Component {
     constructor() {
         super()
-        document.title = 'Cinemagraphr'
+        document.title = 'cinemagraphr'
         this.state = {
             cinemagraph: {},
             audio: [],
@@ -26,6 +26,7 @@ class HomePage extends React.Component {
             cinemagraphsRef.once('value', (snapshot) => {
                 const data = snapshot.val()
                 if (data !== null) {
+                    document.title = data.title
                     this.setState({
                         cinemagraph: data,
                         audio: data.audio || [],
@@ -38,6 +39,20 @@ class HomePage extends React.Component {
             cinemagraphsRef.once('value', (snapshot) => {
                 // for now just choose one
                 const data = snapshot.val()
+
+                Object.entries(data).forEach(([key, value], idx) => {
+                    const upvotes = Math.ceil(Math.random() * 5000)
+                    const downvotes = Math.ceil(Math.random() * 5000)
+                    const ratio = upvotes / (upvotes + downvotes)
+
+                    this.props.firebaseActions.updateData(`cinemagraphs/${key}`, {
+                        postId: key,
+                        upvotes,
+                        downvotes,
+                        ratio: parseFloat(ratio.toFixed(6))
+                    })
+                })
+
                 const idx = Math.ceil(Math.random() * (Object.values(data).length - 1))
                 if (data !== null) {
                     this.setState({

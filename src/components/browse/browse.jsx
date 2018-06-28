@@ -18,7 +18,8 @@ class Browse extends React.Component {
         this.state = {
             cinemagraphs: [],
             sortType: localStorage.getItem('sortType') || 'Top',
-            sortTime: localStorage.getItem('sortTime') || 'Past day'
+            sortTime: localStorage.getItem('sortTime') || 'Today',
+            endAt: ''
         }
     }
     componentDidMount() {
@@ -34,98 +35,63 @@ class Browse extends React.Component {
     handleInfiniteScroll = () => {
         window.onscroll = () => {
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                this.fetchData()
+                switch (this.state.sortType) {
+                    default:
+                        this.fetchData('created')
+                }
             }
         }
     }
     fetchData = () => {
         const itemsPerPage = 9
+        let key
+        switch (this.state.sortType) {
+            case 'Top':
+                key = 'ratio'
+                break
+            case 'New':
+                key = 'created'
+                break
+        }
         if (!this.state.endAt) {
-            let cinemagraphsRef
-            switch (this.state.sortType) {
-                case 'Top':
-                    cinemagraphsRef = firebase
-                        .database()
-                        .ref('cinemagraphs')
-                        .orderByKey()
-                        .limitToLast(itemsPerPage)
-                    break
-                case 'New':
-                    cinemagraphsRef = firebase
-                        .database()
-                        .ref('cinemagraphs')
-                        .orderByKey()
-                        .limitToLast(itemsPerPage)
-                    break
-                case 'Rising':
-                    cinemagraphsRef = firebase
-                        .database()
-                        .ref('cinemagraphs')
-                        .orderByKey()
-                        .limitToLast(itemsPerPage)
-                    break
-            }
+            const cinemagraphsRef = firebase
+                .database()
+                .ref('cinemagraphs')
+                .orderByChild(key)
+                .limitToLast(itemsPerPage)
             cinemagraphsRef.once('value', snapshot => {
-                const data = snapshot.val()
-                if (data !== null) {
-                    const reversedKeys = Object.keys(data).reverse()
-                    const reversedCinemagraphs = Object.entries(data)
-                        .map(([key, value]) => {
-                            const cinemagraph = value
-                            cinemagraph.postId = key
-                            return cinemagraph
-                        })
-                        .reverse()
+                const data = []
+                snapshot.forEach(child => {
+                    data.push(child.val())
+                })
+                if (data.length > 0) {
+                    data.reverse()
                     this.setState({
-                        cinemagraphs: reversedCinemagraphs,
-                        endAt: reversedKeys[reversedKeys.length - 1]
+                        cinemagraphs: data,
+                        endAt: data[data.length - 1][key]
                     })
                 }
             })
         } else {
-            let cinemagraphsRef
-            switch (this.state.sortType) {
-                case 'Top':
-                    cinemagraphsRef = firebase
-                        .database()
-                        .ref('cinemagraphs')
-                        .orderByKey()
-                        .endAt(this.state.endAt)
-                        .limitToLast(itemsPerPage + 1)
-                    break
-                case 'New':
-                    cinemagraphsRef = firebase
-                        .database()
-                        .ref('cinemagraphs')
-                        .orderByKey()
-                        .endAt(this.state.endAt)
-                        .limitToLast(itemsPerPage + 1)
-                    break
-                case 'Rising':
-                    cinemagraphsRef = firebase
-                        .database()
-                        .ref('cinemagraphs')
-                        .orderByKey()
-                        .endAt(this.state.endAt)
-                        .limitToLast(itemsPerPage + 1)
-                    break
-            }
+            const cinemagraphsRef = firebase
+                .database()
+                .ref('cinemagraphs')
+                .orderByChild(key)
+                .endAt(this.state.endAt)
+                .limitToLast(itemsPerPage + 1)
             cinemagraphsRef.once('value', snapshot => {
-                const data = snapshot.val()
-                if (data !== null) {
-                    const reversedKeys = Object.keys(data).reverse()
-                    const reversedCinemagraphs = Object.entries(data)
-                        .map(([key, value]) => {
-                            const cinemagraph = value
-                            cinemagraph.postId = key
-                            return cinemagraph
-                        })
-                        .reverse()
-                        .slice(1)
-                    this.setState(prevState => ({
-                        cinemagraphs: [...prevState.cinemagraphs, ...reversedCinemagraphs],
-                        endAt: reversedKeys[reversedKeys.length - 1]
-                    }))
+                const data = []
+                snapshot.forEach(child => {
+                    data.push(child.val())
+                })
+                if (data.length > 0) {
+                    data.reverse()
+                    if (data.slice(1).length > 0) {
+                        this.setState(prevState => ({
+                            cinemagraphs: [...prevState.cinemagraphs, ...data.slice(1)],
+                            endAt: data[data.length - 1][key]
+                        }))
+                    }
                 }
             })
         }
@@ -133,16 +99,27 @@ class Browse extends React.Component {
     handleSelectSortType = e => {
         const { value } = e.target
         localStorage.setItem('sortType', value)
-        this.setState({
-            sortType: value
-        })
+        this.setState(
+            {
+                cinemagraphs: [],
+                sortType: value,
+                endAt: '',
+                sortTime: value === 'Top' ? localStorage.getItem('sortTime') || 'Today' : ''
+            },
+            () => this.fetchData()
+        )
     }
     handleSelectSortTime = e => {
         const { value } = e.target
         localStorage.setItem('sortTime', value)
-        this.setState({
-            sortTime: value
-        })
+        this.setState(
+            {
+                cinemagraphs: [],
+                sortTime: value,
+                endAt: ''
+            },
+            () => this.fetchData()
+        )
     }
     render() {
         const { cinemagraphs } = this.state
@@ -152,20 +129,17 @@ class Browse extends React.Component {
             },
             {
                 value: 'New'
-            },
-            {
-                value: 'Rising'
             }
         ]
         const sortTimeOptions = [
             {
-                value: 'Past day'
+                value: 'Today'
             },
             {
-                value: 'Past week'
+                value: 'This week'
             },
             {
-                value: 'Past year'
+                value: 'This year'
             },
             {
                 value: 'All time'

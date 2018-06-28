@@ -168,6 +168,7 @@ export function pushData(endpoint, data) {
                     dispatch(loadingStateChange(true))
                     const ref = firebase.database().ref(endpoint)
                     const newRef = ref.push()
+                    data.postId = newRef.key
                     newRef.set(data)
                     dispatch(pushDataSuccess(newRef.key))
                     dispatch(loadingStateChange(false))
