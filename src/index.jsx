@@ -19,6 +19,10 @@ if (process.env.NODE_ENV === 'production') {
     firebase.initializeApp(firebaseConfig.dev)
 }
 
+const firestore = firebase.firestore()
+const settings = { /* your settings... */ timestampsInSnapshots: true }
+firestore.settings(settings)
+
 // merge styles for theme
 const theme = Object.assign({}, common, colors)
 

@@ -2,7 +2,8 @@ import { connect } from 'react-redux'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import firebase from 'firebase/app'
-import 'firebase/database'
+import 'firebase/firestore'
+import { SORT_BY, SORT_FROM } from '../../constants/constants.js'
 import Card from './card'
 import Sort from './sort'
 
@@ -17,9 +18,9 @@ class Browse extends React.Component {
 
         this.state = {
             cinemagraphs: [],
-            sortType: localStorage.getItem('sortType') || 'Top',
-            sortTime: localStorage.getItem('sortTime') || 'Today',
-            endAt: ''
+            sortBy: localStorage.getItem('sortBy') || SORT_BY.TOP,
+            sortFrom: localStorage.getItem('sortFrom') || SORT_FROM.TODAY,
+            lastVisible: ''
         }
     }
     componentDidMount() {
@@ -35,130 +36,197 @@ class Browse extends React.Component {
     handleInfiniteScroll = () => {
         window.onscroll = () => {
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                switch (this.state.sortType) {
-                    default:
-                        this.fetchData('created')
+                this.fetchData()
+            }
+        }
+    }
+    getSortDateRange = () => {
+        let startDate, endDate
+        const today = new Date()
+        switch (this.state.sortFrom) {
+            case SORT_FROM.TODAY:
+                startDate = new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    today.getDay() + 1,
+                    today.getHours() - 24,
+                    today.getMinutes(),
+                    today.getSeconds(),
+                    today.getMilliseconds()
+                ).getTime()
+                endDate = today.getTime()
+                break
+            case SORT_FROM.WEEK:
+                startDate = new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    today.getDay() - 6,
+                    today.getHours(),
+                    today.getMinutes(),
+                    today.getSeconds(),
+                    today.getMilliseconds()
+                ).getTime()
+                endDate = today.getTime()
+                break
+            case SORT_FROM.YEAR:
+                startDate = new Date(
+                    today.getFullYear() - 1,
+                    today.getMonth(),
+                    today.getDay() + 1,
+                    today.getHours(),
+                    today.getMinutes(),
+                    today.getSeconds(),
+                    today.getMilliseconds()
+                ).getTime()
+                endDate = today.getTime()
+                break
+            case SORT_FROM.ALL_TIME:
+                startDate = new Date(2018, 0, 1).getTime()
+                endDate = today.getTime()
+                break
+        }
+        return {
+            startDate,
+            endDate
+        }
+    }
+    fetchData = async () => {
+        const db = firebase.firestore().collection('cinemagraphs')
+        const itemsPerPage = 9
+        let orderBy, docRef, date
+        if (this.state.sortBy === SORT_BY.TOP) {
+            orderBy = 'ratio'
+            const dateRange = this.getSortDateRange()
+            console.log(dateRange)
+            if (!this.state.lastVisible) {
+                docRef = await db
+                    .where('created', '>=', dateRange.startDate)
+                    .where('created', '<=', dateRange.endDate)
+                    .limit(itemsPerPage)
+                    .get()
+                if (docRef.size >= 1) {
+                    const cinemagraphs = docRef.docs.map(doc => doc.data()).sort((a, b) => {
+                        return b[orderBy] > a[orderBy]
+                    })
+                    this.setState({
+                        cinemagraphs,
+                        lastVisible: docRef.docs[docRef.docs.length - 1]
+                    })
+                }
+            } else {
+                docRef = await db
+                    .where('created', '>=', dateRange.startDate)
+                    .where('created', '<=', dateRange.endDate)
+                    .startAfter(this.state.lastVisible)
+                    .limit(itemsPerPage)
+                    .get()
+                if (docRef.size >= 1) {
+                    const cinemagraphs = docRef.docs.map(doc => doc.data()).sort((a, b) => {
+                        return b[orderBy] > a[orderBy]
+                    })
+                    this.setState(prevState => ({
+                        cinemagraphs: [...prevState.cinemagraphs, ...cinemagraphs],
+                        lastVisible: docRef.docs[docRef.docs.length - 1]
+                    }))
+                }
+            }
+        } else if (this.state.sortBy === SORT_BY.NEW) {
+            orderBy = 'created'
+            if (!this.state.lastVisible) {
+                docRef = await db
+                    .orderBy(orderBy, 'desc')
+                    .limit(itemsPerPage)
+                    .get()
+                if (docRef.size >= 1) {
+                    const cinemagraphs = docRef.docs.map(doc => doc.data())
+                    this.setState({
+                        cinemagraphs,
+                        lastVisible: docRef.docs[docRef.docs.length - 1]
+                    })
+                }
+            } else {
+                docRef = await db
+                    .orderBy(orderBy, 'desc')
+                    .startAfter(this.state.lastVisible)
+                    .limit(itemsPerPage)
+                    .get()
+                if (docRef.size >= 1) {
+                    const cinemagraphs = docRef.docs.map(doc => doc.data())
+                    this.setState(prevState => ({
+                        cinemagraphs: [...prevState.cinemagraphs, ...cinemagraphs],
+                        lastVisible: docRef.docs[docRef.docs.length - 1]
+                    }))
                 }
             }
         }
     }
-    fetchData = () => {
-        const itemsPerPage = 9
-        let key
-        switch (this.state.sortType) {
-            case 'Top':
-                key = 'ratio'
-                break
-            case 'New':
-                key = 'created'
-                break
-        }
-        if (!this.state.endAt) {
-            const cinemagraphsRef = firebase
-                .database()
-                .ref('cinemagraphs')
-                .orderByChild(key)
-                .limitToLast(itemsPerPage)
-            cinemagraphsRef.once('value', snapshot => {
-                const data = []
-                snapshot.forEach(child => {
-                    data.push(child.val())
-                })
-                if (data.length > 0) {
-                    data.reverse()
-                    this.setState({
-                        cinemagraphs: data,
-                        endAt: data[data.length - 1][key]
-                    })
-                }
-            })
-        } else {
-            const cinemagraphsRef = firebase
-                .database()
-                .ref('cinemagraphs')
-                .orderByChild(key)
-                .endAt(this.state.endAt)
-                .limitToLast(itemsPerPage + 1)
-            cinemagraphsRef.once('value', snapshot => {
-                const data = []
-                snapshot.forEach(child => {
-                    data.push(child.val())
-                })
-                if (data.length > 0) {
-                    data.reverse()
-                    if (data.slice(1).length > 0) {
-                        this.setState(prevState => ({
-                            cinemagraphs: [...prevState.cinemagraphs, ...data.slice(1)],
-                            endAt: data[data.length - 1][key]
-                        }))
-                    }
-                }
-            })
-        }
-    }
-    handleSelectSortType = e => {
+    handleSelectSortBy = e => {
         const { value } = e.target
-        localStorage.setItem('sortType', value)
+        localStorage.setItem('sortBy', value)
         this.setState(
             {
                 cinemagraphs: [],
-                sortType: value,
-                endAt: '',
-                sortTime: value === 'Top' ? localStorage.getItem('sortTime') || 'Today' : ''
+                sortBy: value,
+                lastVisible: '',
+                sortFrom:
+                    value === SORT_BY.TOP ? localStorage.getItem('sortFrom') || SORT_FROM.TODAY : ''
             },
             () => this.fetchData()
         )
     }
-    handleSelectSortTime = e => {
+    handleSelectSortFrom = e => {
         const { value } = e.target
-        localStorage.setItem('sortTime', value)
+        localStorage.setItem('sortFrom', value)
         this.setState(
             {
                 cinemagraphs: [],
-                sortTime: value,
-                endAt: ''
+                sortFrom: value,
+                lastVisible: ''
             },
             () => this.fetchData()
         )
     }
     render() {
         const { cinemagraphs } = this.state
-        const sortTypeOptions = [
+        const sortByOptions = [
             {
-                value: 'Top'
+                value: SORT_BY.TOP
             },
             {
-                value: 'New'
+                value: SORT_BY.NEW
             }
         ]
-        const sortTimeOptions = [
+        const sortFromOptions = [
             {
-                value: 'Today'
+                value: SORT_FROM.TODAY
             },
             {
-                value: 'This week'
+                value: SORT_FROM.WEEK
             },
             {
-                value: 'This year'
+                value: SORT_FROM.MONTH
             },
             {
-                value: 'All time'
+                value: SORT_FROM.YEAR
+            },
+            {
+                value: SORT_FROM.ALL_TIME
             }
         ]
         return (
             <FlexContainer>
                 <Sort
-                    name="sortType"
-                    options={sortTypeOptions}
-                    onChange={this.handleSelectSortType}
-                    defaultValue={this.state.sortType}
+                    name="sortBy"
+                    options={sortByOptions}
+                    onChange={this.handleSelectSortBy}
+                    defaultValue={this.state.sortBy}
                 />
-                {this.state.sortType === 'Top' && (
+                {this.state.sortBy === SORT_BY.TOP && (
                     <Sort
-                        name="sortTime"
-                        options={sortTimeOptions}
-                        onChange={this.handleSelectSortTime}
-                        defaultValue={this.state.sortTime}
+                        name="sortFrom"
+                        options={sortFromOptions}
+                        onChange={this.handleSelectSortFrom}
+                        defaultValue={this.state.sortFrom}
                         left="125"
                         width="100"
                     />

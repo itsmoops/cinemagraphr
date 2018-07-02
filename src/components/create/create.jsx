@@ -234,16 +234,20 @@ class Create extends React.Component {
                     timeCreated: track.timeCreated
                 }))
             }
-            const postKey = await this.props.firebaseActions.pushData('cinemagraphs', data)
+            const postId = await this.props.firebaseActions.pushData('cinemagraphs', data)
             await this.props.firebaseActions.updateData(
-                `users/${this.props.user.uid}/cinemagraphs`,
+                `users`,
                 {
-                    [postKey]: {
-                        fileURL: cinemagraphData.fileURL
+                    cinemagraphs: {
+                        [postId]: {
+                            fileURL: cinemagraphData.fileURL
+                        }
                     }
-                }
+                },
+                this.props.user.uid,
+                true
             )
-            this.props.history.push(`/?id=${postKey.replace('-', '')}`)
+            this.props.history.push(`/?id=${postId}`)
         } else {
             this.setState({
                 message: 'No cinemagraph uploaded'

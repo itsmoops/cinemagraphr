@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import firebase from 'firebase/app'
-import 'firebase/database'
+import 'firebase/firestore'
 import { withRouter } from 'react-router'
 import styled from 'styled-components'
 import { Box, Text, Heading } from 'rebass'

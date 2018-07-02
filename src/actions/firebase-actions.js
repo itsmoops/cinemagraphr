@@ -1,6 +1,6 @@
 import firebase from 'firebase/app'
 import 'firebase/storage'
-import 'firebase/database'
+import 'firebase/firestore'
 import uuidV4 from 'uuid/v4'
 import * as types from './action-types'
 import { loadingStateChange } from './global-actions'
@@ -25,6 +25,21 @@ export function sanitizeFirebaseErrorState() {
     }
 }
 
+export function docExists(collection, ref) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const doc = await firebase
+                .firestore()
+                .collection(collection)
+                .doc(ref)
+                .get()
+            resolve(doc.exists)
+        } catch (err) {
+            reject(err)
+        }
+    })
+}
+
 function fetchDataSuccess(data) {
     return {
         type: types.FETCH_DATA_SUCCESS,
@@ -39,17 +54,26 @@ function fetchDataFailure(error) {
     }
 }
 
-export function fetchData(endpoint) {
+export function fetchData(endpoint, ref) {
     return async (dispatch) => {
         try {
             dispatch(loadingStateChange(true))
-            await firebase
-                .database()
-                .ref(endpoint)
-                .once('value', (snapshot) => {
-                    dispatch(fetchDataSuccess(snapshot.val()))
-                    dispatch(loadingStateChange(false))
-                })
+            const db = firebase.firestore()
+            if (ref) {
+                const doc = await db
+                    .collection(endpoint)
+                    .doc(ref)
+                    .get()
+                dispatch(fetchDataSuccess(doc.data()))
+                dispatch(loadingStateChange(false))
+            } else {
+                const doc = await firebase
+                    .firestore()
+                    .collection(endpoint)
+                    .get()
+                dispatch(fetchDataSuccess(doc.data()))
+                dispatch(loadingStateChange(false))
+            }
         } catch (err) {
             err.message = err.code && sanitizeUserErrorMessage(err)
             dispatch(fetchDataFailure(err))
@@ -72,29 +96,19 @@ function writeDataFailure(error) {
     }
 }
 
-export function writeData(endpoint, data) {
+export function writeData(endpoint, data, key) {
     return async (dispatch) => {
         try {
             if (endpoint && data) {
                 dispatch(loadingStateChange(true))
-                const ref = firebase.database().ref(endpoint)
-                ref.once('value', async (snapshot) => {
-                    function onWriteCompleted(err) {
-                        if (err) {
-                            err.message = err.code && sanitizeUserErrorMessage(err)
-                            dispatch(writeDataFailure(err))
-                            dispatch(loadingStateChange(false))
-                        } else {
-                            dispatch(writeDataSuccess(this))
-                            dispatch(loadingStateChange(false))
-                        }
-                    }
-                    if (snapshot.exists()) {
-                        await ref.update(data, onWriteCompleted.bind(data))
-                    } else {
-                        await ref.set(data, onWriteCompleted.bind(data))
-                    }
-                })
+                const ref = await firebase.firestore().collection(endpoint)
+                if (key) {
+                    await ref.doc(key).set(data)
+                    dispatch(loadingStateChange(false))
+                } else {
+                    await ref.add(data)
+                    dispatch(loadingStateChange(false))
+                }
             }
         } catch (err) {
             err.message = err.code && sanitizeUserErrorMessage(err)
@@ -118,26 +132,27 @@ function updateDataFailure(error) {
     }
 }
 
-export function updateData(endpoint, data) {
+export function updateData(endpoint, data, ref, merge) {
     return async (dispatch) => {
         try {
             dispatch(loadingStateChange(true))
-            if (endpoint && data) {
-                dispatch(loadingStateChange(true))
-                const ref = firebase.database().ref(endpoint)
-                await ref.update(data, (err) => {
-                    if (err) {
-                        err.message = err.code && sanitizeUserErrorMessage(err)
-                        dispatch(writeDataFailure(err))
-                        dispatch(loadingStateChange(false))
-                    } else {
-                        dispatch(writeDataSuccess(data))
-                        dispatch(loadingStateChange(false))
-                    }
-                })
+            if (endpoint && data && ref) {
+                if (merge) {
+                    await firebase
+                        .firestore()
+                        .collection(endpoint)
+                        .doc(ref)
+                        .set(data, { merge: true })
+                    dispatch(updateDataSuccess(true))
+                    dispatch(loadingStateChange(false))
+                } else {
+                    await firebase
+                        .firestore()
+                        .collection(endpoint)
+                        .doc(ref)
+                        .update(data)
+                }
             }
-            dispatch(updateDataSuccess(true))
-            dispatch(loadingStateChange(false))
         } catch (err) {
             err.message = err.code && sanitizeUserErrorMessage(err)
             dispatch(updateDataFailure(err))
@@ -162,17 +177,20 @@ function pushDataFailure(error) {
 
 export function pushData(endpoint, data) {
     return async dispatch =>
-        new Promise((resolve, reject) => {
+        new Promise(async (resolve, reject) => {
             try {
                 if (endpoint && data) {
                     dispatch(loadingStateChange(true))
-                    const ref = firebase.database().ref(endpoint)
-                    const newRef = ref.push()
-                    data.postId = newRef.key
-                    newRef.set(data)
-                    dispatch(pushDataSuccess(newRef.key))
+                    const docRef = await firebase
+                        .firestore()
+                        .collection(endpoint)
+                        .add(data)
+                    docRef.update({
+                        postId: docRef.id
+                    })
+                    resolve(docRef.id)
+                    dispatch(pushDataSuccess(docRef.id))
                     dispatch(loadingStateChange(false))
-                    resolve(newRef.key)
                 }
             } catch (err) {
                 err.message = err.code && sanitizeUserErrorMessage(err)

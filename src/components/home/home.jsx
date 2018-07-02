@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import firebase from 'firebase/app'
-import 'firebase/database'
+import 'firebase/firestore'
 import * as userActions from '../../actions/user-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
@@ -17,51 +17,56 @@ class HomePage extends React.Component {
             theater: false
         }
     }
-    componentDidMount() {
+    componentDidMount = async () => {
         ReactGA.pageview(window.location.pathname)
 
         if (window.location.search) {
             const postId = window.location.search.split('=')[1]
-            const cinemagraphsRef = firebase.database().ref(`cinemagraphs/-${postId}`)
-            cinemagraphsRef.once('value', (snapshot) => {
-                const data = snapshot.val()
-                if (data !== null) {
-                    document.title = data.title
-                    this.setState({
-                        cinemagraph: data,
-                        audio: data.audio || [],
-                        theater: data.theater
-                    })
-                }
-            })
+            const cinemagraphs = await firebase
+                .firestore()
+                .collection('cinemagraphs')
+                .where('postId', '==', postId)
+                .get()
+            if (cinemagraphs.size >= 1) {
+                const data = cinemagraphs.docs[0].data()
+                document.title = data.title
+                this.setState({
+                    cinemagraph: data,
+                    audio: data.audio || [],
+                    theater: data.theater
+                })
+            }
         } else {
-            const cinemagraphsRef = firebase.database().ref('cinemagraphs')
-            cinemagraphsRef.once('value', (snapshot) => {
+            const cinemagraphs = await firebase
+                .firestore()
+                .collection('cinemagraphs')
+                .get()
+            if (cinemagraphs.size >= 1) {
                 // for now just choose one
-                const data = snapshot.val()
+                const idx = Math.ceil(Math.random() * (cinemagraphs.size - 1))
+                const data = cinemagraphs.docs[idx].data()
+                this.setState({
+                    cinemagraph: data,
+                    audio: data.audio || [],
+                    theater: data.theater
+                })
 
-                Object.entries(data).forEach(([key, value], idx) => {
+                // TODO: Remove - randomize some upvotes and downvotes
+                cinemagraphs.docs.forEach(doc => {
                     const upvotes = Math.ceil(Math.random() * 5000)
                     const downvotes = Math.ceil(Math.random() * 5000)
                     const ratio = upvotes / (upvotes + downvotes)
-
-                    this.props.firebaseActions.updateData(`cinemagraphs/${key}`, {
-                        postId: key,
-                        upvotes,
-                        downvotes,
-                        ratio: parseFloat(ratio.toFixed(6))
-                    })
+                    this.props.firebaseActions.updateData(
+                        `cinemagraphs`,
+                        {
+                            upvotes,
+                            downvotes,
+                            ratio: parseFloat(ratio.toFixed(6))
+                        },
+                        doc.id
+                    )
                 })
-
-                const idx = Math.ceil(Math.random() * (Object.values(data).length - 1))
-                if (data !== null) {
-                    this.setState({
-                        cinemagraph: Object.values(data)[idx],
-                        audio: Object.values(data)[idx].audio || [],
-                        theater: Object.values(data)[idx].theater
-                    })
-                }
-            })
+            }
         }
     }
     shouldComponentUpdate(nextProps, nextState) {
@@ -86,7 +91,8 @@ class HomePage extends React.Component {
                         this.setState(prevState => ({
                             theater: !prevState.theater
                         }))
-                    }} />
+                    }}
+                />
             </div>
         )
     }

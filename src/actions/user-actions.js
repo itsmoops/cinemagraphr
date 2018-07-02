@@ -1,9 +1,9 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
-import 'firebase/database'
+import 'firebase/firestore'
 import * as types from './action-types'
 import { loadingStateChange } from './global-actions'
-import { fetchData, writeData } from './firebase-actions'
+import { writeData, docExists } from './firebase-actions'
 import { sanitizeUserErrorMessage } from '../utilities/utilities'
 
 export function sanitizeUserState() {
@@ -46,7 +46,7 @@ function checkForUserFailed(user) {
 }
 
 export function checkForUser() {
-    return (dispatch) => {
+    return async (dispatch) => {
         dispatch(loadingStateChange(true))
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
@@ -62,15 +62,17 @@ export function checkForUser() {
                     dateCreated: user.metadata.creationTime,
                     uid: user.uid
                 }
-                const profileRef = firebase.database().ref(`users/${user.uid}`)
-                profileRef.on('value', (snapshot) => {
-                    const profileData = snapshot.val()
-                    if (profileData !== null) {
-                        userData = { ...userData, ...profileData }
-                    }
+                const profileRef = await firebase
+                    .firestore()
+                    .collection('users')
+                    .where('uid', '==', user.uid)
+                    .get()
+                if (profileRef.size >= 1) {
+                    const profileData = profileRef.docs[0].data()
+                    userData = { ...userData, ...profileData }
                     dispatch(checkForUserSuccess(userData))
                     dispatch(loadingStateChange(false))
-                })
+                }
             } else {
                 const userData = {
                     authenticated: false
@@ -97,98 +99,63 @@ function userSignUpFailure(error) {
 }
 
 export function userSignUp(username, email, password) {
-    return async dispatch =>
-        firebase
-            .database()
-            .ref(`usernames/${username}`)
-            .once('value', async (snapshot) => {
-                dispatch(loadingStateChange(true))
-                if (snapshot.exists()) {
-                    dispatch(
-                        userSignUpFailure({
-                            message: 'That username already taken'
-                        })
-                    )
-                    dispatch(loadingStateChange(false))
-                } else {
-                    try {
-                        await firebase.auth().createUserWithEmailAndPassword(email, password)
-                        const user = await firebase.auth().currentUser
-                        await dispatch(
-                            writeData(`users/${user.uid}`, {
-                                email,
-                                username
-                            })
-                        )
-                        await dispatch(
-                            writeData('usernames', {
-                                [username]: {
-                                    uid: user.uid,
-                                    email
-                                }
-                            })
-                        )
-                        await user.updateProfile({ displayName: username })
-                        const userData = {
-                            authenticated: true,
-                            email: user.email,
-                            emailVerified: user.emailVerified,
-                            displayName: user.displayName,
-                            isAnonymous: user.isAnonymous,
-                            phoneNumber: user.phoneNumber,
-                            photoURL: user.photoURL,
-                            refreshToken: user.refreshToken,
-                            message: undefined
-                        }
-                        dispatch(userSignUpSuccess(userData))
-                        dispatch(sanitizeUserErrorState())
-                        dispatch(loadingStateChange(false))
-                    } catch (err) {
-                        err.message = err.code && sanitizeUserErrorMessage(err)
-                        dispatch(userSignUpFailure(err))
-                        dispatch(loadingStateChange(false))
-                    }
-                }
-            })
-}
-
-function userCompleteProfileSuccess(user) {
-    return {
-        type: types.USER_COMPLETE_PROFILE_SUCCESS,
-        user
-    }
-}
-
-function userCompleteProfileFailure(error) {
-    return {
-        type: types.USER_COMPLETE_PROFILE_FAILURE,
-        error
-    }
-}
-
-export function userCompleteProfile(userProfile) {
     return async (dispatch) => {
-        try {
-            dispatch(loadingStateChange(true))
-            const user = await firebase.auth().currentUser
-            await firebase
-                .database()
-                .ref(`users/${user.uid}`)
-                .set(userProfile)
-            await user.updateProfile({
-                displayName: userProfile.firstName,
-                phoneNumber: userProfile.phoneNumber
-            })
-            const success = {
-                profileSaved: true
+        dispatch(loadingStateChange(true))
+        const exists = await docExists('usernames', username)
+        if (exists) {
+            dispatch(
+                userSignUpFailure({
+                    message: 'That username already taken'
+                })
+            )
+            dispatch(loadingStateChange(false))
+        } else {
+            try {
+                await firebase.auth().createUserWithEmailAndPassword(email, password)
+                const user = await firebase.auth().currentUser
+                await dispatch(
+                    writeData(
+                        'users',
+                        {
+                            email,
+                            username,
+                            uid: user.uid
+                        },
+                        user.uid
+                    )
+                )
+                await dispatch(
+                    writeData(
+                        'usernames',
+                        {
+                            email,
+                            username,
+                            uid: user.uid
+                        },
+                        username
+                    )
+                )
+                await user.updateProfile({ displayName: username })
+                const userData = {
+                    authenticated: true,
+                    email: user.email,
+                    emailVerified: user.emailVerified,
+                    displayName: user.displayName,
+                    isAnonymous: user.isAnonymous,
+                    phoneNumber: user.phoneNumber,
+                    photoURL: user.photoURL,
+                    refreshToken: user.refreshToken,
+                    message: undefined
+                }
+                dispatch(userSignUpSuccess(userData))
+                dispatch(sanitizeUserErrorState())
+                dispatch(loadingStateChange(false))
+            } catch (err) {
+                debugger
+                err.message = err.code && sanitizeUserErrorMessage(err)
+                dispatch(userSignUpFailure(err))
+                dispatch(loadingStateChange(false))
             }
-            dispatch(userCompleteProfileSuccess(success))
-            dispatch(sanitizeUserErrorState())
-            dispatch(loadingStateChange(false))
-        } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
-            dispatch(userCompleteProfileFailure(err))
-            dispatch(loadingStateChange(false))
         }
     }
 }
@@ -479,8 +446,9 @@ export function userUpdateProfile(userProfile) {
             dispatch(loadingStateChange(true))
             const user = firebase.auth().currentUser
             await firebase
-                .database()
-                .ref(`users/${user.uid}`)
+                .firestore()
+                .collection('users')
+                .where('uid', '==', user.uid)
                 .update(userProfile)
             const success = {
                 profileUpdated: true
