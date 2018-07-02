@@ -20,7 +20,8 @@ class Browse extends React.Component {
             cinemagraphs: [],
             sortBy: localStorage.getItem('sortBy') || SORT_BY.TOP,
             sortFrom: localStorage.getItem('sortFrom') || SORT_FROM.TODAY,
-            lastVisible: ''
+            lastVisible: '',
+            today: new Date()
         }
     }
     componentDidMount() {
@@ -42,7 +43,7 @@ class Browse extends React.Component {
     }
     getSortDateRange = () => {
         let startDate, endDate
-        const today = new Date()
+        const { today } = this.state
         switch (this.state.sortFrom) {
             case SORT_FROM.TODAY:
                 startDate = new Date(
@@ -56,11 +57,35 @@ class Browse extends React.Component {
                 ).getTime()
                 endDate = today.getTime()
                 break
+            case SORT_FROM.HOUR:
+                startDate = new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    today.getDay() + 1,
+                    today.getHours() - 1,
+                    today.getMinutes(),
+                    today.getSeconds(),
+                    today.getMilliseconds()
+                ).getTime()
+                endDate = today.getTime()
+                break
             case SORT_FROM.WEEK:
                 startDate = new Date(
                     today.getFullYear(),
                     today.getMonth(),
                     today.getDay() - 6,
+                    today.getHours(),
+                    today.getMinutes(),
+                    today.getSeconds(),
+                    today.getMilliseconds()
+                ).getTime()
+                endDate = today.getTime()
+                break
+            case SORT_FROM.MONTH:
+                startDate = new Date(
+                    today.getFullYear(),
+                    today.getMonth() - 1,
+                    today.getDay() + 1,
                     today.getHours(),
                     today.getMinutes(),
                     today.getSeconds(),
@@ -93,11 +118,8 @@ class Browse extends React.Component {
     fetchData = async () => {
         const db = firebase.firestore().collection('cinemagraphs')
         const itemsPerPage = 9
-        let orderBy, docRef, date
         if (this.state.sortBy === SORT_BY.TOP) {
-            orderBy = 'ratio'
             const dateRange = this.getSortDateRange()
-            console.log(dateRange)
             if (!this.state.lastVisible) {
                 docRef = await db
                     .where('created', '>=', dateRange.startDate)
@@ -106,7 +128,7 @@ class Browse extends React.Component {
                     .get()
                 if (docRef.size >= 1) {
                     const cinemagraphs = docRef.docs.map(doc => doc.data()).sort((a, b) => {
-                        return b[orderBy] > a[orderBy]
+                        return b.ratio > a.ratio
                     })
                     this.setState({
                         cinemagraphs,
@@ -122,7 +144,7 @@ class Browse extends React.Component {
                     .get()
                 if (docRef.size >= 1) {
                     const cinemagraphs = docRef.docs.map(doc => doc.data()).sort((a, b) => {
-                        return b[orderBy] > a[orderBy]
+                        return b.ratio > a.ratio
                     })
                     this.setState(prevState => ({
                         cinemagraphs: [...prevState.cinemagraphs, ...cinemagraphs],
@@ -131,10 +153,9 @@ class Browse extends React.Component {
                 }
             }
         } else if (this.state.sortBy === SORT_BY.NEW) {
-            orderBy = 'created'
             if (!this.state.lastVisible) {
                 docRef = await db
-                    .orderBy(orderBy, 'desc')
+                    .orderBy('created', 'desc')
                     .limit(itemsPerPage)
                     .get()
                 if (docRef.size >= 1) {
@@ -146,7 +167,7 @@ class Browse extends React.Component {
                 }
             } else {
                 docRef = await db
-                    .orderBy(orderBy, 'desc')
+                    .orderBy('created', 'desc')
                     .startAfter(this.state.lastVisible)
                     .limit(itemsPerPage)
                     .get()
@@ -188,31 +209,8 @@ class Browse extends React.Component {
     }
     render() {
         const { cinemagraphs } = this.state
-        const sortByOptions = [
-            {
-                value: SORT_BY.TOP
-            },
-            {
-                value: SORT_BY.NEW
-            }
-        ]
-        const sortFromOptions = [
-            {
-                value: SORT_FROM.TODAY
-            },
-            {
-                value: SORT_FROM.WEEK
-            },
-            {
-                value: SORT_FROM.MONTH
-            },
-            {
-                value: SORT_FROM.YEAR
-            },
-            {
-                value: SORT_FROM.ALL_TIME
-            }
-        ]
+        const sortByOptions = Object.values(SORT_BY).map(value => ({ value }))
+        const sortFromOptions = Object.values(SORT_FROM).map(value => ({ value }))
         return (
             <FlexContainer>
                 <Sort

@@ -5,6 +5,7 @@ export const SORT_BY = {
 
 export const SORT_FROM = {
     TODAY: 'Today',
+    HOUR: 'Past Hour',
     WEEK: 'This week',
     MONTH: 'This month',
     YEAR: 'This year',
