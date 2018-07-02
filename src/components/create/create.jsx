@@ -77,18 +77,18 @@ class Create extends React.Component {
     }
     componentDidUpdate(prevProps) {
         if (prevProps !== this.props && this.props.firebase.fileURL) {
-            this.setState({
+            this.setState(prevState => ({
                 user: {
                     uid: this.props.user.uid,
                     username: this.props.user.displayName
                 },
                 url: this.props.firebase.fileURL,
                 type: this.props.firebase.contentType,
-                theater: false,
+                theater: prevState.theater || false,
                 audio: [],
                 upvotes: 0,
                 downvotes: 0
-            })
+            }))
         }
     }
     validateFile = (file, validTypes, maxSize) => {
