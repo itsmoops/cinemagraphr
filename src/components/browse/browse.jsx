@@ -118,6 +118,7 @@ class Browse extends React.Component {
     fetchData = async () => {
         const db = firebase.firestore().collection('cinemagraphs')
         const itemsPerPage = 9
+        let docRef
         if (this.state.sortBy === SORT_BY.TOP) {
             const dateRange = this.getSortDateRange()
             if (!this.state.lastVisible) {
