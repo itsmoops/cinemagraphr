@@ -33,10 +33,12 @@ class UpdatePassword extends React.Component {
         this.props.actions.userUpdatePassword(this.state.currentPassword, this.state.newPassword)
     }
     render() {
-        const { message, passwordUpdated } = this.props.user
+        const { errorMessage, passwordUpdated } = this.props.user
         const success = (
             <Container>
-                <Heading mb={20} f={40}>Update Password</Heading>
+                <Heading mb={20} f={40}>
+                    Update Password
+                </Heading>
                 <Text>Success! Your password has been changed.</Text>
             </Container>
         )
@@ -60,7 +62,7 @@ class UpdatePassword extends React.Component {
                         toggleHiddenText
                     />
                     <Button>Reset</Button>
-                    {message && <Message>{message}</Message>}
+                    {errorMessage && <Message>{errorMessage}</Message>}
                 </form>
             </Container>
         )

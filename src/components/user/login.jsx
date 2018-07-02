@@ -47,11 +47,13 @@ class Login extends React.Component {
         }
     }
     render() {
-        const { message } = this.props.user
+        const { errorMessage } = this.props.user
         return (
             <Flex>
                 <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto">
-                    <Heading mb={20} f={40}>Login</Heading>
+                    <Heading mb={20} f={40}>
+                        Login
+                    </Heading>
                     <Container>
                         <form onSubmit={this.onHandleSubmit}>
                             <Input
@@ -71,7 +73,7 @@ class Login extends React.Component {
                                 required
                             />
                             <Button>Login</Button>
-                            {message && <Message>{message}</Message>}
+                            {errorMessage && <Message>{errorMessage}</Message>}
                             <StyledContainer mt={25}>
                                 <Text mt={10} mb={20}>
                                     No account yet? <Link to="/sign-up">Sign up</Link>

@@ -18,12 +18,14 @@ class VerifyEmail extends React.Component {
     }
     render() {
         const success = <Text>Success! Your email has been verified.</Text>
-        const { codeVerified, message } = this.props.user
+        const { codeVerified, errorMessage } = this.props.user
         return (
             <Container>
-                <Heading mb={20} f={40}>Verify Email</Heading>
+                <Heading mb={20} f={40}>
+                    Verify Email
+                </Heading>
                 {codeVerified && success}
-                {message && <Message>{message}</Message>}
+                {errorMessage && <Message>{errorMessage}</Message>}
             </Container>
         )
     }

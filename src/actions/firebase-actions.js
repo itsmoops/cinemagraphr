@@ -16,7 +16,7 @@ export function sanitizeFirebaseState() {
 
 export function sanitizeFirebaseErrorState() {
     const reset = {
-        message: undefined,
+        errorMessage: undefined,
         code: undefined
     }
     return {
@@ -25,15 +25,19 @@ export function sanitizeFirebaseErrorState() {
     }
 }
 
-export function docExists(collection, ref) {
+export function docExists(collection, field, value) {
     return new Promise(async (resolve, reject) => {
         try {
-            const doc = await firebase
+            const docRef = await firebase
                 .firestore()
                 .collection(collection)
-                .doc(ref)
+                .where(field, '==', value)
                 .get()
-            resolve(doc.exists)
+            if (docRef.size >= 1) {
+                resolve(docRef.docs[0].exists)
+            } else {
+                resolve(false)
+            }
         } catch (err) {
             reject(err)
         }
@@ -75,7 +79,7 @@ export function fetchData(endpoint, ref) {
                 dispatch(loadingStateChange(false))
             }
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(fetchDataFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -104,14 +108,16 @@ export function writeData(endpoint, data, key) {
                 const ref = await firebase.firestore().collection(endpoint)
                 if (key) {
                     await ref.doc(key).set(data)
+                    dispatch(writeDataSuccess(data))
                     dispatch(loadingStateChange(false))
                 } else {
                     await ref.add(data)
+                    dispatch(writeDataSuccess(data))
                     dispatch(loadingStateChange(false))
                 }
             }
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(writeDataFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -154,7 +160,7 @@ export function updateData(endpoint, data, ref, merge) {
                 }
             }
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(updateDataFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -193,7 +199,7 @@ export function pushData(endpoint, data) {
                     dispatch(loadingStateChange(false))
                 }
             } catch (err) {
-                err.message = err.code && sanitizeUserErrorMessage(err)
+                err.errorMessage = err.code && sanitizeUserErrorMessage(err)
                 dispatch(pushDataFailure(err))
                 dispatch(loadingStateChange(false))
                 reject()
@@ -222,7 +228,7 @@ export function deleteData(endpoint) {
             dispatch(deleteDataSuccess(true))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(deleteDataFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -259,7 +265,7 @@ export function uploadFile(file) {
                         // can use this if a progress bar is needed
                     },
                     (err) => {
-                        err.message = err.code && sanitizeUserErrorMessage(err)
+                        err.errorMessage = err.code && sanitizeUserErrorMessage(err)
                         dispatch(uploadFileFailure(err))
                         dispatch(loadingStateChange(false))
                         reject()
@@ -275,7 +281,7 @@ export function uploadFile(file) {
                     }
                 )
             } catch (err) {
-                err.message = err.code && sanitizeUserErrorMessage(err)
+                err.errorMessage = err.code && sanitizeUserErrorMessage(err)
                 dispatch(uploadFileFailure(err))
                 dispatch(loadingStateChange(false))
                 reject()

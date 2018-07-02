@@ -69,7 +69,7 @@ class Create extends React.Component {
         super()
         document.title = 'Create'
         this.state = {
-            message: '',
+            errorMessage: '',
             cinemagraph: {},
             audio: [],
             title: ''
@@ -94,23 +94,23 @@ class Create extends React.Component {
     validateFile = (file, validTypes, maxSize) => {
         if (!validTypes.includes(file.type)) {
             this.setState({
-                message: 'Invalid file type'
+                errorMessage: 'Invalid file type'
             })
             return
         }
         if (file.size > maxSize) {
             this.setState({
-                message: `File too large, must be less than ${maxSize / 1000000}MB`
+                errorMessage: `File too large, must be less than ${maxSize / 1000000}MB`
             })
             return
         }
         if (this.state.audio.find(track => track.name === file.name)) {
             this.setState({
-                message: `Audio files must have unique names`
+                errorMessage: `Audio files must have unique names`
             })
             return
         }
-        this.setState({ message: '' })
+        this.setState({ errorMessage: '' })
         return file
     }
     handleUploadCinemagraph = async (acceptedFiles, rejectedFiles) => {
@@ -250,7 +250,7 @@ class Create extends React.Component {
             this.props.history.push(`/?id=${postId}`)
         } else {
             this.setState({
-                message: 'No cinemagraph uploaded'
+                errorMessage: 'No cinemagraph uploaded'
             })
         }
     }
@@ -260,7 +260,7 @@ class Create extends React.Component {
         this.setState({ [name]: value })
     }
     render() {
-        const { cinemagraph, audio, message } = this.state
+        const { cinemagraph, audio, errorMessage } = this.state
         return (
             <div>
                 <Cinemagraph cinemagraph={cinemagraph} theater={this.state.theater} />
@@ -308,7 +308,7 @@ class Create extends React.Component {
                                 </div>
                             </StyledDropzone>
                         )}
-                        {message && <Message>{message}</Message>}
+                        {errorMessage && <Message>{errorMessage}</Message>}
                     </Box>
                 </Flex>
             </div>

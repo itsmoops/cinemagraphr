@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import { SORT_BY, SORT_FROM } from '../../constants/constants.js'
-import Card from './card'
-import Sort from './sort'
+import Sort from '../shared/sort'
+import Card from '../shared/card'
 
 const FlexContainer = styled(Flex)`
     overflow: hidden;

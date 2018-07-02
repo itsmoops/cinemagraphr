@@ -22,7 +22,7 @@ export function sanitizeUserState() {
 
 export function sanitizeUserErrorState() {
     const reset = {
-        message: undefined,
+        errorMessage: undefined,
         code: undefined
     }
     return {
@@ -100,17 +100,17 @@ function userSignUpFailure(error) {
 
 export function userSignUp(username, email, password) {
     return async (dispatch) => {
-        dispatch(loadingStateChange(true))
-        const exists = await docExists('usernames', username)
-        if (exists) {
-            dispatch(
-                userSignUpFailure({
-                    message: 'That username already taken'
-                })
-            )
-            dispatch(loadingStateChange(false))
-        } else {
-            try {
+        try {
+            dispatch(loadingStateChange(true))
+            const exists = await docExists('users', 'username', username)
+            if (exists) {
+                dispatch(
+                    userSignUpFailure({
+                        errorMessage: 'That username already taken'
+                    })
+                )
+                dispatch(loadingStateChange(false))
+            } else {
                 await firebase.auth().createUserWithEmailAndPassword(email, password)
                 const user = await firebase.auth().currentUser
                 await dispatch(
@@ -124,17 +124,6 @@ export function userSignUp(username, email, password) {
                         user.uid
                     )
                 )
-                await dispatch(
-                    writeData(
-                        'usernames',
-                        {
-                            email,
-                            username,
-                            uid: user.uid
-                        },
-                        username
-                    )
-                )
                 await user.updateProfile({ displayName: username })
                 const userData = {
                     authenticated: true,
@@ -145,17 +134,16 @@ export function userSignUp(username, email, password) {
                     phoneNumber: user.phoneNumber,
                     photoURL: user.photoURL,
                     refreshToken: user.refreshToken,
-                    message: undefined
+                    errorMessage: undefined
                 }
                 dispatch(userSignUpSuccess(userData))
                 dispatch(sanitizeUserErrorState())
                 dispatch(loadingStateChange(false))
-            } catch (err) {
-                debugger
-                err.message = err.code && sanitizeUserErrorMessage(err)
-                dispatch(userSignUpFailure(err))
-                dispatch(loadingStateChange(false))
             }
+        } catch (err) {
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
+            dispatch(userSignUpFailure(err))
+            dispatch(loadingStateChange(false))
         }
     }
 }
@@ -192,7 +180,7 @@ export function userLogin(email, password) {
             dispatch(userLoginSuccess(userData))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(userLoginFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -224,7 +212,7 @@ export function userLogout() {
             dispatch(userLogoutSuccess(userData))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(userLogoutFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -254,7 +242,7 @@ export function sendEmailVerification() {
             }
             dispatch(sendEmailVerificationSuccess(success))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(sendEmailVerificationFailure(err))
         }
     }
@@ -285,7 +273,7 @@ export function verifyEmailCode(code) {
             dispatch(verifyEmailCodeSuccess(success))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(verifyEmailCodeFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -317,7 +305,7 @@ export function verifyPasswordResetCode(code) {
             dispatch(verifyPasswordResetCodeSuccess(success))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(verifyPasswordResetCodeFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -349,7 +337,7 @@ export function confirmPasswordReset(code, newPassword) {
             dispatch(confirmPasswordResetSuccess(success))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(confirmPasswordResetFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -381,7 +369,7 @@ export function sendPasswordResetEmail(email) {
             dispatch(sendPasswordResetEmailSuccess(success))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(sendPasswordResetEmailFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -419,7 +407,7 @@ export function userUpdatePassword(currentPassword, newPassword) {
             dispatch(userUpdatePasswordSuccess(success))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(userUpdatePasswordFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -456,7 +444,7 @@ export function userUpdateProfile(userProfile) {
             dispatch(userUpdateProfileSuccess(success))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(userUpdateProfileFailure(err))
             dispatch(loadingStateChange(false))
         }
@@ -491,7 +479,7 @@ export function saveUserProfilePicture(photoURL) {
             dispatch(saveUserProfilePictureSuccess(success))
             dispatch(loadingStateChange(false))
         } catch (err) {
-            err.message = err.code && sanitizeUserErrorMessage(err)
+            err.errorMessage = err.code && sanitizeUserErrorMessage(err)
             dispatch(saveUserProfilePictureFailure(err))
             dispatch(loadingStateChange(false))
         }

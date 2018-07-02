@@ -38,10 +38,12 @@ class ResetPassword extends React.Component {
         }
     }
     render() {
-        const { message, passwordUpdated } = this.props.user
+        const { errorMessage, passwordUpdated } = this.props.user
         const thankYou = (
             <Container>
-                <Heading mb={20} f={40}>Password Changed</Heading>
+                <Heading mb={20} f={40}>
+                    Password Changed
+                </Heading>
                 <Text align="center">
                     You can now <Link to={'login'}>log in</Link> with your new password.
                 </Text>
@@ -61,7 +63,7 @@ class ResetPassword extends React.Component {
                         disabled={!this.props.user.codeVerified}
                     />
                     <Button disabled={!this.props.user.codeVerified}>Reset</Button>
-                    {message && <Message>{message}</Message>}
+                    {errorMessage && <Message>{errorMessage}</Message>}
                 </form>
             </Container>
         )

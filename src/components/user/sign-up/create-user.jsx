@@ -25,16 +25,18 @@ class CreateUser extends React.Component {
             this.state.email,
             this.state.password
         )
-        if (!this.props.user.message) {
+        if (!this.props.user.errorMessage) {
             this.props.handleStateChange('thankYou')
         }
     }
     render() {
-        const { message } = this.props.user
+        const { errorMessage } = this.props.user
         return (
             <Container>
                 <form onSubmit={this.onHandleSubmit}>
-                    <Heading mb={20} f={40}>Sign up</Heading>
+                    <Heading mb={20} f={40}>
+                        Sign up
+                    </Heading>
                     <Input
                         placeholder="Username"
                         type="text"
@@ -61,7 +63,7 @@ class CreateUser extends React.Component {
                         toggleHiddenText
                     />
                     <Button>Sign Up</Button>
-                    {message && <Message>{message}</Message>}
+                    {errorMessage && <Message>{errorMessage}</Message>}
                     <Text mt={25} center>
                         Already signed up? <Link to="/login">Login</Link>
                     </Text>
