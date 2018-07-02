@@ -97,18 +97,24 @@ class Controls extends React.Component {
         const { creatorMode, audio, cinemagraph } = this.props
         return (
             <StyledContainer>
-                {cinemagraph && (
-                    <Theater>
-                        <StyledIcon
-                            data-tip="Toggle theater mode"
-                            data-for="theater"
-                            onClick={this.props.toggleTheaterMode}
-                            icon={display}
-                            size={size}
-                        />
-                        <ReactTooltip id="theater" place="top" effect="solid" delayShow={1000} />
-                    </Theater>
-                )}
+                {cinemagraph &&
+                    creatorMode && (
+                        <Theater>
+                            <StyledIcon
+                                data-tip="Toggle theater mode"
+                                data-for="theater"
+                                onClick={this.props.toggleTheaterMode}
+                                icon={display}
+                                size={size}
+                            />
+                            <ReactTooltip
+                                id="theater"
+                                place="top"
+                                effect="solid"
+                                delayShow={1000}
+                            />
+                        </Theater>
+                    )}
                 {!!audio.length &&
                     audio.map((track, idx) => (
                         <div key={uuidV4()}>
