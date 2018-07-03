@@ -1,6 +1,5 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { BrowserRouter as Router } from 'react-router-dom'
 import { Box, Heading, Container, Text } from 'rebass'
 import styled from 'styled-components'
 import * as userActions from '../../actions/user-actions'

@@ -24,6 +24,25 @@ const utilities = {
             default:
                 return error.message
         }
+    },
+
+    cleanCinemagraphData(data) {
+        const validKeys = [
+            'audio',
+            'created',
+            'fileURL',
+            'postId',
+            'theater',
+            'title',
+            'type',
+            'user'
+        ]
+        return Object.keys(data).reduce((acc, key) => {
+            if (validKeys.includes(key)) {
+                acc[key] = data[key]
+            }
+            return acc
+        }, {})
     }
 }
 

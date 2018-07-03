@@ -12,6 +12,7 @@ import * as userActions from '../../actions/firebase-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
 import Controls from '../cinemagraph/controls'
+import { cleanCinemagraphData } from '../../utilities/utilities.js'
 
 const StyledIcon = styled(Icon)`
     cursor: pointer;
@@ -216,6 +217,7 @@ class Create extends React.Component {
                 timeCreated: cinemagraphData.timeCreated,
                 created: new Date().getTime(),
                 theater: this.state.theater,
+                userFavorites: [],
                 upvotes: 1,
                 userUpvotes: [this.props.user.uid],
                 downvotes: 0,
@@ -239,9 +241,7 @@ class Create extends React.Component {
                 `users`,
                 {
                     cinemagraphs: {
-                        [postId]: {
-                            fileURL: cinemagraphData.fileURL
-                        }
+                        [postId]: cleanCinemagraphData(data)
                     }
                 },
                 this.props.user.uid,

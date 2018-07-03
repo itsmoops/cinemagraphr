@@ -9,7 +9,10 @@ const colors = {
     messageWarn: '#fff8c4',
     messageError: '#bebebe',
     link: '#999999',
-    loadingSpinner: '#999999'
+    loadingSpinner: '#999999',
+    upvoted: '#ffbd74',
+    downvoted: '#60d0ff',
+    favorited: '#ff6f6f'
 }
 
 export default colors

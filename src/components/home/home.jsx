@@ -19,7 +19,12 @@ class HomePage extends React.Component {
     }
     componentDidMount = async () => {
         ReactGA.pageview(window.location.pathname)
-
+        /* 
+            TODO: use local storage - check if its their first visit
+            If yes, display title and information
+            Choose one of like 5 cool graphs
+            set local storage to say theyve visited
+        */
         if (window.location.search) {
             const postId = window.location.search.split('=')[1]
             const cinemagraphs = await firebase
@@ -59,6 +64,7 @@ class HomePage extends React.Component {
                     this.props.firebaseActions.updateData(
                         `cinemagraphs`,
                         {
+                            userFavorites: [],
                             upvotes,
                             downvotes,
                             ratio: parseFloat(ratio.toFixed(6))

@@ -119,7 +119,9 @@ export function userSignUp(username, email, password) {
                         {
                             email,
                             username,
-                            uid: user.uid
+                            uid: user.uid,
+                            cinemagraphs: {},
+                            favorites: {}
                         },
                         user.uid
                     )

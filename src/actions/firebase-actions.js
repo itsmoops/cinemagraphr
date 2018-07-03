@@ -157,6 +157,8 @@ export function updateData(endpoint, data, ref, merge) {
                         .collection(endpoint)
                         .doc(ref)
                         .update(data)
+                    dispatch(updateDataSuccess(true))
+                    dispatch(loadingStateChange(false))
                 }
             }
         } catch (err) {
