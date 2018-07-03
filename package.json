@@ -9,6 +9,7 @@
         "build-dev": "webpack --config=webpack.config",
         "build-prod": "webpack --config=webpack.prod.config",
         "build": "webpack --config=webpack.prod.config",
+        "analyze": "BUILD_MODE=analyze yarn build",
         "deploy-dev": "firebase use dev && yarn build-dev && firebase deploy",
         "deploy-prod": "firebase use prod && yarn build-prod && firebase deploy",
         "deploy-all": "yarn deploy-dev && yarn deploy-prod"
@@ -86,6 +87,7 @@
         "file-loader": "^1.1.11",
         "firebase-tools": "^3.14.0",
         "image-webpack-loader": "^3.3.1",
+        "webpack-bundle-analyzer": "^2.13.1",
         "webpack-dev-server": "^3.1.4"
     }
 }

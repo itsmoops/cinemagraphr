@@ -1,4 +1,5 @@
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import ReactTooltip from 'react-tooltip'
@@ -84,172 +85,190 @@ class VoteControls extends React.PureComponent {
             })
         }
     }
+    isAuthenticated = () => {
+        const { user } = this.props
+        if (user.authenticated) {
+            return true
+        }
+        this.props.history.push('/login')
+        return false
+    }
     handleFavorite = async () => {
-        const { cinemagraph, user } = this.props
-        const db = firebase.firestore()
-        const cinemagraphsDocRef = await db.collection('cinemagraphs').doc(cinemagraph.postId)
-        const usersDocRef = await db.collection('users').doc(user.uid)
-        const cinemagraphDoc = await cinemagraphsDocRef.get()
-        const userDoc = await usersDocRef.get()
+        if (this.isAuthenticated()) {
+            const { cinemagraph, user } = this.props
+            const db = firebase.firestore()
+            const cinemagraphsDocRef = await db.collection('cinemagraphs').doc(cinemagraph.postId)
+            const usersDocRef = await db.collection('users').doc(user.uid)
+            const cinemagraphDoc = await cinemagraphsDocRef.get()
+            const userDoc = await usersDocRef.get()
 
-        if (cinemagraphDoc.exists && userDoc.exists) {
-            const { userFavorites } = cinemagraphDoc.data()
-            const { favorites } = userDoc.data()
+            if (cinemagraphDoc.exists && userDoc.exists) {
+                const { userFavorites } = cinemagraphDoc.data()
+                const { favorites } = userDoc.data()
 
-            if (userFavorites.includes(user.uid)) {
-                const idx = userFavorites.indexOf(user.uid)
-                userFavorites.splice(idx, 1)
-                this.setState({ favorited: false }, () => {
-                    cinemagraphsDocRef.update({
-                        userFavorites
+                if (userFavorites.includes(user.uid)) {
+                    const idx = userFavorites.indexOf(user.uid)
+                    userFavorites.splice(idx, 1)
+                    this.setState({ favorited: false }, () => {
+                        cinemagraphsDocRef.update({
+                            userFavorites
+                        })
+
+                        const filteredFavorites = Object.keys(favorites)
+                            .filter(key => key !== cinemagraph.postId)
+                            .reduce((acc, key) => {
+                                acc[key] = favorites[key]
+                                return acc
+                            }, {})
+
+                        usersDocRef.update({
+                            favorites: filteredFavorites
+                        })
                     })
+                } else {
+                    this.setState({ favorited: true }, () => {
+                        userFavorites.push(user.uid)
+                        cinemagraphsDocRef.update({
+                            userFavorites
+                        })
 
-                    const filteredFavorites = Object.keys(favorites)
-                        .filter(key => key !== cinemagraph.postId)
-                        .reduce((acc, key) => {
-                            acc[key] = favorites[key]
-                            return acc
-                        }, {})
+                        favorites[cinemagraph.postId] = cleanCinemagraphData(cinemagraph)
 
-                    usersDocRef.update({
-                        favorites: filteredFavorites
+                        usersDocRef.set({ favorites }, { merge: true })
                     })
-                })
-            } else {
-                this.setState({ favorited: true }, () => {
-                    userFavorites.push(user.uid)
-                    cinemagraphsDocRef.update({
-                        userFavorites
-                    })
-
-                    favorites[cinemagraph.postId] = cleanCinemagraphData(cinemagraph)
-
-                    usersDocRef.set({ favorites }, { merge: true })
-                })
+                }
             }
         }
     }
     handleUpvote = async () => {
-        const { cinemagraph, user } = this.props
-        const db = firebase.firestore()
-        const cinemagraphsDocRef = await db.collection('cinemagraphs').doc(cinemagraph.postId)
-        const cinemagraphDoc = await cinemagraphsDocRef.get()
+        if (this.isAuthenticated()) {
+            const { cinemagraph, user } = this.props
+            const db = firebase.firestore()
+            const cinemagraphsDocRef = await db.collection('cinemagraphs').doc(cinemagraph.postId)
+            const cinemagraphDoc = await cinemagraphsDocRef.get()
 
-        if (this.state.downvoted) {
-            await this.handleDownvote()
-        }
-
-        return new Promise((resolve, reject) => {
-            try {
-                if (cinemagraphDoc.exists) {
-                    const { userUpvotes } = cinemagraphDoc.data()
-
-                    if (userUpvotes.includes(user.uid)) {
-                        const idx = userUpvotes.indexOf(user.uid)
-                        userUpvotes.splice(idx, 1)
-                        this.setState(
-                            prevState => ({
-                                upvoted: false,
-                                upvotes: prevState.upvotes - 1
-                            }),
-                            () => {
-                                const ratio =
-                                    this.state.upvotes / (this.state.upvotes + this.state.downvotes)
-                                resolve(
-                                    cinemagraphsDocRef.update({
-                                        upvotes: this.state.upvotes,
-                                        ratio,
-                                        userUpvotes
-                                    })
-                                )
-                            }
-                        )
-                    } else {
-                        this.setState(
-                            prevState => ({
-                                upvoted: true,
-                                upvotes: prevState.upvotes + 1
-                            }),
-                            () => {
-                                const ratio =
-                                    this.state.upvotes / (this.state.upvotes + this.state.downvotes)
-                                userUpvotes.push(user.uid)
-                                resolve(
-                                    cinemagraphsDocRef.update({
-                                        upvotes: this.state.upvotes,
-                                        ratio,
-                                        userUpvotes
-                                    })
-                                )
-                            }
-                        )
-                    }
-                }
-            } catch (err) {
-                reject(err)
+            if (this.state.downvoted) {
+                await this.handleDownvote()
             }
-        })
+
+            return new Promise((resolve, reject) => {
+                try {
+                    if (cinemagraphDoc.exists) {
+                        const { userUpvotes } = cinemagraphDoc.data()
+
+                        if (userUpvotes.includes(user.uid)) {
+                            const idx = userUpvotes.indexOf(user.uid)
+                            userUpvotes.splice(idx, 1)
+                            this.setState(
+                                prevState => ({
+                                    upvoted: false,
+                                    upvotes: prevState.upvotes - 1
+                                }),
+                                () => {
+                                    const ratio =
+                                        this.state.upvotes /
+                                        (this.state.upvotes + this.state.downvotes)
+                                    resolve(
+                                        cinemagraphsDocRef.update({
+                                            upvotes: this.state.upvotes,
+                                            ratio,
+                                            userUpvotes
+                                        })
+                                    )
+                                }
+                            )
+                        } else {
+                            this.setState(
+                                prevState => ({
+                                    upvoted: true,
+                                    upvotes: prevState.upvotes + 1
+                                }),
+                                () => {
+                                    const ratio =
+                                        this.state.upvotes /
+                                        (this.state.upvotes + this.state.downvotes)
+                                    userUpvotes.push(user.uid)
+                                    resolve(
+                                        cinemagraphsDocRef.update({
+                                            upvotes: this.state.upvotes,
+                                            ratio,
+                                            userUpvotes
+                                        })
+                                    )
+                                }
+                            )
+                        }
+                    }
+                } catch (err) {
+                    reject(err)
+                }
+            })
+        }
     }
     handleDownvote = async () => {
-        const { cinemagraph, user } = this.props
-        const db = firebase.firestore()
-        const cinemagraphsDocRef = await db.collection('cinemagraphs').doc(cinemagraph.postId)
-        const cinemagraphDoc = await cinemagraphsDocRef.get()
+        if (this.isAuthenticated()) {
+            const { cinemagraph, user } = this.props
+            const db = firebase.firestore()
+            const cinemagraphsDocRef = await db.collection('cinemagraphs').doc(cinemagraph.postId)
+            const cinemagraphDoc = await cinemagraphsDocRef.get()
 
-        if (this.state.upvoted) {
-            await this.handleUpvote()
-        }
-
-        return new Promise((resolve, reject) => {
-            try {
-                if (cinemagraphDoc.exists) {
-                    const { userDownvotes } = cinemagraphDoc.data()
-
-                    if (userDownvotes.includes(user.uid)) {
-                        const idx = userDownvotes.indexOf(user.uid)
-                        userDownvotes.splice(idx, 1)
-                        this.setState(
-                            prevState => ({
-                                downvoted: false,
-                                downvotes: prevState.downvotes - 1
-                            }),
-                            () => {
-                                const ratio =
-                                    this.state.upvotes / (this.state.upvotes + this.state.downvotes)
-                                resolve(
-                                    cinemagraphsDocRef.update({
-                                        downvotes: this.state.downvotes,
-                                        ratio,
-                                        userDownvotes
-                                    })
-                                )
-                            }
-                        )
-                    } else {
-                        this.setState(
-                            prevState => ({
-                                downvoted: true,
-                                downvotes: prevState.downvotes + 1
-                            }),
-                            () => {
-                                const ratio =
-                                    this.state.upvotes / (this.state.upvotes + this.state.downvotes)
-                                userDownvotes.push(user.uid)
-                                resolve(
-                                    cinemagraphsDocRef.update({
-                                        downvotes: this.state.downvotes,
-                                        ratio,
-                                        userDownvotes
-                                    })
-                                )
-                            }
-                        )
-                    }
-                }
-            } catch (err) {
-                reject(err)
+            if (this.state.upvoted) {
+                await this.handleUpvote()
             }
-        })
+
+            return new Promise((resolve, reject) => {
+                try {
+                    if (cinemagraphDoc.exists) {
+                        const { userDownvotes } = cinemagraphDoc.data()
+
+                        if (userDownvotes.includes(user.uid)) {
+                            const idx = userDownvotes.indexOf(user.uid)
+                            userDownvotes.splice(idx, 1)
+                            this.setState(
+                                prevState => ({
+                                    downvoted: false,
+                                    downvotes: prevState.downvotes - 1
+                                }),
+                                () => {
+                                    const ratio =
+                                        this.state.upvotes /
+                                        (this.state.upvotes + this.state.downvotes)
+                                    resolve(
+                                        cinemagraphsDocRef.update({
+                                            downvotes: this.state.downvotes,
+                                            ratio,
+                                            userDownvotes
+                                        })
+                                    )
+                                }
+                            )
+                        } else {
+                            this.setState(
+                                prevState => ({
+                                    downvoted: true,
+                                    downvotes: prevState.downvotes + 1
+                                }),
+                                () => {
+                                    const ratio =
+                                        this.state.upvotes /
+                                        (this.state.upvotes + this.state.downvotes)
+                                    userDownvotes.push(user.uid)
+                                    resolve(
+                                        cinemagraphsDocRef.update({
+                                            downvotes: this.state.downvotes,
+                                            ratio,
+                                            userDownvotes
+                                        })
+                                    )
+                                }
+                            )
+                        }
+                    }
+                } catch (err) {
+                    reject(err)
+                }
+            })
+        }
     }
     render() {
         const { cinemagraph, iconSize, hide, displayVotes } = this.props
@@ -299,4 +318,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps)(VoteControls)
+export default connect(mapStateToProps)(withRouter(VoteControls))

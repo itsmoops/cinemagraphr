@@ -1,6 +1,9 @@
 const path = require('path')
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+
+const shouldAnalyzeBuild = process.env.BUILD_MODE === 'analyze'
 
 module.exports = {
     entry: ['./src/index.jsx'],
@@ -48,7 +51,11 @@ module.exports = {
         new CopyWebpackPlugin([
             { from: 'src/index.html', to: 'index.html' },
             { from: 'src/assets', to: 'assets' }
-        ])
+        ]),
+        new BundleAnalyzerPlugin({
+            analyzerMode: shouldAnalyzeBuild ? 'server' : 'disabled',
+            analyzerPort: 8081
+        })
     ],
     resolve: {
         extensions: ['.js', '.jsx'],
