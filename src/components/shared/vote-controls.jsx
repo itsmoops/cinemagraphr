@@ -71,7 +71,10 @@ class VoteControls extends React.PureComponent {
     }
     componentDidUpdate(prevProps) {
         const { cinemagraph, user } = this.props
-        if (cinemagraph !== prevProps.cinemagraph || this.props.user !== prevProps.user) {
+        if (
+            Object.keys(cinemagraph).length &&
+            (cinemagraph !== prevProps.cinemagraph || this.props.user !== prevProps.user)
+        ) {
             this.setState({
                 favorited: cinemagraph.userFavorites.includes(user.uid),
                 upvoted: cinemagraph.userUpvotes.includes(user.uid),
@@ -249,7 +252,7 @@ class VoteControls extends React.PureComponent {
         })
     }
     render() {
-        const { iconSize, hide, displayVotes } = this.props
+        const { cinemagraph, iconSize, hide, displayVotes } = this.props
         return (
             <Container hide={hide && hide.toString()}>
                 <div>
