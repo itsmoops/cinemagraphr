@@ -45,7 +45,10 @@ module.exports = {
             horizontalCenter: ['react-icons-kit', 'horizontalCenter'],
             colors: 'colors'
         }),
-        new CopyWebpackPlugin([{ from: './src/index.html', to: 'index.html' }])
+        new CopyWebpackPlugin([
+            { from: 'src/index.html', to: 'index.html' },
+            { from: 'src/assets', to: 'assets' }
+        ])
     ],
     resolve: {
         extensions: ['.js', '.jsx'],
