@@ -12,11 +12,10 @@ import { cleanCinemagraphData } from '../../utilities/utilities.js'
 
 const Container = styled.div`
     cursor: pointer;
-    display: flex;
     position: absolute;
     bottom: 20;
     right: 20;
-    display: none;
+    display: ${props => (props.hide === 'true' ? 'none' : 'flex')};
     z-index: 2;
 `
 
@@ -52,7 +51,7 @@ class VoteControls extends React.PureComponent {
     constructor(props) {
         super(props)
         const { cinemagraph, user } = this.props
-        if (user.uid) {
+        if (Object.keys(cinemagraph).length && user.uid) {
             this.state = {
                 favorited: cinemagraph.userFavorites.includes(user.uid),
                 upvoted: cinemagraph.userUpvotes.includes(user.uid),
@@ -71,13 +70,14 @@ class VoteControls extends React.PureComponent {
         }
     }
     componentDidUpdate(prevProps) {
-        if (this.props.user !== prevProps.user) {
-            const { cinemagraph, user } = this.props
-
+        const { cinemagraph, user } = this.props
+        if (cinemagraph !== prevProps.cinemagraph || this.props.user !== prevProps.user) {
             this.setState({
                 favorited: cinemagraph.userFavorites.includes(user.uid),
                 upvoted: cinemagraph.userUpvotes.includes(user.uid),
-                downvoted: cinemagraph.userDownvotes.includes(user.uid)
+                upvotes: cinemagraph.upvotes,
+                downvoted: cinemagraph.userDownvotes.includes(user.uid),
+                downvotes: cinemagraph.downvotes
             })
         }
     }
@@ -249,35 +249,39 @@ class VoteControls extends React.PureComponent {
         })
     }
     render() {
-        const { iconSize } = this.props
+        const { iconSize, hide, displayVotes } = this.props
         return (
-            <Container>
-                <StyledIcon
-                    data-tip={'Favorite'}
-                    data-for="favorite"
-                    onClick={this.handleFavorite}
-                    size={iconSize}
-                    icon={heart}
-                    favorited={this.state.favorited.toString()}
-                />
-                <StyledIcon
-                    data-tip={'Upvote'}
-                    data-for="upvote"
-                    onClick={this.handleUpvote}
-                    size={iconSize}
-                    icon={upvote}
-                    upvoted={this.state.upvoted.toString()}
-                />
-                <Text>{this.state.upvotes}</Text>
-                <StyledIcon
-                    data-tip={'Downvote'}
-                    data-for="downvote"
-                    onClick={this.handleDownvote}
-                    size={iconSize}
-                    icon={downvote}
-                    downvoted={this.state.downvoted.toString()}
-                />
-                <Text>{this.state.downvotes}</Text>
+            <Container hide={hide && hide.toString()}>
+                <div>
+                    <StyledIcon
+                        data-tip={'Favorite'}
+                        data-for="favorite"
+                        onClick={this.handleFavorite}
+                        size={iconSize}
+                        icon={heart}
+                        favorited={this.state.favorited.toString()}
+                    />
+                </div>
+                <div onClick={this.handleUpvote}>
+                    <StyledIcon
+                        data-tip={'Upvote'}
+                        data-for="upvote"
+                        size={iconSize}
+                        icon={upvote}
+                        upvoted={this.state.upvoted.toString()}
+                    />
+                    {displayVotes && <Text>{this.state.upvotes}</Text>}
+                </div>
+                <div onClick={this.handleDownvote}>
+                    <StyledIcon
+                        data-tip={'Downvote'}
+                        data-for="downvote"
+                        size={iconSize}
+                        icon={downvote}
+                        downvoted={this.state.downvoted.toString()}
+                    />
+                    {displayVotes && <Text>{this.state.downvotes}</Text>}
+                </div>
                 <ReactTooltip id="favorite" place="top" effect="solid" delayShow={1000} />
                 <ReactTooltip id="upvote" place="top" effect="solid" delayShow={1000} />
                 <ReactTooltip id="downvote" place="top" effect="solid" delayShow={1000} />

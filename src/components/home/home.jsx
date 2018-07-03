@@ -6,6 +6,7 @@ import * as userActions from '../../actions/user-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
 import Controls from '../cinemagraph/controls'
+import VoteControls from '../shared/vote-controls'
 
 class HomePage extends React.Component {
     constructor() {
@@ -99,6 +100,7 @@ class HomePage extends React.Component {
                         }))
                     }}
                 />
+                <VoteControls iconSize={32} cinemagraph={cinemagraph} />
             </div>
         )
     }

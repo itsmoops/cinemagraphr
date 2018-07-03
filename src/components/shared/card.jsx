@@ -103,7 +103,7 @@ class Card extends React.PureComponent {
                         <Video src={cinemagraph.fileURL} autoPlay muted loop />
                     )}
                 </ImageContainer>
-                <VoteControls iconSize={16} cinemagraph={cinemagraph} />
+                <VoteControls iconSize={16} cinemagraph={cinemagraph} hide displayVotes />
             </Container>
         )
     }
