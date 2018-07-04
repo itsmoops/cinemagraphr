@@ -1,10 +1,12 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router'
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 import * as globalActions from '../../actions/global-actions'
 import * as userActions from '../../actions/user-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
+
+const firstVisit = !localStorage.getItem('visited')
 
 const Container = styled.div`
     filter: ${props => props.blur && 'blur(4px)'};
@@ -21,16 +23,47 @@ const Theater = styled.div`
     justify-content: center;
 `
 
+const fadeIn = keyframes`
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+`
+
 const Gif = styled.img`
     width: 100%;
     height: 100%;
     object-fit: ${props => (props.theater ? 'contain' : 'cover')};
+    ${() => {
+        if (firstVisit) {
+            return css`
+                opacity: 1;
+                animation-name: ${fadeIn};
+                animation-iteration-count: 1;
+                animation-timing-function: ease-in;
+                animation-duration: 8s;
+            `
+        }
+    }};
 `
 
 const Video = styled.video`
     width: 100%;
     height: 100%;
     object-fit: ${props => (props.theater ? '' : 'cover')};
+    ${() => {
+        if (firstVisit) {
+            return css`
+                opacity: 1;
+                animation-name: ${fadeIn};
+                animation-iteration-count: 1;
+                animation-timing-function: ease-in;
+                animation-duration: 5s;
+            `
+        }
+    }};
 `
 
 class Cinemagraph extends React.PureComponent {

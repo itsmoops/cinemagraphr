@@ -1,12 +1,36 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import styled, { css, keyframes } from 'styled-components'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import * as userActions from '../../actions/user-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
+import Title from './title'
 import Cinemagraph from '../cinemagraph/cinemagraph'
 import Controls from '../cinemagraph/controls'
 import VoteControls from '../shared/vote-controls'
+
+const animationTime = 10
+
+const fadeIn = keyframes`
+    0% {
+        filter: blur(4px);
+    }
+    100% {
+        filter: blur(0px);
+    }
+`
+
+const Container = styled.div`
+    ${props =>
+        props.firstVisit &&
+        css`
+            animation-name: ${fadeIn};
+            animation-iteration-count: 1;
+            animation-timing-function: ease-in;
+            animation-duration: ${animationTime}s;
+        `};
+`
 
 class HomePage extends React.Component {
     constructor() {
@@ -15,17 +39,19 @@ class HomePage extends React.Component {
         this.state = {
             cinemagraph: {},
             audio: [],
-            theater: false
+            theater: false,
+            firstVisit: !localStorage.getItem('visited')
         }
     }
     componentDidMount = async () => {
         ReactGA.pageview(window.location.pathname)
-        /* 
-            TODO: use local storage - check if its their first visit
-            If yes, display title and information
-            Choose one of like 5 cool graphs
-            set local storage to say theyve visited
-        */
+
+        if (this.state.firstVisit) {
+            setTimeout(() => {
+                localStorage.setItem('visited', true)
+            }, animationTime * 1000)
+        }
+
         if (window.location.search) {
             const postId = window.location.search.split('=')[1]
             const cinemagraphs = await firebase
@@ -83,24 +109,38 @@ class HomePage extends React.Component {
         return false
     }
     render() {
-        const { cinemagraph, audio } = this.state
+        const { cinemagraph, audio, firstVisit } = this.state
         return (
             <div>
-                <Cinemagraph creatorMode cinemagraph={cinemagraph} theater={this.state.theater} />
-                <Controls
-                    creatorMode={false}
-                    cinemagraph={!!Object.keys(cinemagraph).length}
-                    audio={audio}
-                    handleUploadAudio={this.handleUploadAudio}
-                    handleRemoveAudio={this.handleRemoveAudio}
-                    handleUpdateAudio={this.handleUpdateAudio}
-                    toggleTheaterMode={() => {
-                        this.setState(prevState => ({
-                            theater: !prevState.theater
-                        }))
+                {firstVisit && <Title render={!!Object.keys(cinemagraph).length} />}
+                <Container
+                    innerRef={div => {
+                        div &&
+                            div.addEventListener('transitionend', () => {
+                                debugger
+                            })
                     }}
-                />
-                <VoteControls iconSize={32} cinemagraph={cinemagraph} />
+                    firstVisit={firstVisit}>
+                    <Cinemagraph
+                        creatorMode
+                        cinemagraph={cinemagraph}
+                        theater={this.state.theater}
+                    />
+                    <Controls
+                        creatorMode={false}
+                        cinemagraph={!!Object.keys(cinemagraph).length}
+                        audio={audio}
+                        handleUploadAudio={this.handleUploadAudio}
+                        handleRemoveAudio={this.handleRemoveAudio}
+                        handleUpdateAudio={this.handleUpdateAudio}
+                        toggleTheaterMode={() => {
+                            this.setState(prevState => ({
+                                theater: !prevState.theater
+                            }))
+                        }}
+                    />
+                    <VoteControls iconSize={32} cinemagraph={cinemagraph} />
+                </Container>
             </div>
         )
     }

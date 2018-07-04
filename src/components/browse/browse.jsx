@@ -18,7 +18,7 @@ class Browse extends React.Component {
 
         this.state = {
             cinemagraphs: [],
-            sortBy: localStorage.getItem('sortBy') || SORT_BY.TOP,
+            sortBy: localStorage.getItem('sortBy') || SORT_BY.ALL_TIME,
             sortFrom: localStorage.getItem('sortFrom') || SORT_FROM.TODAY,
             lastVisible: '',
             today: new Date()
@@ -28,11 +28,6 @@ class Browse extends React.Component {
         ReactGA.pageview(window.location.pathname)
         this.handleInfiniteScroll()
         this.fetchData()
-    }
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.user && !nextProps.user.authenticated) {
-            this.props.history.push('/')
-        }
     }
     handleInfiniteScroll = () => {
         window.onscroll = () => {

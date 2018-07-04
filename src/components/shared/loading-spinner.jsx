@@ -25,8 +25,9 @@ const StyledOverlay = styled.div`
 `
 
 function LoadingSpinner(props) {
+    const firstVisit = !localStorage.getItem('visited')
     const animationTime = '1.5'
-    if (props.global.loading) {
+    if (props.global.loading && !firstVisit) {
         return (
             <StyledContainer>
                 <Logo size={75} animate animationTime={animationTime} loading />
