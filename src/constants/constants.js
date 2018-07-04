@@ -11,3 +11,8 @@ export const SORT_FROM = {
     YEAR: 'This year',
     ALL_TIME: 'All time'
 }
+
+export const USER_SORT_BY = {
+    CREATED: 'Created',
+    FAVORITED: 'Favorited'
+}

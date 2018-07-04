@@ -12,7 +12,7 @@ class SignUp extends React.Component {
     }
     constructor() {
         super()
-        document.title = 'Sign Up'
+        document.title = 'sign up'
     }
     componentDidMount() {
         ReactGA.pageview(window.location.pathname)

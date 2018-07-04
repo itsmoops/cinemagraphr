@@ -7,7 +7,7 @@ import Message from '../../shared/message'
 class VerifyEmail extends React.Component {
     constructor() {
         super()
-        document.title = 'Verify Email'
+        document.title = 'verify email'
     }
     componentDidMount() {
         this.props.actions.verifyEmailCode(this.props.params.oobCode)

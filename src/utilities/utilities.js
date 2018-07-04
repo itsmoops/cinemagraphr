@@ -31,6 +31,7 @@ const utilities = {
             'audio',
             'created',
             'fileURL',
+            'name',
             'postId',
             'theater',
             'title',

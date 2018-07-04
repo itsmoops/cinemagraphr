@@ -12,7 +12,7 @@ import Link from '../../shared/link'
 class ResetPassword extends React.Component {
     constructor() {
         super()
-        document.title = 'Reset Password'
+        document.title = 'reset password'
     }
     componentWillReceiveProps(nextProps) {
         if (nextProps.params !== this.props.params && nextProps.params.oobCode) {

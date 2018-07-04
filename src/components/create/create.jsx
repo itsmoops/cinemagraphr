@@ -68,7 +68,7 @@ const StyledInput = styled.input`
 class Create extends React.Component {
     constructor() {
         super()
-        document.title = 'Create'
+        document.title = 'create'
         this.state = {
             errorMessage: '',
             cinemagraph: {},

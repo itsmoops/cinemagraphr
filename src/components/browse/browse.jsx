@@ -3,7 +3,7 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
-import { SORT_BY, SORT_FROM } from '../../constants/constants.js'
+import { SORT_BY, SORT_FROM } from '../../constants/constants'
 import Sort from '../shared/sort'
 import Card from '../shared/card'
 
@@ -14,7 +14,7 @@ const FlexContainer = styled(Flex)`
 class Browse extends React.Component {
     constructor() {
         super()
-        document.title = 'Browse'
+        document.title = 'browse'
 
         this.state = {
             cinemagraphs: [],

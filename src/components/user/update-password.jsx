@@ -14,7 +14,7 @@ class UpdatePassword extends React.Component {
     }
     constructor() {
         super()
-        document.title = 'Update Password'
+        document.title = 'update password'
     }
     componentDidMount() {
         ReactGA.pageview(window.location.pathname)

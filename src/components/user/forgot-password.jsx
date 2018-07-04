@@ -14,7 +14,7 @@ class ForgotPassword extends React.Component {
     }
     constructor() {
         super()
-        document.title = 'Forgot Password'
+        document.title = 'forgot password'
     }
     componentDidMount() {
         ReactGA.pageview(window.location.pathname)

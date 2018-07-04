@@ -43,12 +43,15 @@ class HomePage extends React.Component {
             firstVisit: !localStorage.getItem('visited')
         }
     }
-    componentDidMount = async () => {
+    async componentDidMount() {
         ReactGA.pageview(window.location.pathname)
 
         if (this.state.firstVisit) {
             setTimeout(() => {
                 localStorage.setItem('visited', true)
+                this.setState({
+                    firstVisit: false
+                })
             }, animationTime * 1000)
         }
 
@@ -84,12 +87,12 @@ class HomePage extends React.Component {
                 })
 
                 // TODO: Remove - randomize some upvotes and downvotes
-                cinemagraphs.docs.forEach(doc => {
+                cinemagraphs.docs.forEach((doc) => {
                     const upvotes = Math.ceil(Math.random() * 5000)
                     const downvotes = Math.ceil(Math.random() * 5000)
                     const ratio = upvotes / (upvotes + downvotes)
                     this.props.firebaseActions.updateData(
-                        `cinemagraphs`,
+                        'cinemagraphs',
                         {
                             userFavorites: [],
                             upvotes,
@@ -109,7 +112,7 @@ class HomePage extends React.Component {
         return false
     }
     render() {
-        const { cinemagraph, audio, firstVisit } = this.state
+        const { cinemagraph, audio, theater, firstVisit } = this.state
         return (
             <div>
                 {firstVisit && <Title render={!!Object.keys(cinemagraph).length} />}
@@ -117,8 +120,8 @@ class HomePage extends React.Component {
                     <Cinemagraph
                         creatorMode
                         cinemagraph={cinemagraph}
-                        theater={this.state.theater}
-                    />
+                        theater={theater}
+                        firstVisit={firstVisit} />
                     <Controls
                         creatorMode={false}
                         cinemagraph={!!Object.keys(cinemagraph).length}
@@ -130,8 +133,7 @@ class HomePage extends React.Component {
                             this.setState(prevState => ({
                                 theater: !prevState.theater
                             }))
-                        }}
-                    />
+                        }} />
                     <VoteControls iconSize={32} cinemagraph={cinemagraph} />
                 </Container>
             </div>

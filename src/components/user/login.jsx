@@ -19,7 +19,7 @@ class Login extends React.Component {
     }
     constructor() {
         super()
-        document.title = 'Login'
+        document.title = 'login'
     }
     componentDidMount() {
         ReactGA.pageview(window.location.pathname)

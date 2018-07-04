@@ -5,7 +5,7 @@ import Flex from '../shared/flex'
 class Feed extends React.Component {
     constructor() {
         super()
-        document.title = 'Feed'
+        document.title = 'feed'
     }
     componentDidMount() {
         ReactGA.pageview(window.location.pathname)
