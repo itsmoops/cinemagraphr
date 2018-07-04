@@ -113,14 +113,7 @@ class HomePage extends React.Component {
         return (
             <div>
                 {firstVisit && <Title render={!!Object.keys(cinemagraph).length} />}
-                <Container
-                    innerRef={div => {
-                        div &&
-                            div.addEventListener('transitionend', () => {
-                                debugger
-                            })
-                    }}
-                    firstVisit={firstVisit}>
+                <Container firstVisit={firstVisit}>
                     <Cinemagraph
                         creatorMode
                         cinemagraph={cinemagraph}
