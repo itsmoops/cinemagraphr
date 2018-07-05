@@ -18,8 +18,8 @@ class Browse extends React.Component {
 
         this.state = {
             cinemagraphs: [],
-            sortBy: localStorage.getItem('sortBy') || SORT_BY.ALL_TIME,
-            sortFrom: localStorage.getItem('sortFrom') || SORT_FROM.TODAY,
+            sortBy: localStorage.getItem('sortBy') || SORT_BY.TOP,
+            sortFrom: localStorage.getItem('sortFrom') || SORT_FROM.ALL_TIME,
             lastVisible: '',
             today: new Date()
         }
