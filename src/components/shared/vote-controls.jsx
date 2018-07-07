@@ -276,7 +276,7 @@ class VoteControls extends React.PureComponent {
             <Container hide={hide && hide.toString()}>
                 <div>
                     <StyledIcon
-                        data-tip={'Favorite'}
+                        data-tip={'favorite'}
                         data-for="favorite"
                         onClick={this.handleFavorite}
                         size={iconSize}
@@ -286,7 +286,7 @@ class VoteControls extends React.PureComponent {
                 </div>
                 <div onClick={this.handleUpvote}>
                     <StyledIcon
-                        data-tip={'Upvote'}
+                        data-tip={'upvote'}
                         data-for="upvote"
                         size={iconSize}
                         icon={upvote}
@@ -296,7 +296,7 @@ class VoteControls extends React.PureComponent {
                 </div>
                 <div onClick={this.handleDownvote}>
                     <StyledIcon
-                        data-tip={'Downvote'}
+                        data-tip={'downvote'}
                         data-for="downvote"
                         size={iconSize}
                         icon={downvote}

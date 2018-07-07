@@ -101,7 +101,7 @@ class Controls extends React.Component {
                     creatorMode && (
                         <Theater>
                             <StyledIcon
-                                data-tip="Toggle theater mode"
+                                data-tip="toggle theater mode"
                                 data-for="theater"
                                 onClick={this.props.toggleTheaterMode}
                                 icon={display}
@@ -136,13 +136,13 @@ class Controls extends React.Component {
                         audio.length <= 2 && (
                             <StyledDropzone onDrop={this.props.handleUploadAudio}>
                                 <StyledIcon
-                                    data-tip="Upload audio track (.mp3 or .m4a)"
+                                    data-tip="upload audio track (.mp3 or .m4a)"
                                     data-for="add-audio"
                                     icon={tape}
                                     size={size}
                                 />
                                 <Plus
-                                    data-tip="Upload audio track (.mp3 or .m4a)"
+                                    data-tip="upload audio track (.mp3 or .m4a)"
                                     data-for="add-audio"
                                     icon={arrowsPlus}
                                     size={20}
@@ -160,7 +160,7 @@ class Controls extends React.Component {
                     creatorMode && (
                         <IconRight>
                             <StyledIcon
-                                data-tip="Save cinemagraph"
+                                data-tip="save cinemagraph"
                                 data-for="save"
                                 onClick={this.props.handleSave}
                                 icon={floppyDIsk}
@@ -174,7 +174,7 @@ class Controls extends React.Component {
                     !!audio.length && (
                         <IconRight>
                             <StyledIcon
-                                data-tip={this.state.playAll ? 'Pause audio' : 'Play audio'}
+                                data-tip={this.state.playAll ? 'pause audio' : 'play audio'}
                                 data-for="play"
                                 onClick={this.handlePlayAll}
                                 icon={this.state.playAll ? pause : play}

@@ -80,6 +80,7 @@ class HomePage extends React.Component {
                 // for now just choose one
                 const idx = Math.ceil(Math.random() * (cinemagraphs.size - 1))
                 const data = cinemagraphs.docs[idx].data()
+                document.title = data.title
                 this.setState({
                     cinemagraph: data,
                     audio: data.audio || [],

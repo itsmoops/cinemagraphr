@@ -167,7 +167,7 @@ class AudioControls extends React.Component {
                             data-track-name={track.name}
                             data-track-type="loop"
                             data-tip={
-                                this.state.loop ? 'Stop looping' : 'Loop audio (off by default)'
+                                this.state.loop ? 'stop looping' : 'loop audio (off by default)'
                             }
                             data-for="loop"
                             onClick={this.handleLoop}
@@ -178,7 +178,7 @@ class AudioControls extends React.Component {
                         <StyledIcon
                             data-track-name={track.name}
                             data-track-type="volume"
-                            data-tip="Decrease volume"
+                            data-tip="decrease volume"
                             data-for="volumeDown"
                             onClick={this.handleVolumeDown}
                             size={size}
@@ -187,7 +187,7 @@ class AudioControls extends React.Component {
                         <StyledIcon
                             data-track-name={track.name}
                             data-track-type="volume"
-                            data-tip="Increase volume"
+                            data-tip="increase volume"
                             data-for="volumeUp"
                             onClick={this.handleVolumeUp}
                             size={size}
@@ -196,7 +196,7 @@ class AudioControls extends React.Component {
                         <StyledIcon
                             data-track-name={track.name}
                             data-track-type="mute"
-                            data-tip={this.state.mute ? 'Unmute' : 'Mute'}
+                            data-tip={this.state.mute ? 'unmute' : 'mute'}
                             data-for="mute"
                             onClick={this.handleMute}
                             active={this.state.mute.toString()}
@@ -206,7 +206,7 @@ class AudioControls extends React.Component {
                         {this.props.creatorMode && (
                             <StyledIcon
                                 data-track-name={track.name}
-                                data-tip={'Remove this audio track'}
+                                data-tip={'remove this audio track'}
                                 data-for="remove"
                                 onClick={e => {
                                     this.track.unload()

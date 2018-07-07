@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const firestore = firebase.firestore()
-const settings = { /* your settings... */ timestampsInSnapshots: true }
+const settings = { timestampsInSnapshots: true }
 firestore.settings(settings)
 
 // merge styles for theme

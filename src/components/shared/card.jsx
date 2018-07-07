@@ -89,7 +89,7 @@ class Card extends React.PureComponent {
     render() {
         const { cinemagraph } = this.props
         return (
-            <Container w={[1, 1 / 2, 1 / 2, 1 / 3]}>
+            <Container w={[1, 1 / 2, 1 / 3, 1 / 3]}>
                 <BottomLeftText>
                     <StyledLink to={`/profile?u=${cinemagraph.user.username}`}>
                         {cinemagraph.user.username}

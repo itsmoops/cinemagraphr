@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
 import styled, { keyframes } from 'styled-components'
+import CinemaEffect from './cinema-effect'
 import Logo from '../shared/logo'
 
 const fadeOut = keyframes`
@@ -8,7 +9,6 @@ const fadeOut = keyframes`
     }
     100% {
         opacity: 0;
-        display: none;
     }
 `
 
@@ -41,10 +41,13 @@ function Title(props) {
     const animationTime = '1.5'
     if (!props.global.loading && props.render) {
         return (
-            <StyledContainer>
-                <StyledTitle>cinemagraphr</StyledTitle>
-                <Logo size={75} animate animationTime={animationTime} loading />
-            </StyledContainer>
+            <div>
+                <CinemaEffect />
+                <StyledContainer>
+                    <StyledTitle>cinemagraphr</StyledTitle>
+                    <Logo size={75} animate animationTime={animationTime} loading />
+                </StyledContainer>
+            </div>
         )
     }
     return null
