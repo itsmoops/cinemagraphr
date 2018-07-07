@@ -215,9 +215,9 @@ const Grain = styled.div`
 `
 
 const CinemaEffect = () => (
-    <OuterScratch className="outer-scratch">
-        <InnerScratch className="inner-scratch">
-            <Grain className="grain" />
+    <OuterScratch>
+        <InnerScratch>
+            <Grain />
         </InnerScratch>
     </OuterScratch>
 )

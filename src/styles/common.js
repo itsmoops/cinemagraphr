@@ -1,4 +1,5 @@
 const common = {
+    breakpoints: ['40em', '52em', '90em'],
     buffer: '10px',
     bufferTop: '10px',
     bufferBottom: '10px',
