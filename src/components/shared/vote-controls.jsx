@@ -271,7 +271,7 @@ class VoteControls extends React.PureComponent {
         }
     }
     render() {
-        const { cinemagraph, iconSize, hide, displayVotes } = this.props
+        const { iconSize, hide, displayVotes } = this.props
         return (
             <Container hide={hide && hide.toString()}>
                 <div>

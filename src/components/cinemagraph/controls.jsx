@@ -20,7 +20,7 @@ import * as firebaseActions from '../../actions/firebase-actions'
 
 const StyledContainer = styled(Container)`
     position: absolute;
-    bottom: 15px;
+    bottom: 20px;
     z-index: 99;
     display: flex;
     justify-content: center;
@@ -31,7 +31,7 @@ const StyledContainer = styled(Container)`
 
 const StyledIcon = styled(Icon)`
     cursor: pointer;
-    margin: 0 15 0 15;
+    margin: 0 20 0 20;
     &:hover > svg {
         position: relative;
     }
@@ -41,7 +41,7 @@ const StyledDropzone = styled(Dropzone)`
     cursor: pointer;
 `
 
-const Theater = styled.div`
+const IconLeft = styled.div`
     position: absolute;
     left: 0;
     bottom: 0;
@@ -69,7 +69,7 @@ class Controls extends React.Component {
         window.audio = []
 
         this.state = {
-            playAll: false
+            playAll: true
         }
     }
     shouldComponentUpdate(nextProps, nextState) {
@@ -81,11 +81,6 @@ class Controls extends React.Component {
             return true
         }
         return false
-    }
-    componentDidUpdate(nextProps) {
-        if (nextProps.audio !== this.props.audio) {
-            // debugger
-        }
     }
     handlePlayAll = () => {
         this.setState(prevState => ({
@@ -99,7 +94,7 @@ class Controls extends React.Component {
             <StyledContainer>
                 {cinemagraph &&
                     creatorMode && (
-                        <Theater>
+                        <IconLeft>
                             <StyledIcon
                                 data-tip="toggle theater mode"
                                 data-for="theater"
@@ -113,7 +108,21 @@ class Controls extends React.Component {
                                 effect="solid"
                                 delayShow={1000}
                             />
-                        </Theater>
+                        </IconLeft>
+                    )}
+                {cinemagraph &&
+                    !creatorMode &&
+                    !!audio.length && (
+                        <IconLeft>
+                            <StyledIcon
+                                data-tip={this.state.playAll ? 'pause audio' : 'play audio'}
+                                data-for="play"
+                                onClick={this.handlePlayAll}
+                                icon={this.state.playAll ? pause : play}
+                                size={size}
+                            />
+                            <ReactTooltip id="play" place="top" effect="solid" delayShow={1000} />
+                        </IconLeft>
                     )}
                 {!!audio.length &&
                     audio.map((track, idx) => (
@@ -121,6 +130,8 @@ class Controls extends React.Component {
                             <AudioControls
                                 track={track}
                                 trackNumber={idx + 1}
+                                trackName={`track-${idx + 1}`}
+                                play={this.state.playAll}
                                 loopOnLoad={track.loop}
                                 volumeOnLoad={track.volume}
                                 muteOnLoad={track.mute}
@@ -167,20 +178,6 @@ class Controls extends React.Component {
                                 size={size}
                             />
                             <ReactTooltip id="save" place="top" effect="solid" delayShow={1000} />
-                        </IconRight>
-                    )}
-                {cinemagraph &&
-                    !creatorMode &&
-                    !!audio.length && (
-                        <IconRight>
-                            <StyledIcon
-                                data-tip={this.state.playAll ? 'pause audio' : 'play audio'}
-                                data-for="play"
-                                onClick={this.handlePlayAll}
-                                icon={this.state.playAll ? pause : play}
-                                size={size}
-                            />
-                            <ReactTooltip id="play" place="top" effect="solid" delayShow={1000} />
                         </IconRight>
                     )}
             </StyledContainer>

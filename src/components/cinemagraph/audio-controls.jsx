@@ -38,8 +38,7 @@ const StyledIconNoPointer = styled(Icon)`
         position: relative;
     }
 `
-
-class AudioControls extends React.Component {
+class AudioControls extends React.PureComponent {
     constructor() {
         super()
         this.state = {
@@ -50,7 +49,7 @@ class AudioControls extends React.Component {
         }
     }
     componentDidMount() {
-        const { track, trackNumber } = this.props
+        const { track, trackName } = this.props
         this.setState(
             prevState => ({
                 fileURL: track.preview || track.fileURL,
@@ -62,21 +61,30 @@ class AudioControls extends React.Component {
                 const audioTag = document.createElement('audio')
                 audioTag.src = this.state.fileURL
                 audioTag.addEventListener('loadedmetadata', () => {
+                    const trackDuration = audioTag.duration * 1000
+                    const loopEnd = 175 // shave off a few ms from end to loop seamlessly
                     this.track = new Howl({
                         src: [this.state.fileURL],
-                        loop: this.state.loop,
                         format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
-                        loopStart: 0,
-                        loopEnd: audioTag.duration * 1000,
+                        sprite: {
+                            [trackName]: [0, trackDuration - loopEnd, this.state.loop]
+                        },
                         volume: this.state.volume
                     })
                     window.audio.push(this.track)
                     this.track.once('load', () => {
-                        this.track.play()
+                        if (this.props.play) {
+                            this.track.play(trackName)
+                        }
                     })
                 })
             }
         )
+    }
+    componentDidUpdate(prevProps) {
+        if (prevProps.play !== this.props.play) {
+            this.handlePlay()
+        }
     }
     componentWillUnmount() {
         this.track && this.track.unload()
@@ -154,9 +162,24 @@ class AudioControls extends React.Component {
             }
         )
     }
+    handlePlay = e => {
+        this.setState(
+            prevState => {
+                play: !prevState.play
+            },
+            () => {
+                if (this.state.play) {
+                    this.track.pause()
+                } else {
+                    this.track.play()
+                }
+            }
+        )
+    }
     render() {
         const size = 20
         const { track } = this.props
+        console.log('render')
         return (
             <div>
                 {this.props.creatorMode && (
