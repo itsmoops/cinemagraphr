@@ -179,7 +179,6 @@ class AudioControls extends React.PureComponent {
     render() {
         const size = 20
         const { track } = this.props
-        console.log('render')
         return (
             <div>
                 {this.props.creatorMode && (

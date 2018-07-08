@@ -63,13 +63,13 @@ const Plus = styled(Icon)`
 `
 
 class Controls extends React.Component {
-    constructor() {
+    constructor(props) {
         super()
 
         window.audio = []
 
         this.state = {
-            playAll: true
+            playAll: !!props.global.userEngaged
         }
     }
     shouldComponentUpdate(nextProps, nextState) {

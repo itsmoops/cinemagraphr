@@ -27,3 +27,10 @@ export function toggleMenuDropdown(menuOpen) {
         menuOpen
     }
 }
+
+export function userEngagement(userEngaged) {
+    return {
+        type: types.USER_ENGAGEMENT,
+        userEngaged
+    }
+}

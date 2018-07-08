@@ -70,7 +70,15 @@ class NavBar extends React.Component {
         menuOpen: false
     }
     componentDidMount() {
+        // doing some global actions here
+
         this.props.userActions.checkForUser()
+
+        document.getElementById('app').onclick = () => {
+            if (!this.props.global.userEngaged) {
+                this.props.globalActions.userEngagement(true)
+            }
+        }
     }
     handleClick = to => {
         this.props.history.push(to)

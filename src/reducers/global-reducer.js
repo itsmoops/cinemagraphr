@@ -13,6 +13,8 @@ export default function globalReducer(state = defaultState, action) {
             return { ...state, loading: action.loading }
         case types.TOGGLE_MENU_DROPDOWN:
             return { ...state, menuOpen: action.menuOpen }
+        case types.USER_ENGAGEMENT:
+            return { ...state, userEngaged: action.userEngaged }
         default:
             return state
     }
