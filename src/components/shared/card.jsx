@@ -1,13 +1,9 @@
 import { connect } from 'react-redux'
-import firebase from 'firebase/app'
 import 'firebase/firestore'
 import { withRouter } from 'react-router'
 import styled from 'styled-components'
 import { Box, Text, Heading } from 'rebass'
 import { Link } from 'react-router-dom'
-import { Icon } from 'react-icons-kit'
-import { arrows_slim_up as upvote } from 'react-icons-kit/linea/arrows_slim_up'
-import { arrows_slim_down as downvote } from 'react-icons-kit/linea/arrows_slim_down'
 import VoteControls from './vote-controls'
 
 const Container = styled(Box)`
@@ -90,6 +86,7 @@ class Card extends React.PureComponent {
     }
     render() {
         const { cinemagraph } = this.props
+        const size = 16
         return (
             <Container w={[1, 1 / 2, 1 / 3, 1 / 4]}>
                 <BottomLeftText>
@@ -105,7 +102,13 @@ class Card extends React.PureComponent {
                         <Video src={cinemagraph.fileURL} autoPlay muted loop />
                     )}
                 </ImageContainer>
-                <VoteControls iconSize={16} cinemagraph={cinemagraph} hide displayVotes />
+                <VoteControls
+                    iconSize={size}
+                    cinemagraph={cinemagraph}
+                    hasAudio={!!cinemagraph.audio.length}
+                    hide
+                    displayVotes
+                />
             </Container>
         )
     }

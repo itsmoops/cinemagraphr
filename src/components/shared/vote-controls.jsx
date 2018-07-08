@@ -9,7 +9,7 @@ import { Icon } from 'react-icons-kit'
 import { basic_heart as heart } from 'react-icons-kit/linea/basic_heart'
 import { arrows_circle_up as upvote } from 'react-icons-kit/linea/arrows_circle_up'
 import { arrows_circle_down as downvote } from 'react-icons-kit/linea/arrows_circle_down'
-import { cleanCinemagraphData } from '../../utilities/utilities.js'
+import { music_note_multiple as musicNote } from 'react-icons-kit/linea/music_note_multiple'
 
 const Container = styled.div`
     cursor: pointer;
@@ -54,14 +54,14 @@ class VoteControls extends React.PureComponent {
 
         const { cinemagraph, user } = this.props
         const { userFavorites, userUpvotes, userDownvotes, upvotes, downvotes } = cinemagraph
-
         if (Object.keys(cinemagraph).length && user.uid) {
             this.state = {
                 favorited: Object.keys(userFavorites).includes(user.uid),
                 upvoted: Object.keys(userUpvotes).includes(user.uid),
                 downvoted: Object.keys(userDownvotes).includes(user.uid),
                 upvotes,
-                downvotes
+                downvotes,
+                owner: user.uid === cinemagraph.user.uid
             }
         } else {
             this.state = {
@@ -69,7 +69,8 @@ class VoteControls extends React.PureComponent {
                 upvoted: false,
                 downvoted: false,
                 upvotes,
-                downvotes
+                downvotes,
+                owner: false
             }
         }
     }
@@ -263,15 +264,26 @@ class VoteControls extends React.PureComponent {
         }
     }
     render() {
-        const { iconSize, hide, displayVotes, owner } = this.props
+        const { iconSize, hide, displayVotes, hasAudio } = this.props
+        const { owner } = this.state
         return (
             <Container hide={hide && hide.toString()}>
+                {displayVotes &&
+                    hasAudio && (
+                        <div>
+                            <StyledIcon
+                                data-tip={'has audio'}
+                                data-for="audio"
+                                size={iconSize}
+                                icon={musicNote}
+                            />
+                        </div>
+                    )}
                 {!owner && (
-                    <div>
+                    <div onClick={this.handleFavorite}>
                         <StyledIcon
                             data-tip={'favorite'}
                             data-for="favorite"
-                            onClick={this.handleFavorite}
                             size={iconSize}
                             icon={heart}
                             favorited={this.state.favorited.toString()}
@@ -298,6 +310,7 @@ class VoteControls extends React.PureComponent {
                     />
                     {displayVotes && <Text>{this.state.downvotes}</Text>}
                 </div>
+                <ReactTooltip id="audio" place="top" effect="solid" delayShow={1000} />
                 <ReactTooltip id="favorite" place="top" effect="solid" delayShow={1000} />
                 <ReactTooltip id="upvote" place="top" effect="solid" delayShow={1000} />
                 <ReactTooltip id="downvote" place="top" effect="solid" delayShow={1000} />

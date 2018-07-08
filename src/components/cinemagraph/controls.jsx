@@ -13,6 +13,7 @@ import { arrows_plus as arrowsPlus } from 'react-icons-kit/linea/arrows_plus'
 import { music_tape as tape } from 'react-icons-kit/linea/music_tape'
 import { music_play_button as play } from 'react-icons-kit/linea/music_play_button'
 import { music_pause_button as pause } from 'react-icons-kit/linea/music_pause_button'
+import { arrows_clockwise_dashed as refresh } from 'react-icons-kit/linea/arrows_clockwise_dashed'
 import AudioControls from './audio-controls'
 import * as globalActions from '../../actions/global-actions'
 import * as userActions from '../../actions/user-actions'
@@ -44,6 +45,12 @@ const StyledDropzone = styled(Dropzone)`
 const IconLeft = styled.div`
     position: absolute;
     left: 0;
+    bottom: 0;
+`
+
+const IconLeft2 = styled.div`
+    position: absolute;
+    left: 42;
     bottom: 0;
 `
 
@@ -106,7 +113,7 @@ class Controls extends React.Component {
                 {cinemagraph &&
                     !creatorMode &&
                     !!audio.length && (
-                    <IconLeft>
+                    <IconLeft2>
                         <StyledIcon
                             data-tip={this.state.playAll ? 'pause audio' : 'play audio'}
                             data-for="play"
@@ -118,6 +125,18 @@ class Controls extends React.Component {
                             icon={this.state.playAll ? pause : play}
                             size={size} />
                         <ReactTooltip id="play" place="top" effect="solid" delayShow={1000} />
+                    </IconLeft2>
+                )}
+                {cinemagraph &&
+                    !creatorMode && (
+                    <IconLeft>
+                        <StyledIcon
+                            data-tip={'get new'}
+                            data-for="new"
+                            onClick={this.props.handleRefresh}
+                            icon={refresh}
+                            size={size} />
+                        <ReactTooltip id="new" place="top" effect="solid" delayShow={1000} />
                     </IconLeft>
                 )}
                 {!!audio.length &&

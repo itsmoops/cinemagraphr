@@ -1,4 +1,5 @@
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router'
 import { bindActionCreators } from 'redux'
 import styled, { css, keyframes } from 'styled-components'
 import firebase from 'firebase/app'
@@ -72,42 +73,7 @@ class HomePage extends React.Component {
                 })
             }
         } else {
-            const cinemagraphs = await firebase
-                .firestore()
-                .collection('cinemagraphs')
-                .get()
-            if (cinemagraphs.size >= 1) {
-                // for now just choose one
-                const idx = Math.ceil(Math.random() * (cinemagraphs.size - 1))
-                const data = cinemagraphs.docs[idx].data()
-                document.title = data.title
-                this.setState({
-                    cinemagraph: data,
-                    audio: data.audio || [],
-                    theater: data.theater
-                })
-
-                // TODO: Remove - randomize some upvotes and downvotes
-                // cinemagraphs.docs.forEach((doc) => {
-                //     const upvotes = Math.ceil(Math.random() * 5000)
-                //     const downvotes = Math.ceil(Math.random() * 5000)
-                //     const ratio = upvotes / (upvotes + downvotes)
-                //     this.props.firebaseActions.updateData(
-                //         'cinemagraphs',
-                //         {
-                //             userUpvotes: {
-                //                 Cpya79zuhJYizogk7WPAyRzq0ue2: true
-                //             },
-                //             userDownvotes: {},
-                //             userFavorites: {},
-                //             upvotes,
-                //             downvotes,
-                //             ratio
-                //         },
-                //         doc.id
-                //     )
-                // })
-            }
+            this.fetchRandom()
         }
     }
     shouldComponentUpdate(nextProps, nextState) {
@@ -115,6 +81,44 @@ class HomePage extends React.Component {
             return true
         }
         return false
+    }
+    fetchRandom = async () => {
+        const cinemagraphs = await firebase
+            .firestore()
+            .collection('cinemagraphs')
+            .get()
+        if (cinemagraphs.size >= 1) {
+            // for now just choose one
+            const idx = Math.ceil(Math.random() * (cinemagraphs.size - 1))
+            const data = cinemagraphs.docs[idx].data()
+            document.title = data.title
+            this.setState({
+                cinemagraph: data,
+                audio: data.audio || [],
+                theater: data.theater
+            })
+            this.props.history.push(`/?id=${data.postId}`)
+            // TODO: Remove - randomize some upvotes and downvotes
+            // cinemagraphs.docs.forEach((doc) => {
+            //     const upvotes = Math.ceil(Math.random() * 5000)
+            //     const downvotes = Math.ceil(Math.random() * 5000)
+            //     const ratio = upvotes / (upvotes + downvotes)
+            //     this.props.firebaseActions.updateData(
+            //         'cinemagraphs',
+            //         {
+            //             userUpvotes: {
+            //                 Cpya79zuhJYizogk7WPAyRzq0ue2: true
+            //             },
+            //             userDownvotes: {},
+            //             userFavorites: {},
+            //             upvotes,
+            //             downvotes,
+            //             ratio
+            //         },
+            //         doc.id
+            //     )
+            // })
+        }
     }
     render() {
         const { cinemagraph, audio, theater, firstVisit } = this.state
@@ -126,11 +130,13 @@ class HomePage extends React.Component {
                         creatorMode
                         cinemagraph={cinemagraph}
                         theater={theater}
-                        firstVisit={firstVisit} />
+                        firstVisit={firstVisit}
+                    />
                     <Controls
                         creatorMode={false}
                         cinemagraph={!!Object.keys(cinemagraph).length}
                         audio={audio}
+                        handleRefresh={this.fetchRandom}
                         handleUploadAudio={this.handleUploadAudio}
                         handleRemoveAudio={this.handleRemoveAudio}
                         handleUpdateAudio={this.handleUpdateAudio}
@@ -138,7 +144,8 @@ class HomePage extends React.Component {
                             this.setState(prevState => ({
                                 theater: !prevState.theater
                             }))
-                        }} />
+                        }}
+                    />
                     <VoteControls iconSize={32} cinemagraph={cinemagraph} />
                 </Container>
             </div>
@@ -163,4 +170,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(HomePage)
+)(withRouter(HomePage))

@@ -38,7 +38,7 @@ class Profile extends React.Component {
         if (window.location.search) {
             const username = window.location.search.split('=')[1]
             this.fetchUserInfo(username)
-        } else if (this.props.user) {
+        } else if (this.props.user.username) {
             this.fetchUserInfo(this.props.user.displayName)
         }
     }
