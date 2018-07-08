@@ -1,6 +1,6 @@
 import ReactTooltip from 'react-tooltip'
 import { Text } from 'rebass'
-import { Howl, Howler } from 'howler'
+import { Howl } from 'howler'
 import styled from 'styled-components'
 import { Icon } from 'react-icons-kit'
 import { music_tape as tape } from 'react-icons-kit/linea/music_tape'
@@ -49,7 +49,7 @@ class AudioControls extends React.PureComponent {
         }
     }
     componentDidMount() {
-        const { track, trackName } = this.props
+        const { track, trackName, creatorMode, play } = this.props
         this.setState(
             prevState => ({
                 fileURL: track.preview || track.fileURL,
@@ -62,7 +62,7 @@ class AudioControls extends React.PureComponent {
                 audioTag.src = this.state.fileURL
                 audioTag.addEventListener('loadedmetadata', () => {
                     const trackDuration = audioTag.duration * 1000
-                    const loopEnd = 175 // shave off a few ms from end to loop seamlessly
+                    const loopEnd = creatorMode ? (track.type === 'audio/x-m4a' ? 0 : 90) : 180 // shave off a few ms from end to loop seamlessly
                     this.track = new Howl({
                         src: [this.state.fileURL],
                         format: track.type === 'audio/x-m4a' ? 'm4a' : 'mp3',
@@ -72,32 +72,46 @@ class AudioControls extends React.PureComponent {
                         volume: this.state.volume
                     })
                     window.audio.push(this.track)
-                    this.track.once('load', () => {
-                        if (this.props.play) {
-                            this.track.play(trackName)
-                        }
-                    })
+                    if (play) {
+                        this.playWhenAllReady()
+                    }
                 })
             }
         )
     }
-    componentDidUpdate(prevProps) {
-        if (prevProps.play !== this.props.play) {
-            this.handlePlay()
+    componentWillUnmount() {
+        const { trackName } = this.props
+        window.audio.forEach((track, idx) => {
+            if (Object.keys(track._sprite)[0] === trackName) {
+                window.audio.splice(idx, 1)
+            }
+        })
+        this.track && this.track.unload(trackName)
+    }
+    playWhenAllReady = () => {
+        const { totalTracks, trackName } = this.props
+        const checkAudioReady = setInterval(() => {
+            if (window.audio.length === totalTracks) {
+                const allReady = window.audio.every(track => track._state === 'loaded')
+                if (allReady) {
+                    clearInterval(checkAudioReady)
+                    this.track.play(trackName)
+                }
+            }
+        }, 10)
+
+        setTimeout(() => {
+            clearInterval(checkAudioReady)
+        }, 5000)
+    }
+    handlePlay = () => {
+        const { play, trackName } = this.props
+        if (play) {
+            this.track.play(trackName)
+        } else {
+            this.track.pause(trackName)
         }
     }
-    componentWillUnmount() {
-        this.track && this.track.unload()
-    }
-    // checkAllReady = () => {
-    //     // trying to build a function that starts all tracks at the same time
-    //     const checkReady = setInterval(() => {
-    //         if (window.audio.every(track => track.state() === 'loaded')) {
-    //             this.track.play()
-    //             clearInterval(checkReady)
-    //         }
-    //     }, 50)
-    // }
     handleLoop = e => {
         const { trackName, trackType } = e.currentTarget.dataset
 
@@ -159,20 +173,6 @@ class AudioControls extends React.PureComponent {
                 this.track.mute(this.state.mute)
                 this.props.handleUpdateAudio &&
                     this.props.handleUpdateAudio(trackName, trackType, this.state.mute)
-            }
-        )
-    }
-    handlePlay = e => {
-        this.setState(
-            prevState => {
-                play: !prevState.play
-            },
-            () => {
-                if (this.state.play) {
-                    this.track.pause()
-                } else {
-                    this.track.play()
-                }
             }
         )
     }

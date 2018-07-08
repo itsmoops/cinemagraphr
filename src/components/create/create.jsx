@@ -13,6 +13,7 @@ import * as firebaseActions from '../../actions/firebase-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
 import Controls from '../cinemagraph/controls'
 import { cleanCinemagraphData } from '../../utilities/utilities.js'
+import { debug } from 'util'
 
 const StyledIcon = styled(Icon)`
     cursor: pointer;
@@ -155,7 +156,8 @@ class Create extends React.Component {
         const track = this.state.audio.filter(track => track.name === name)[0]
         track[type] = value
     }
-    handleSave = async () => {
+    handleSave = async e => {
+        e.preventDefault()
         if (!this.form.checkValidity()) {
             this.submitButton.click()
             return
@@ -163,6 +165,7 @@ class Create extends React.Component {
         if (Object.keys(this.state.cinemagraph).length > 0) {
             // first upload files
             const { cinemagraph, audio } = this.state
+
             // upload cinemegraph
             const cinemagraphData = await this.props.firebaseActions.uploadFile({
                 file: cinemagraph,
@@ -170,6 +173,7 @@ class Create extends React.Component {
                 name: cinemagraph.name,
                 type: cinemagraph.type
             })
+
             const audioData = []
             // upload audio
             if (audio.length > 0) {
@@ -281,7 +285,7 @@ class Create extends React.Component {
                 <Flex>
                     <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto" ml={20} mr={20}>
                         {Object.keys(cinemagraph).length > 0 ? (
-                            <form ref={f => (this.form = f)}>
+                            <form ref={f => (this.form = f)} onSubmit={this.handleSave}>
                                 <InputContainer>
                                     <StyledInput
                                         name="title"
