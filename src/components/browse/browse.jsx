@@ -11,6 +11,16 @@ const FlexContainer = styled(Flex)`
     overflow: hidden;
     flex-wrap: wrap;
 `
+
+const Text = styled.div`
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+`
+
+const notFoundMessage = 'nothing to see here...'
 class Browse extends React.Component {
     constructor() {
         super()
@@ -130,6 +140,10 @@ class Browse extends React.Component {
                         cinemagraphs,
                         lastVisible: docRef.docs[docRef.docs.length - 1]
                     })
+                } else {
+                    this.setState({
+                        message: notFoundMessage
+                    })
                 }
             } else {
                 docRef = await db
@@ -146,6 +160,10 @@ class Browse extends React.Component {
                         cinemagraphs: [...prevState.cinemagraphs, ...cinemagraphs],
                         lastVisible: docRef.docs[docRef.docs.length - 1]
                     }))
+                } else {
+                    this.setState({
+                        message: notFoundMessage
+                    })
                 }
             }
         } else if (this.state.sortBy === SORT_BY.NEW) {
@@ -160,6 +178,10 @@ class Browse extends React.Component {
                         cinemagraphs,
                         lastVisible: docRef.docs[docRef.docs.length - 1]
                     })
+                } else {
+                    this.setState({
+                        message: notFoundMessage
+                    })
                 }
             } else {
                 docRef = await db
@@ -173,6 +195,10 @@ class Browse extends React.Component {
                         cinemagraphs: [...prevState.cinemagraphs, ...cinemagraphs],
                         lastVisible: docRef.docs[docRef.docs.length - 1]
                     }))
+                } else {
+                    this.setState({
+                        message: notFoundMessage
+                    })
                 }
             }
         }
@@ -204,7 +230,7 @@ class Browse extends React.Component {
         )
     }
     render() {
-        const { cinemagraphs } = this.state
+        const { cinemagraphs, message } = this.state
         const sortByOptions = Object.values(SORT_BY).map(value => ({ value }))
         const sortFromOptions = Object.values(SORT_FROM).map(value => ({ value }))
         return (
@@ -225,9 +251,13 @@ class Browse extends React.Component {
                         width="100"
                     />
                 )}
-                {cinemagraphs.map(cinemagraph => (
-                    <Card key={cinemagraph.name} cinemagraph={cinemagraph} />
-                ))}
+                {cinemagraphs.length >= 1 ? (
+                    cinemagraphs.map(cinemagraph => (
+                        <Card key={cinemagraph.name} cinemagraph={cinemagraph} />
+                    ))
+                ) : (
+                    <Text>{message && message}</Text>
+                )}
             </FlexContainer>
         )
     }

@@ -13,7 +13,7 @@ class Account extends React.Component {
     render() {
         return (
             <Flex>
-                <Box w={[1, 3 / 4, 2 / 3, 1 / 2]} m="auto">
+                <Box w={[1, 1 / 2, 1 / 3, 1 / 4]} m="auto">
                     <Heading mb={20} f={40}>
                         Account Settings
                     </Heading>

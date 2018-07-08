@@ -221,11 +221,13 @@ class Create extends React.Component {
                 timeCreated: cinemagraphData.timeCreated,
                 created: new Date().getTime(),
                 theater: this.state.theater,
-                userFavorites: [],
+                userFavorites: {},
                 upvotes: 1,
-                userUpvotes: [this.props.user.uid],
+                userUpvotes: {
+                    [this.props.user.uid]: true
+                },
                 downvotes: 0,
-                userDownvotes: [],
+                userDownvotes: {},
                 ratio: 1,
                 audio: audioData.map(track => ({
                     bucket: track.bucket,
@@ -283,7 +285,7 @@ class Create extends React.Component {
                     }
                 />
                 <Flex>
-                    <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto" ml={20} mr={20}>
+                    <Box w={[1, 1 / 2, 1 / 3, 1 / 4]} m="auto" ml={20} mr={20}>
                         {Object.keys(cinemagraph).length > 0 ? (
                             <form ref={f => (this.form = f)} onSubmit={this.handleSave}>
                                 <InputContainer>

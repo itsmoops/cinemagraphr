@@ -64,6 +64,8 @@ const StyledHeading = styled(Heading)`
     display: none;
     z-index: 1;
     text-transform: lowercase;
+    // font-family: 'Amatic SC', cursive;
+    // font-size: 3.5em;
 `
 
 const BottomLeftText = styled(Text)`

@@ -88,21 +88,25 @@ class HomePage extends React.Component {
                 })
 
                 // TODO: Remove - randomize some upvotes and downvotes
-                cinemagraphs.docs.forEach((doc) => {
-                    const upvotes = Math.ceil(Math.random() * 5000)
-                    const downvotes = Math.ceil(Math.random() * 5000)
-                    const ratio = upvotes / (upvotes + downvotes)
-                    this.props.firebaseActions.updateData(
-                        'cinemagraphs',
-                        {
-                            userFavorites: [],
-                            upvotes,
-                            downvotes,
-                            ratio: parseFloat(ratio.toFixed(6))
-                        },
-                        doc.id
-                    )
-                })
+                // cinemagraphs.docs.forEach((doc) => {
+                //     const upvotes = Math.ceil(Math.random() * 5000)
+                //     const downvotes = Math.ceil(Math.random() * 5000)
+                //     const ratio = upvotes / (upvotes + downvotes)
+                //     this.props.firebaseActions.updateData(
+                //         'cinemagraphs',
+                //         {
+                //             userUpvotes: {
+                //                 Cpya79zuhJYizogk7WPAyRzq0ue2: true
+                //             },
+                //             userDownvotes: {},
+                //             userFavorites: {},
+                //             upvotes,
+                //             downvotes,
+                //             ratio: parseFloat(ratio.toFixed(6))
+                //         },
+                //         doc.id
+                //     )
+                // })
             }
         }
     }

@@ -19,6 +19,8 @@ const Text = styled.div`
     align-items: center;
     justify-content: center;
 `
+
+const notFoundMessage = 'nothing to see here...'
 class Profile extends React.Component {
     constructor() {
         super()
@@ -83,7 +85,7 @@ class Profile extends React.Component {
         let docRef
         if (this.state.sortBy === USER_SORT_BY.CREATED) {
             if (!this.state.lastVisible) {
-                const docRef = await db
+                docRef = await db
                     .where('user.uid', '==', this.state.uid)
                     .limit(itemsPerPage)
                     .get()
@@ -95,11 +97,32 @@ class Profile extends React.Component {
                         cinemagraphs,
                         lastVisible: docRef.docs[docRef.docs.length - 1]
                     })
+                } else {
+                    this.setState({
+                        message: notFoundMessage
+                    })
                 }
             } else {
             }
         } else if (this.state.sortBy === USER_SORT_BY.FAVORITED) {
             if (!this.state.lastVisible) {
+                docRef = await db
+                    .where(`userFavorites.${this.state.uid}`, '==', true)
+                    .limit(itemsPerPage)
+                    .get()
+                if (docRef.size >= 1) {
+                    const cinemagraphs = docRef.docs.map(doc => doc.data()).sort((a, b) => {
+                        return b.created > a.created
+                    })
+                    this.setState({
+                        cinemagraphs,
+                        lastVisible: docRef.docs[docRef.docs.length - 1]
+                    })
+                } else {
+                    this.setState({
+                        message: notFoundMessage
+                    })
+                }
             } else {
             }
         }
@@ -117,7 +140,7 @@ class Profile extends React.Component {
         )
     }
     render() {
-        const { cinemagraphs, owner, sortBy } = this.state
+        const { cinemagraphs, owner, sortBy, message } = this.state
         const sortByOptions = Object.values(USER_SORT_BY).map(value => ({ value }))
         return (
             <FlexContainer>
@@ -135,16 +158,7 @@ class Profile extends React.Component {
                         <Card key={cinemagraph.name} cinemagraph={cinemagraph} />
                     ))
                 ) : (
-                    <Text>
-                        {!this.state.owner &&
-                            `${this.state.username || 'This user'} doesn't have any cinemagraphs`}
-                        {this.state.owner &&
-                            this.state.sortBy === USER_SORT_BY.CREATED &&
-                            'No cinemagraphs created'}
-                        {this.state.owner &&
-                            this.state.sortBy === USER_SORT_BY.FAVORITED &&
-                            'No cinemagraphs favorited'}
-                    </Text>
+                    <Text>{message && message}</Text>
                 )}
             </FlexContainer>
         )

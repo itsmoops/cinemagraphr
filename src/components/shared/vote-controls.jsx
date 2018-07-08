@@ -51,37 +51,41 @@ const StyledIcon = styled(Icon)`
 class VoteControls extends React.PureComponent {
     constructor(props) {
         super(props)
+
         const { cinemagraph, user } = this.props
+        const { userFavorites, userUpvotes, userDownvotes, upvotes, downvotes } = cinemagraph
+
         if (Object.keys(cinemagraph).length && user.uid) {
             this.state = {
-                favorited: cinemagraph.userFavorites.includes(user.uid),
-                upvoted: cinemagraph.userUpvotes.includes(user.uid),
-                upvotes: cinemagraph.upvotes,
-                downvoted: cinemagraph.userDownvotes.includes(user.uid),
-                downvotes: cinemagraph.downvotes
+                favorited: Object.keys(userFavorites).includes(user.uid),
+                upvoted: Object.keys(userUpvotes).includes(user.uid),
+                downvoted: Object.keys(userDownvotes).includes(user.uid),
+                upvotes,
+                downvotes
             }
         } else {
             this.state = {
                 favorited: false,
                 upvoted: false,
-                upvotes: cinemagraph.upvotes,
                 downvoted: false,
-                downvotes: cinemagraph.downvotes
+                upvotes,
+                downvotes
             }
         }
     }
     componentDidUpdate(prevProps) {
         const { cinemagraph, user } = this.props
+        const { userFavorites, userUpvotes, userDownvotes, upvotes, downvotes } = cinemagraph
         if (
             Object.keys(cinemagraph).length &&
             (cinemagraph !== prevProps.cinemagraph || this.props.user !== prevProps.user)
         ) {
             this.setState({
-                favorited: cinemagraph.userFavorites.includes(user.uid),
-                upvoted: cinemagraph.userUpvotes.includes(user.uid),
-                upvotes: cinemagraph.upvotes,
-                downvoted: cinemagraph.userDownvotes.includes(user.uid),
-                downvotes: cinemagraph.downvotes
+                favorited: Object.keys(userFavorites).includes(user.uid),
+                upvoted: Object.keys(userUpvotes).includes(user.uid),
+                downvoted: Object.keys(userDownvotes).includes(user.uid),
+                upvotes,
+                downvotes
             })
         }
     }
@@ -98,43 +102,26 @@ class VoteControls extends React.PureComponent {
             const { cinemagraph, user } = this.props
             const db = firebase.firestore()
             const cinemagraphsDocRef = await db.collection('cinemagraphs').doc(cinemagraph.postId)
-            const usersDocRef = await db.collection('users').doc(user.uid)
             const cinemagraphDoc = await cinemagraphsDocRef.get()
-            const userDoc = await usersDocRef.get()
 
-            if (cinemagraphDoc.exists && userDoc.exists) {
+            if (cinemagraphDoc.exists) {
                 const { userFavorites } = cinemagraphDoc.data()
-                const { favorites } = userDoc.data()
 
-                if (userFavorites.includes(user.uid)) {
-                    const idx = userFavorites.indexOf(user.uid)
-                    userFavorites.splice(idx, 1)
+                if (Object.keys(userFavorites).includes(user.uid)) {
+                    delete userFavorites[user.uid]
+
                     this.setState({ favorited: false }, () => {
                         cinemagraphsDocRef.update({
                             userFavorites
                         })
-
-                        const filteredFavorites = Object.keys(favorites)
-                            .filter(key => key !== cinemagraph.postId)
-                            .reduce((acc, key) => {
-                                acc[key] = favorites[key]
-                                return acc
-                            }, {})
-
-                        usersDocRef.update({
-                            favorites: filteredFavorites
-                        })
                     })
                 } else {
                     this.setState({ favorited: true }, () => {
-                        userFavorites.push(user.uid)
+                        userFavorites[user.uid] = true
+
                         cinemagraphsDocRef.update({
                             userFavorites
                         })
-
-                        favorites[cinemagraph.postId] = cleanCinemagraphData(cinemagraph)
-
-                        usersDocRef.set({ favorites }, { merge: true })
                     })
                 }
             }
@@ -156,9 +143,9 @@ class VoteControls extends React.PureComponent {
                     if (cinemagraphDoc.exists) {
                         const { userUpvotes } = cinemagraphDoc.data()
 
-                        if (userUpvotes.includes(user.uid)) {
-                            const idx = userUpvotes.indexOf(user.uid)
-                            userUpvotes.splice(idx, 1)
+                        if (Object.keys(userUpvotes).includes(user.uid)) {
+                            delete userUpvotes[user.uid]
+
                             this.setState(
                                 prevState => ({
                                     upvoted: false,
@@ -187,7 +174,9 @@ class VoteControls extends React.PureComponent {
                                     const ratio =
                                         this.state.upvotes /
                                         (this.state.upvotes + this.state.downvotes)
-                                    userUpvotes.push(user.uid)
+
+                                    userUpvotes[user.uid] = true
+
                                     resolve(
                                         cinemagraphsDocRef.update({
                                             upvotes: this.state.upvotes,
@@ -221,9 +210,9 @@ class VoteControls extends React.PureComponent {
                     if (cinemagraphDoc.exists) {
                         const { userDownvotes } = cinemagraphDoc.data()
 
-                        if (userDownvotes.includes(user.uid)) {
-                            const idx = userDownvotes.indexOf(user.uid)
-                            userDownvotes.splice(idx, 1)
+                        if (Object.keys(userDownvotes).includes(user.uid)) {
+                            delete userDownvotes[user.uid]
+
                             this.setState(
                                 prevState => ({
                                     downvoted: false,
@@ -252,7 +241,9 @@ class VoteControls extends React.PureComponent {
                                     const ratio =
                                         this.state.upvotes /
                                         (this.state.upvotes + this.state.downvotes)
-                                    userDownvotes.push(user.uid)
+
+                                    userDownvotes[user.uid] = true
+
                                     resolve(
                                         cinemagraphsDocRef.update({
                                             downvotes: this.state.downvotes,
@@ -271,19 +262,22 @@ class VoteControls extends React.PureComponent {
         }
     }
     render() {
-        const { iconSize, hide, displayVotes } = this.props
+        const { iconSize, hide, displayVotes, user, cinemagraph } = this.props
+        const owner = user.uid === cinemagraph.user.uid
         return (
             <Container hide={hide && hide.toString()}>
-                <div>
-                    <StyledIcon
-                        data-tip={'favorite'}
-                        data-for="favorite"
-                        onClick={this.handleFavorite}
-                        size={iconSize}
-                        icon={heart}
-                        favorited={this.state.favorited.toString()}
-                    />
-                </div>
+                {!owner && (
+                    <div>
+                        <StyledIcon
+                            data-tip={'favorite'}
+                            data-for="favorite"
+                            onClick={this.handleFavorite}
+                            size={iconSize}
+                            icon={heart}
+                            favorited={this.state.favorited.toString()}
+                        />
+                    </div>
+                )}
                 <div onClick={this.handleUpvote}>
                     <StyledIcon
                         data-tip={'upvote'}

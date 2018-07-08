@@ -71,7 +71,7 @@ class ForgotPassword extends React.Component {
         )
         return (
             <Flex>
-                <Box w={[1, 3 / 4, 2 / 3, 1 / 3]} m="auto">
+                <Box w={[1, 1 / 2, 1 / 3, 1 / 4]} m="auto">
                     {emailSent ? thankYou : resetForm}
                 </Box>
             </Flex>
