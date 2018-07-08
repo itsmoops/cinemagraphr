@@ -5,23 +5,23 @@ export default function firebaseReducer(state = {}, action) {
         case types.FETCH_DATA_SUCCESS:
             return { ...state, ...action.data }
         case types.FETCH_DATA_FAILURE:
-            return { ...state, ...action.data }
+            return { ...state, ...action.error }
         case types.WRITE_DATA_SUCCESS:
             return { ...state, ...action.data }
         case types.WRITE_DATA_FAILURE:
-            return { ...state, ...action.data }
+            return { ...state, ...action.error }
         case types.UPDATE_DATA_SUCCESS:
             return { ...state, ...action.data }
         case types.UPDATE_DATA_FAILURE:
-            return { ...state, ...action.data }
+            return { ...state, ...action.error }
         case types.PUSH_DATA_SUCCESS:
             return { ...state, ...action.data }
         case types.PUSH_DATA_FAILURE:
-            return { ...state, ...action.data }
+            return { ...state, ...action.error }
         case types.DELETE_DATA_SUCCESS:
             return { ...state, ...action.data }
         case types.DELETE_DATA_FAILURE:
-            return { ...state, ...action.data }
+            return { ...state, ...action.error }
         case types.UPLOAD_FILE_SUCCESS:
             return { ...state, ...action.data }
         case types.UPLOAD_FILE_FAILURE:

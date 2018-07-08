@@ -102,7 +102,7 @@ class HomePage extends React.Component {
                 //             userFavorites: {},
                 //             upvotes,
                 //             downvotes,
-                //             ratio: parseFloat(ratio.toFixed(6))
+                //             ratio
                 //         },
                 //         doc.id
                 //     )

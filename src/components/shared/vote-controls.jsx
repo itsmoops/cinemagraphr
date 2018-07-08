@@ -85,7 +85,8 @@ class VoteControls extends React.PureComponent {
                 upvoted: Object.keys(userUpvotes).includes(user.uid),
                 downvoted: Object.keys(userDownvotes).includes(user.uid),
                 upvotes,
-                downvotes
+                downvotes,
+                owner: user.uid === cinemagraph.user.uid
             })
         }
     }
@@ -262,8 +263,7 @@ class VoteControls extends React.PureComponent {
         }
     }
     render() {
-        const { iconSize, hide, displayVotes, user, cinemagraph } = this.props
-        const owner = user.uid === cinemagraph.user.uid
+        const { iconSize, hide, displayVotes, owner } = this.props
         return (
             <Container hide={hide && hide.toString()}>
                 {!owner && (
