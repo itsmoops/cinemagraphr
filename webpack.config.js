@@ -15,7 +15,8 @@ module.exports = {
     },
     devServer: {
         contentBase: path.join(__dirname, 'src'),
-        historyApiFallback: true
+        historyApiFallback: true,
+        https: true
     },
     devtool: 'inline-source-map',
     module: {

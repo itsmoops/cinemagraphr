@@ -3,6 +3,7 @@ import firebase from 'firebase/app'
 import { Flex } from 'rebass'
 import 'firebase/firestore'
 import styled from 'styled-components'
+import throttle from 'lodash.throttle'
 import { USER_SORT_BY } from '../../../constants/constants'
 import Sort from '../../shared/sort'
 import Card from '../../shared/card'
@@ -73,36 +74,52 @@ class Profile extends React.Component {
         }
     }
     handleInfiniteScroll = () => {
-        window.onscroll = () => {
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        window.onscroll = throttle(() => {
+            if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight) {
                 this.fetchData()
             }
-        }
+        }, 1000)
     }
     fetchData = async () => {
         const db = firebase.firestore().collection('cinemagraphs')
-        const itemsPerPage = 9
+        const itemsPerPage = 12
         let docRef
         if (this.state.sortBy === USER_SORT_BY.CREATED) {
             if (!this.state.lastVisible) {
                 docRef = await db
                     .where('user.uid', '==', this.state.uid)
+                    .orderBy('created', 'desc')
                     .limit(itemsPerPage)
                     .get()
                 if (docRef.size >= 1) {
-                    const cinemagraphs = docRef.docs.map(doc => doc.data()).sort((a, b) => {
-                        return b.created > a.created
-                    })
-                    this.setState({
+                    const cinemagraphs = docRef.docs.map(doc => doc.data())
+                    this.setState(() => ({
                         cinemagraphs,
                         lastVisible: docRef.docs[docRef.docs.length - 1]
-                    })
+                    }))
                 } else {
                     this.setState({
                         message: notFoundMessage
                     })
                 }
             } else {
+                docRef = await db
+                    .where('user.uid', '==', this.state.uid)
+                    .orderBy('created', 'desc')
+                    .limit(itemsPerPage)
+                    .startAfter(this.state.lastVisible)
+                    .get()
+                if (docRef.size >= 1) {
+                    const cinemagraphs = docRef.docs.map(doc => doc.data())
+                    this.setState(prevState => ({
+                        cinemagraphs: [...prevState.cinemagraphs, ...cinemagraphs],
+                        lastVisible: docRef.docs[docRef.docs.length - 1]
+                    }))
+                } else {
+                    this.setState({
+                        message: notFoundMessage
+                    })
+                }
             }
         } else if (this.state.sortBy === USER_SORT_BY.FAVORITED) {
             if (!this.state.lastVisible) {
@@ -124,6 +141,24 @@ class Profile extends React.Component {
                     })
                 }
             } else {
+                docRef = await db
+                    .where(`userFavorites.${this.state.uid}`, '==', true)
+                    .limit(itemsPerPage)
+                    .startAfter(this.state.lastVisible)
+                    .get()
+                if (docRef.size >= 1) {
+                    const cinemagraphs = docRef.docs.map(doc => doc.data()).sort((a, b) => {
+                        return b.created > a.created
+                    })
+                    this.setState(prevState => ({
+                        cinemagraphs: [...prevState.cinemagraphs, ...cinemagraphs],
+                        lastVisible: docRef.docs[docRef.docs.length - 1]
+                    }))
+                } else {
+                    this.setState({
+                        message: notFoundMessage
+                    })
+                }
             }
         }
     }

@@ -12,7 +12,11 @@
         "analyze": "BUILD_MODE=analyze yarn build",
         "deploy-dev": "firebase use dev && yarn build-dev && firebase deploy",
         "deploy-prod": "firebase use prod && yarn build-prod && firebase deploy",
-        "deploy-all": "yarn deploy-dev && yarn deploy-prod"
+        "deploy-all": "yarn deploy-dev && yarn deploy-prod && firebase use dev",
+        "deploy-functions-dev": "firebase use dev && firebase deploy --only functions",
+        "deploy-functions-prod": "firebase use prod && firebase deploy --only functions",
+        "deploy-functions": "yarn deploy-functions-dev && yarn deploy-functions-prod && firebase use dev",
+        "debug-function": "firebase experimental:functions:shell"
     },
     "repository": {
         "type": "git",
@@ -32,10 +36,12 @@
     },
     "homepage": "https://github.com/itsmoops/cinemagraphr#readme",
     "dependencies": {
-        "date-fns": "^1.29.0",
+        "autosize": "^4.0.2",
+        "capture-video-frame": "^0.1.3",
         "firebase": "5.2.0",
         "firebase-admin": "^5.12.1",
         "howler": "^2.0.12",
+        "lodash.throttle": "^4.1.1",
         "prop-types": "^15.5.10",
         "react": "^16.4.0",
         "react-avatar-editor": "^10.3.0",
@@ -85,6 +91,7 @@
         "eslint-plugin-standard": "^3.0.1",
         "eslint-plugin-styled-components-config": "0.0.2",
         "file-loader": "^1.1.11",
+        "firebase-functions": "^1.1.0",
         "firebase-tools": "^3.14.0",
         "image-webpack-loader": "^3.3.1",
         "webpack-bundle-analyzer": "^2.13.1",

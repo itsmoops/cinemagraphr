@@ -60,6 +60,7 @@ const StyledHeading = styled(Heading)`
     display: none;
     z-index: 1;
     text-transform: lowercase;
+    padding: 0 10 0 10;
     // font-family: 'Amatic SC', cursive;
     // font-size: 3.5em;
 `

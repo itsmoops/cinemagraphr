@@ -8,9 +8,36 @@ const scratchImg =
 const fadeOut = keyframes`
     0% {
         opacity: 1;
+        z-index: 999;
+
+        & > * {
+          opacity: 1;
+          z-index: 1000;
+          display: none;
+      }
     }
     100% {
         opacity: 0;
+        display: none;
+        z-index: -100;
+
+        & > * {
+          opacity: 0;
+          z-index: -100;
+          display: none;
+      }
+    }
+`
+
+const bigShakes = keyframes`
+    0% {
+      transform: translate(2px, -8px) rotate(-1deg);
+    }
+    50% {
+      transform: translate(-9px, 10px) rotate(-18deg);
+    }
+    100% {
+      transform: translate(6px, -2px) rotate(1deg);
     }
 `
 
@@ -60,7 +87,7 @@ const grain = keyframes`
 const scratch = keyframes`
     0%, 100% {
       transform: translateX(0);
-      opacity: 0.075;
+      opacity: 0.275;
     }
   
     10% {
@@ -73,7 +100,7 @@ const scratch = keyframes`
   
     30% {
       transform: translateX(-2%);
-          opacity: 0.09;
+          opacity: 0.29;
     }
   
     40% {
@@ -82,7 +109,7 @@ const scratch = keyframes`
   
     50% {
       transform: translateX(-3%);
-      opacity: 0.07;
+      opacity: 0.27;
     }
   
     60% {
@@ -95,7 +122,7 @@ const scratch = keyframes`
   
     80% {
       transform: translateX(10%);
-      opacity: 0.02;
+      opacity: 0.22;
     }
   
     90% {
@@ -106,7 +133,7 @@ const scratch = keyframes`
 const innerScratch = keyframes`
     0% {
       transform: translateX(0);
-      opacity: 0.08;
+      opacity: 0.28;
     }
   
     10% {
@@ -127,7 +154,7 @@ const innerScratch = keyframes`
   
     50% {
       transform: translateX(-3%);
-      opacity: 0.06;
+      opacity: 0.26;
     }
   
     60% {
@@ -140,7 +167,7 @@ const innerScratch = keyframes`
   
     80% {
       transform: translateX(10%);
-      opacity: 0.03;
+      opacity: 0.23;
     }
   
     90% {
@@ -152,8 +179,25 @@ const innerScratch = keyframes`
     }
 `
 
+const Flicker = styled.div`
+    pointer-events: none;
+    height: 100vmax;
+    width: 120%;
+    position: fixed;
+    top: -20px;
+    left: -20px;
+    animation: ${bigShakes} 0.1s linear infinite;
+    opacity: 0.5;
+    background-color: #111;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 1) 65%,
+        rgba(0, 0, 0, 1) 100%
+    );
+`
+
 const OuterScratch = styled.div`
-    z-index: 999;
     position: absolute;
     height: 100%;
     width: 100%;
@@ -189,7 +233,7 @@ const InnerScratch = styled.div`
         top: 0;
         left: 30%;
         padding-left: 100px;
-        opacity: 0.2;
+        opacity: 0.4;
         background: url(${scratchImg}) repeat center center;
         animation: ${innerScratch} 2s infinite;
     }
@@ -205,7 +249,7 @@ const Grain = styled.div`
         position: absolute;
         top: -5%;
         left: -5%;
-        opacity: 0.15;
+        opacity: 0.25;
         background: url(${grainImg});
         background-position: center;
         background-repeat: no-repeat;
@@ -216,6 +260,7 @@ const Grain = styled.div`
 
 const CinemaEffect = () => (
     <OuterScratch>
+        <Flicker />
         <InnerScratch>
             <Grain />
         </InnerScratch>

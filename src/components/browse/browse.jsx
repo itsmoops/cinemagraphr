@@ -3,6 +3,7 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
+import throttle from 'lodash.throttle'
 import { SORT_BY, SORT_FROM } from '../../constants/constants'
 import Sort from '../shared/sort'
 import Card from '../shared/card'
@@ -40,11 +41,11 @@ class Browse extends React.Component {
         this.fetchData()
     }
     handleInfiniteScroll = () => {
-        window.onscroll = () => {
+        window.onscroll = throttle(() => {
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
                 this.fetchData()
             }
-        }
+        }, 1000)
     }
     getSortDateRange = () => {
         let startDate, endDate
@@ -122,7 +123,7 @@ class Browse extends React.Component {
     }
     fetchData = async () => {
         const db = firebase.firestore().collection('cinemagraphs')
-        const itemsPerPage = 9
+        const itemsPerPage = 12
         let docRef
         if (this.state.sortBy === SORT_BY.TOP) {
             const dateRange = this.getSortDateRange()

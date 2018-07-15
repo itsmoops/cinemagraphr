@@ -3,17 +3,19 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Text, Box } from 'rebass'
 import Dropzone from 'react-dropzone'
+import autosize from 'autosize'
 import styled from 'styled-components'
 import { Icon } from 'react-icons-kit'
+import captureVideoFrame from 'capture-video-frame'
 import { basic_video as basicVideo } from 'react-icons-kit/linea/basic_video'
 import Flex from '../shared/flex'
 import Message from '../shared/message'
 import * as userActions from '../../actions/firebase-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
+import * as globalActions from '../../actions/global-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
 import Controls from '../cinemagraph/controls'
-import { cleanCinemagraphData } from '../../utilities/utilities.js'
-import { debug } from 'util'
+import { cleanCinemagraphData, googleCloudAPIKey } from '../../utilities/utilities'
 
 const StyledIcon = styled(Icon)`
     cursor: pointer;
@@ -66,6 +68,32 @@ const StyledInput = styled.input`
         color: ${colors.font1};
     }
 `
+
+const StyledTextArea = styled.textarea`
+    background: transparent;
+    color: ${colors.font1};
+    width: 100%;
+    min-height: 35px;
+    font-size: 2.5em;
+    font-weight: 300;
+    padding: 5 0 5 15;
+    margin: 10 0 10 0;
+    border: none;
+    border-bottom: none;
+    outline: none;
+    overflow: auto;
+    box-shadow: none;
+    border-radius: 0px;
+    text-transform: lowercase;
+    resize: none;
+    &:focus {
+        border-bottom: none;
+    }
+    text-align: center;
+    ::placeholder {
+        color: ${colors.font1};
+    }
+`
 class Create extends React.Component {
     constructor() {
         super()
@@ -93,39 +121,114 @@ class Create extends React.Component {
             }))
         }
     }
-    validateFile = (file, validTypes, maxSize) => {
+    checkImageContent = async file => {
+        return new Promise((resolve, reject) => {
+            const fetchImgData = async base64Img => {
+                const resp = await fetch(
+                    `https://vision.googleapis.com/v1/images:annotate?key=${googleCloudAPIKey}`,
+                    {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            requests: [
+                                {
+                                    image: {
+                                        content: base64Img
+                                    },
+                                    features: [
+                                        {
+                                            type: 'SAFE_SEARCH_DETECTION'
+                                        }
+                                    ]
+                                }
+                            ]
+                        })
+                    }
+                )
+                if (resp.ok) {
+                    const data = resp.ok && (await resp.json())
+                    const safeSearchData = data.responses[0].safeSearchAnnotation
+
+                    const adult = Object.values(safeSearchData).some(
+                        value => value === 'LIKELY' || value === 'VERY_LIKELY'
+                    )
+
+                    resolve(adult)
+                }
+                resolve(false)
+            }
+
+            if (file.type === 'video/mp4') {
+                const video = document.createElement('video')
+                video.src = file.preview
+                video.onloadeddata = () => {
+                    const frame = captureVideoFrame(video, 'png', 1)
+                    const base64Img = frame.dataUri.replace('data:image/png;base64,', '')
+                    fetchImgData(base64Img)
+                }
+            } else if (file.type === 'image/gif') {
+                const reader = new FileReader()
+                reader.readAsDataURL(file)
+                reader.onloadend = async () => {
+                    const base64Img = reader.result.replace('data:image/gif;base64,', '')
+                    fetchImgData(base64Img)
+                }
+            }
+        })
+    }
+    validateFile = async (file, validTypes, maxSize) => {
+        this.props.globalActions.loadingStateChange(true)
         if (!validTypes.includes(file.type)) {
+            this.props.globalActions.loadingStateChange(false)
             this.setState({
                 errorMessage: 'Invalid file type'
             })
             return
         }
         if (file.size > maxSize) {
+            this.props.globalActions.loadingStateChange(false)
             this.setState({
                 errorMessage: `File too large, must be less than ${maxSize / 1000000}MB`
             })
             return
         }
         if (this.state.audio.find(track => track.name === file.name)) {
+            this.props.globalActions.loadingStateChange(false)
             this.setState({
                 errorMessage: `Audio files must have unique names`
             })
             return
         }
+
+        const adult = await this.checkImageContent(file)
+
+        if (adult) {
+            this.props.globalActions.loadingStateChange(false)
+            this.setState({
+                errorMessage: `Cinemagraph contains graphic content`
+            })
+            return
+        }
+
+        this.props.globalActions.loadingStateChange(false)
         this.setState({ errorMessage: '' })
         return file
     }
     handleUploadCinemagraph = async (acceptedFiles, rejectedFiles) => {
         if (acceptedFiles && acceptedFiles.length === 1) {
-            const file = this.validateFile(
+            const file = await this.validateFile(
                 acceptedFiles[0],
-                ['image/gif', 'video/mp4', 'video/webm'],
+                ['image/gif', 'video/mp4'],
                 5000000
             )
             if (file) {
-                this.setState({
-                    cinemagraph: file
-                })
+                this.setState(
+                    {
+                        cinemagraph: file
+                    },
+                    () => {
+                        autosize(this.textarea)
+                    }
+                )
             }
         } else {
             throw new Error('Invalid file')
@@ -216,7 +319,7 @@ class Create extends React.Component {
                 fileURL: cinemagraphData.fileURL,
                 fullPath: cinemagraphData.fullPath,
                 name: cinemagraphData.name,
-                title: this.state.title,
+                title: this.state.title.toLowerCase(),
                 size: cinemagraphData.size,
                 timeCreated: cinemagraphData.timeCreated,
                 created: new Date().getTime(),
@@ -289,10 +392,13 @@ class Create extends React.Component {
                         {Object.keys(cinemagraph).length > 0 ? (
                             <form ref={f => (this.form = f)} onSubmit={this.handleSave}>
                                 <InputContainer>
-                                    <StyledInput
+                                    <StyledTextArea
+                                        innerRef={ta => (this.textarea = ta)}
+                                        maxLength={100}
                                         name="title"
                                         placeholder="Title"
                                         onChange={this.handleInputChange}
+                                        autoComplete="off"
                                         required
                                     />
                                 </InputContainer>
@@ -307,9 +413,7 @@ class Create extends React.Component {
                                 <div>
                                     <StyledIcon size={64} icon={basicVideo} />
                                     <Text>
-                                        {!cinemagraph.preview
-                                            ? 'Click or drag a file to upload a cinemagraph (.gif, .mp4 or .webm)'
-                                            : 'Choose a different file'}
+                                        Click or drag a file to upload a cinemagraph (.gif or .mp4)
                                     </Text>
                                 </div>
                             </StyledDropzone>
@@ -332,7 +436,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         userActions: bindActionCreators(userActions, dispatch),
-        firebaseActions: bindActionCreators(firebaseActions, dispatch)
+        firebaseActions: bindActionCreators(firebaseActions, dispatch),
+        globalActions: bindActionCreators(globalActions, dispatch)
     }
 }
 

@@ -99,7 +99,7 @@ class HomePage extends React.Component {
             })
             this.props.history.push(`/?id=${data.postId}`)
             // TODO: Remove - randomize some upvotes and downvotes
-            // cinemagraphs.docs.forEach((doc) => {
+            // cinemagraphs.docs.forEach(doc => {
             //     const upvotes = Math.ceil(Math.random() * 5000)
             //     const downvotes = Math.ceil(Math.random() * 5000)
             //     const ratio = upvotes / (upvotes + downvotes)

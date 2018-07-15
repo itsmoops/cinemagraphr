@@ -1,3 +1,5 @@
+import googleCloudConfig from '../google-cloud-config'
+
 const utilities = {
     isSmallDevice() {
         const mobileReg = new RegExp(/Mobile|iP(hone|od|ad)|Android|BlackBerry|IEMobile/)
@@ -44,6 +46,16 @@ const utilities = {
             }
             return acc
         }, {})
+    },
+
+    get googleCloudAPIKey() {
+        let apiKey
+        if (process.env.NODE_ENV === 'production') {
+            apiKey = googleCloudConfig.prod.apiKey
+        } else {
+            apiKey = googleCloudConfig.dev.apiKey
+        }
+        return apiKey
     }
 }
 
