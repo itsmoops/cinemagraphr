@@ -124,10 +124,10 @@ class Card extends React.PureComponent {
         this.props.history.push(`/?id=${this.props.cinemagraph.postId.replace('-', '')}`)
     }
     handleDelete = async () => {
-        if (window.confirm('Are you sure you want to delete this cinemagraph?')) {
+        const { cinemagraph } = this.props
+        if (window.confirm(`are you sure you want to delete "${cinemagraph.title}"?`)) {
             this.props.globalActions.loadingStateChange(true)
 
-            const { cinemagraph } = this.props
             const { audio } = cinemagraph
 
             if (audio.length >= 1) {
