@@ -181,8 +181,8 @@ const innerScratch = keyframes`
 
 const Flicker = styled.div`
     pointer-events: none;
-    height: 100vmax;
-    width: 120%;
+    height: 140%;
+    width: 140%;
     position: fixed;
     top: -20px;
     left: -20px;
@@ -249,7 +249,7 @@ const Grain = styled.div`
         position: absolute;
         top: -5%;
         left: -5%;
-        opacity: 0.25;
+        opacity: 0.2;
         background: url(${grainImg});
         background-position: center;
         background-repeat: no-repeat;

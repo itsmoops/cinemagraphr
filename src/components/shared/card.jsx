@@ -126,45 +126,55 @@ class Card extends React.PureComponent {
     handleDelete = async () => {
         const { cinemagraph } = this.props
         if (window.confirm(`are you sure you want to delete "${cinemagraph.title}"?`)) {
-            this.props.globalActions.loadingStateChange(true)
+            try {
+                this.props.globalActions.loadingStateChange(true)
 
-            const { audio } = cinemagraph
+                await firebase
+                    .firestore()
+                    .collection('cinemagraphs')
+                    .doc(cinemagraph.postId)
+                    .delete()
 
-            if (audio.length >= 1) {
-                for (const track of audio) {
-                    await firebase
-                        .storage()
-                        .ref(track.fullPath)
-                        .delete()
+                const { audio } = cinemagraph
+
+                if (audio.length >= 1) {
+                    for (const track of audio) {
+                        await firebase
+                            .storage()
+                            .ref(track.fullPath)
+                            .delete()
+                    }
                 }
+
+                await firebase
+                    .storage()
+                    .ref(cinemagraph.fullPath)
+                    .delete()
+
+                this.props.handleDelete()
+                this.props.globalActions.loadingStateChange(false)
+            } catch (ex) {
+                this.props.globalActions.loadingStateChange(false)
             }
-
-            await firebase
-                .storage()
-                .ref(cinemagraph.fullPath)
-                .delete()
-
-            await firebase
-                .firestore()
-                .collection('cinemagraphs')
-                .doc(cinemagraph.postId)
-                .delete()
-
-            this.props.handleDelete()
-            this.props.globalActions.loadingStateChange(false)
         }
     }
     render() {
-        const { cinemagraph } = this.props
+        const { cinemagraph, allowDelete } = this.props
         const { owner } = this.state
         const size = 16
         return (
             <Container w={[1, 1 / 2, 1 / 3, 1 / 4]}>
-                {owner && (
-                    <TopRightText onClick={this.handleDelete}>
-                        <StyledIcon icon={trash} size={24} data-tip={'delete'} data-for="delete" />
-                    </TopRightText>
-                )}
+                {owner &&
+                    allowDelete && (
+                        <TopRightText onClick={this.handleDelete}>
+                            <StyledIcon
+                                icon={trash}
+                                size={24}
+                                data-tip={'delete'}
+                                data-for="delete"
+                            />
+                        </TopRightText>
+                    )}
                 <BottomLeftText>
                     <StyledLink to={`/profile?u=${cinemagraph.user.username}`}>
                         {cinemagraph.user.username}

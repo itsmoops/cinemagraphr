@@ -202,6 +202,7 @@ class Profile extends React.Component {
                         <Card
                             key={cinemagraph.name}
                             cinemagraph={cinemagraph}
+                            allowDelete={true}
                             handleDelete={this.handleDelete}
                         />
                     ))

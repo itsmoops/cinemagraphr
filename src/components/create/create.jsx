@@ -146,8 +146,11 @@ class Create extends React.Component {
                 )
                 if (resp.ok) {
                     const data = resp.ok && (await resp.json())
-                    const safeSearchData = data.responses[0].safeSearchAnnotation
-
+                    const annotation = data.responses[0].safeSearchAnnotation
+                    const safeSearchData = {
+                        adult: annotation.adult,
+                        violence: annotation.violence
+                    }
                     const adult = Object.values(safeSearchData).some(
                         value => value === 'LIKELY' || value === 'VERY_LIKELY'
                     )
