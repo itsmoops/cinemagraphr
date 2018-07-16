@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import firebase from 'firebase/app'
-import { Flex } from 'rebass'
 import 'firebase/firestore'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 import throttle from 'lodash.throttle'
 import { USER_SORT_BY } from '../../../constants/constants'
@@ -80,10 +80,19 @@ class Profile extends React.Component {
             }
         }, 1000)
     }
+    handleDelete = () => {
+        this.setState(
+            {
+                lastVisible: undefined
+            },
+            this.fetchData
+        )
+    }
     fetchData = async () => {
         const db = firebase.firestore().collection('cinemagraphs')
         const itemsPerPage = 12
         let docRef
+
         if (this.state.sortBy === USER_SORT_BY.CREATED) {
             if (!this.state.lastVisible) {
                 docRef = await db
@@ -190,7 +199,11 @@ class Profile extends React.Component {
                 )}
                 {cinemagraphs.length >= 1 ? (
                     cinemagraphs.map(cinemagraph => (
-                        <Card key={cinemagraph.name} cinemagraph={cinemagraph} />
+                        <Card
+                            key={cinemagraph.name}
+                            cinemagraph={cinemagraph}
+                            handleDelete={this.handleDelete}
+                        />
                     ))
                 ) : (
                     <Text>{message && message}</Text>
