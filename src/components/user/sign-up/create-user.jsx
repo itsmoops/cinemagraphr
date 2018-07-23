@@ -25,6 +25,7 @@ class CreateUser extends React.Component {
             this.state.email,
             this.state.password
         )
+        await this.props.actions.sendEmailVerification()
         if (!this.props.user.errorMessage) {
             this.props.handleStateChange('thankYou')
         }

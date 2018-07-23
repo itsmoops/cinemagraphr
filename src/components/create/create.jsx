@@ -349,16 +349,6 @@ class Create extends React.Component {
                 }))
             }
             const postId = await this.props.firebaseActions.pushData('cinemagraphs', data)
-            await this.props.firebaseActions.updateData(
-                `users`,
-                {
-                    cinemagraphs: {
-                        [postId]: cleanCinemagraphData(data)
-                    }
-                },
-                this.props.user.uid,
-                true
-            )
             this.props.history.push(`/?id=${postId}`)
         } else {
             this.setState({
