@@ -163,18 +163,12 @@ class Card extends React.PureComponent {
         const { owner } = this.state
         const size = 16
         return (
-            <Container w={[1, 1 / 2, 1 / 3, 1 / 4]}>
-                {owner &&
-                    allowDelete && (
-                        <TopRightText onClick={this.handleDelete}>
-                            <StyledIcon
-                                icon={trash}
-                                size={24}
-                                data-tip={'delete'}
-                                data-for="delete"
-                            />
-                        </TopRightText>
-                    )}
+            <Container w={[1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]}>
+                {owner && allowDelete && (
+                    <TopRightText onClick={this.handleDelete}>
+                        <StyledIcon icon={trash} size={24} data-tip={'delete'} data-for="delete" />
+                    </TopRightText>
+                )}
                 <BottomLeftText>
                     <StyledLink to={`/profile?u=${cinemagraph.user.username}`}>
                         {cinemagraph.user.username}

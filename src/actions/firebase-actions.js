@@ -193,7 +193,7 @@ export function pushData(endpoint, data) {
                         .firestore()
                         .collection(endpoint)
                         .add(data)
-                    docRef.update({
+                    await docRef.update({
                         postId: docRef.id
                     })
                     resolve(docRef.id)

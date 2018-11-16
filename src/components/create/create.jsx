@@ -15,6 +15,12 @@ import * as firebaseActions from '../../actions/firebase-actions'
 import * as globalActions from '../../actions/global-actions'
 import Cinemagraph from '../cinemagraph/cinemagraph'
 import Controls from '../cinemagraph/controls'
+import {
+    VALID_TYPES_AUDIO,
+    VALID_TYPES_VIDEO,
+    SIZE_LIMIT_AUDIO,
+    SIZE_LIMIT_VIDEO
+} from '../../constants/constants'
 import { cleanCinemagraphData, googleCloudAPIKey } from '../../utilities/utilities'
 
 const StyledIcon = styled(Icon)`
@@ -27,10 +33,7 @@ const StyledIcon = styled(Icon)`
 
 const StyledDropzone = styled(Dropzone)`
     z-index: 999;
-    height: 200px;
-    border-width: 1px;
-    border-color: rgb(102, 102, 102);
-    border-style: dashed;
+    height: 100%;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -123,58 +126,62 @@ class Create extends React.Component {
     }
     checkImageContent = async file => {
         return new Promise((resolve, reject) => {
-            const fetchImgData = async base64Img => {
-                const resp = await fetch(
-                    `https://vision.googleapis.com/v1/images:annotate?key=${googleCloudAPIKey}`,
-                    {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            requests: [
-                                {
-                                    image: {
-                                        content: base64Img
-                                    },
-                                    features: [
-                                        {
-                                            type: 'SAFE_SEARCH_DETECTION'
-                                        }
-                                    ]
-                                }
-                            ]
-                        })
-                    }
-                )
-                if (resp.ok) {
-                    const data = resp.ok && (await resp.json())
-                    const annotation = data.responses[0].safeSearchAnnotation
-                    const safeSearchData = {
-                        adult: annotation.adult,
-                        violence: annotation.violence
-                    }
-                    const adult = Object.values(safeSearchData).some(
-                        value => value === 'LIKELY' || value === 'VERY_LIKELY'
+            try {
+                const fetchImgData = async base64Img => {
+                    const resp = await fetch(
+                        `https://vision.googleapis.com/v1/images:annotate?key=${googleCloudAPIKey}`,
+                        {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                requests: [
+                                    {
+                                        image: {
+                                            content: base64Img
+                                        },
+                                        features: [
+                                            {
+                                                type: 'SAFE_SEARCH_DETECTION'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            })
+                        }
                     )
+                    if (resp.ok) {
+                        const data = resp.ok && (await resp.json())
+                        const annotation = data.responses[0].safeSearchAnnotation
+                        const safeSearchData = {
+                            adult: annotation.adult,
+                            violence: annotation.violence
+                        }
+                        const adult = Object.values(safeSearchData).some(
+                            value => value === 'LIKELY' || value === 'VERY_LIKELY'
+                        )
 
-                    resolve(adult)
+                        resolve(adult)
+                    }
+                    resolve(false)
                 }
-                resolve(false)
-            }
 
-            if (file.type === 'video/mp4') {
-                const video = document.createElement('video')
-                video.src = file.preview
-                video.onloadeddata = () => {
-                    const frame = captureVideoFrame(video, 'png', 1)
-                    const base64Img = frame.dataUri.replace('data:image/png;base64,', '')
-                    fetchImgData(base64Img)
+                if (file.type === 'video/mp4') {
+                    const video = document.createElement('video')
+                    video.src = file.preview
+                    video.onloadeddata = () => {
+                        const frame = captureVideoFrame(video, 'png', 1)
+                        const base64Img = frame.dataUri.replace('data:image/png;base64,', '')
+                        fetchImgData(base64Img)
+                    }
+                } else if (file.type === 'image/gif') {
+                    const reader = new FileReader()
+                    reader.readAsDataURL(file)
+                    reader.onloadend = async () => {
+                        const base64Img = reader.result.replace('data:image/gif;base64,', '')
+                        fetchImgData(base64Img)
+                    }
                 }
-            } else if (file.type === 'image/gif') {
-                const reader = new FileReader()
-                reader.readAsDataURL(file)
-                reader.onloadend = async () => {
-                    const base64Img = reader.result.replace('data:image/gif;base64,', '')
-                    fetchImgData(base64Img)
-                }
+            } catch (err) {
+                reject(err)
             }
         })
     }
@@ -201,27 +208,28 @@ class Create extends React.Component {
             })
             return
         }
+        if (VALID_TYPES_VIDEO.includes(file.type)) {
+            const adult = await this.checkImageContent(file)
 
-        const adult = await this.checkImageContent(file)
-
-        if (adult) {
-            this.props.globalActions.loadingStateChange(false)
-            this.setState({
-                errorMessage: `Cinemagraph contains graphic content`
-            })
-            return
+            if (adult) {
+                this.props.globalActions.loadingStateChange(false)
+                this.setState({
+                    errorMessage: `Cinemagraph contains graphic content`
+                })
+                return
+            }
         }
 
         this.props.globalActions.loadingStateChange(false)
         this.setState({ errorMessage: '' })
         return file
     }
-    handleUploadCinemagraph = async (acceptedFiles, rejectedFiles) => {
-        if (acceptedFiles && acceptedFiles.length === 1) {
+    handleUploadCinemagraph = async acceptedFiles => {
+        if (acceptedFiles && acceptedFiles.length) {
             const file = await this.validateFile(
                 acceptedFiles[0],
-                ['image/gif', 'video/mp4'],
-                5000000
+                VALID_TYPES_VIDEO,
+                SIZE_LIMIT_VIDEO
             )
             if (file) {
                 this.setState(
@@ -237,9 +245,13 @@ class Create extends React.Component {
             throw new Error('Invalid file')
         }
     }
-    handleUploadAudio = async (acceptedFiles, rejectedFiles) => {
-        if (acceptedFiles && acceptedFiles.length === 1) {
-            const file = this.validateFile(acceptedFiles[0], ['audio/mp3', 'audio/x-m4a'], 10000000)
+    handleUploadAudio = async acceptedFiles => {
+        if (acceptedFiles && acceptedFiles.length) {
+            const file = await this.validateFile(
+                acceptedFiles[0],
+                VALID_TYPES_AUDIO,
+                SIZE_LIMIT_AUDIO
+            )
             if (file && this.state.audio.length < 3) {
                 file.volume = 1
                 file.loop = false
@@ -249,6 +261,8 @@ class Create extends React.Component {
                     audio: mergedAudio
                 })
             }
+        } else {
+            throw new Error('Invalid file')
         }
     }
     handleRemoveAudio = e => {
@@ -361,11 +375,17 @@ class Create extends React.Component {
         const value = e.target.value
         this.setState({ [name]: value })
     }
+    preventNewline = e => {
+        if (e.keyCode === 13) {
+            e.preventDefault()
+            this.handleSave(e)
+        }
+    }
     render() {
-        const { cinemagraph, audio, errorMessage } = this.state
+        const { cinemagraph, audio, errorMessage, theater } = this.state
         return (
             <div>
-                <Cinemagraph cinemagraph={cinemagraph} theater={this.state.theater} />
+                <Cinemagraph cinemagraph={cinemagraph} theater={theater} />
                 <Controls
                     creatorMode
                     cinemagraph={!!Object.keys(cinemagraph).length}
@@ -381,8 +401,8 @@ class Create extends React.Component {
                     }
                 />
                 <Flex>
-                    <Box w={[1, 1 / 2, 1 / 3, 1 / 4]} m="auto" ml={20} mr={20}>
-                        {Object.keys(cinemagraph).length > 0 ? (
+                    {Object.keys(cinemagraph).length > 0 ? (
+                        <Box w={[1, 1 / 2, 1 / 3, 1 / 4]} m="auto" ml={20} mr={20}>
                             <form ref={f => (this.form = f)} onSubmit={this.handleSave}>
                                 <InputContainer>
                                     <StyledTextArea
@@ -391,6 +411,7 @@ class Create extends React.Component {
                                         name="title"
                                         placeholder="Title"
                                         onChange={this.handleInputChange}
+                                        onKeyDown={this.preventNewline}
                                         autoComplete="off"
                                         required
                                     />
@@ -401,18 +422,21 @@ class Create extends React.Component {
                                     ref={b => (this.submitButton = b)}
                                 />
                             </form>
-                        ) : (
+                            {errorMessage && <Message>{errorMessage}</Message>}
+                        </Box>
+                    ) : (
+                        <Box w={1} m="auto">
                             <StyledDropzone onDrop={this.handleUploadCinemagraph}>
                                 <div>
                                     <StyledIcon size={64} icon={basicVideo} />
                                     <Text>
                                         Click or drag a file to upload a cinemagraph (.gif or .mp4)
                                     </Text>
+                                    {errorMessage && <Message>{errorMessage}</Message>}
                                 </div>
                             </StyledDropzone>
-                        )}
-                        {errorMessage && <Message>{errorMessage}</Message>}
-                    </Box>
+                        </Box>
+                    )}
                 </Flex>
             </div>
         )

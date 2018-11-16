@@ -8,7 +8,7 @@ import Dropzone from 'react-dropzone'
 import styled from 'styled-components'
 import { Icon } from 'react-icons-kit'
 import { basic_display as display } from 'react-icons-kit/linea/basic_display'
-import { basic_floppydisk as floppyDIsk } from 'react-icons-kit/linea/basic_floppydisk'
+import { basic_floppydisk as floppyDisk } from 'react-icons-kit/linea/basic_floppydisk'
 import { arrows_plus as arrowsPlus } from 'react-icons-kit/linea/arrows_plus'
 import { music_tape as tape } from 'react-icons-kit/linea/music_tape'
 import { music_play_button as play } from 'react-icons-kit/linea/music_play_button'
@@ -89,9 +89,12 @@ class Controls extends React.Component {
         }
         return false
     }
+    componentDidUpdate() {
+        const { userEngaged } = this.props
+    }
     render() {
         const size = 32
-        const { creatorMode, audio, cinemagraph } = this.props
+        const { creatorMode, audio, cinemagraph, toggleTheaterMode } = this.props
         return (
             <StyledContainer>
                 {cinemagraph &&
@@ -100,7 +103,7 @@ class Controls extends React.Component {
                         <StyledIcon
                             data-tip="toggle theater mode"
                             data-for="theater"
-                            onClick={this.props.toggleTheaterMode}
+                            onClick={toggleTheaterMode}
                             icon={display}
                             size={size} />
                         <ReactTooltip
@@ -186,7 +189,7 @@ class Controls extends React.Component {
                             data-tip="save cinemagraph"
                             data-for="save"
                             onClick={this.props.handleSave}
-                            icon={floppyDIsk}
+                            icon={floppyDisk}
                             size={size} />
                         <ReactTooltip id="save" place="top" effect="solid" delayShow={1000} />
                     </IconRight>

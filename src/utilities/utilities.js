@@ -49,13 +49,10 @@ const utilities = {
     },
 
     get googleCloudAPIKey() {
-        let apiKey
         if (process.env.NODE_ENV === 'production') {
-            apiKey = googleCloudConfig.prod.apiKey
-        } else {
-            apiKey = googleCloudConfig.dev.apiKey
+            return googleCloudConfig.prod.apiKey
         }
-        return apiKey
+        return googleCloudConfig.dev.apiKey
     }
 }
 

@@ -7,6 +7,10 @@ import * as userActions from '../../actions/user-actions'
 import * as firebaseActions from '../../actions/firebase-actions'
 
 const Container = styled.div`
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -2;
     filter: ${props => props.blur && 'blur(4px)'};
 `
 

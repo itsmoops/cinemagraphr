@@ -23,6 +23,9 @@ const fadeIn = keyframes`
 `
 
 const Container = styled.div`
+    height: 100%;
+    width: 100%:
+    position: absolute;
     ${props =>
         props.firstVisit &&
         css`
@@ -55,7 +58,6 @@ class HomePage extends React.Component {
                 })
             }, animationTime * 1000)
         }
-
         if (window.location.search) {
             const postId = window.location.search.split('=')[1]
             const cinemagraphs = await firebase
