@@ -14,6 +14,7 @@ import VoteControls from './vote-controls'
 import * as globalActions from '../../actions/global-actions'
 
 const Container = styled(Box)`
+    overflow: hidden;
     position: relative;
     background: ${colors.cardBackground};
     height: 350px;
@@ -49,6 +50,7 @@ const ImageContainer = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%;
 `
 
 const Video = styled.video`
@@ -162,6 +164,7 @@ class Card extends React.PureComponent {
         const { cinemagraph, allowDelete } = this.props
         const { owner } = this.state
         const size = 16
+        const delayShow = 1000
         return (
             <Container w={[1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]}>
                 {owner && allowDelete && (
@@ -189,7 +192,7 @@ class Card extends React.PureComponent {
                     hide
                     displayVotes
                 />
-                <ReactTooltip id="delete" place="bottom" effect="solid" delayShow={1000} />
+                <ReactTooltip id="delete" place="bottom" effect="solid" delayShow={delayShow} />
             </Container>
         )
     }

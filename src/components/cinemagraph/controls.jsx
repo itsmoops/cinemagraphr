@@ -90,15 +90,30 @@ class Controls extends React.Component {
         return false
     }
     componentDidUpdate() {
-        const { userEngaged } = this.props
+        const { userEngaged } = this.props.global
+        if (userEngaged !== this.state.playAll) {
+            this.setState({
+                playAll: userEngaged
+            })
+        }
     }
     render() {
         const size = 32
-        const { creatorMode, audio, cinemagraph, toggleTheaterMode } = this.props
+        const delayShow = 1000
+        const {
+            audio,
+            cinemagraph,
+            creatorMode,
+            handleRefresh,
+            handleUpdateAudio,
+            handleRemoveAudio,
+            handleUploadAudio,
+            handleSave,
+            toggleTheaterMode
+        } = this.props
         return (
             <StyledContainer>
-                {cinemagraph &&
-                    creatorMode && (
+                {cinemagraph && creatorMode && (
                     <IconLeft>
                         <StyledIcon
                             data-tip="toggle theater mode"
@@ -110,12 +125,10 @@ class Controls extends React.Component {
                             id="theater"
                             place="top"
                             effect="solid"
-                            delayShow={1000} />
+                            delayShow={delayShow} />
                     </IconLeft>
                 )}
-                {cinemagraph &&
-                    !creatorMode &&
-                    !!audio.length && (
+                {cinemagraph && !creatorMode && !!audio.length && (
                     <IconLeft2>
                         <StyledIcon
                             data-tip={this.state.playAll ? 'pause audio' : 'play audio'}
@@ -127,19 +140,18 @@ class Controls extends React.Component {
                             }}
                             icon={this.state.playAll ? pause : play}
                             size={size} />
-                        <ReactTooltip id="play" place="top" effect="solid" delayShow={1000} />
+                        <ReactTooltip id="play" place="top" effect="solid" delayShow={delayShow} />
                     </IconLeft2>
                 )}
-                {cinemagraph &&
-                    !creatorMode && (
+                {cinemagraph && !creatorMode && (
                     <IconLeft>
                         <StyledIcon
                             data-tip={'get new'}
                             data-for="new"
-                            onClick={this.props.handleRefresh}
+                            onClick={handleRefresh}
                             icon={refresh}
                             size={size} />
-                        <ReactTooltip id="new" place="top" effect="solid" delayShow={1000} />
+                        <ReactTooltip id="new" place="top" effect="solid" delayShow={delayShow} />
                     </IconLeft>
                 )}
                 {!!audio.length &&
@@ -154,16 +166,14 @@ class Controls extends React.Component {
                                 loopOnLoad={track.loop}
                                 volumeOnLoad={track.volume}
                                 muteOnLoad={track.mute}
-                                creatorMode={this.props.creatorMode}
-                                handleUpdateAudio={this.props.handleUpdateAudio}
-                                handleRemoveAudio={this.props.handleRemoveAudio} />
+                                creatorMode={creatorMode}
+                                handleUpdateAudio={handleUpdateAudio}
+                                handleRemoveAudio={handleRemoveAudio} />
                         </div>
                     ))}
                 <div>
-                    {cinemagraph &&
-                        creatorMode &&
-                        audio.length <= 2 && (
-                        <StyledDropzone onDrop={this.props.handleUploadAudio}>
+                    {cinemagraph && creatorMode && audio.length <= 2 && (
+                        <StyledDropzone onDrop={handleUploadAudio}>
                             <StyledIcon
                                 data-tip="upload audio track (.mp3 or .m4a)"
                                 data-for="add-audio"
@@ -178,20 +188,19 @@ class Controls extends React.Component {
                                 id="add-audio"
                                 place="top"
                                 effect="solid"
-                                delayShow={1000} />
+                                delayShow={delayShow} />
                         </StyledDropzone>
                     )}
                 </div>
-                {cinemagraph &&
-                    creatorMode && (
+                {cinemagraph && creatorMode && (
                     <IconRight>
                         <StyledIcon
                             data-tip="save cinemagraph"
                             data-for="save"
-                            onClick={this.props.handleSave}
+                            onClick={handleSave}
                             icon={floppyDisk}
                             size={size} />
-                        <ReactTooltip id="save" place="top" effect="solid" delayShow={1000} />
+                        <ReactTooltip id="save" place="top" effect="solid" delayShow={delayShow} />
                     </IconRight>
                 )}
             </StyledContainer>

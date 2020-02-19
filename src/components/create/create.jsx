@@ -47,31 +47,6 @@ const InputContainer = styled.div`
     justify-content: center;
 `
 
-const StyledInput = styled.input`
-    background: transparent;
-    color: ${colors.font1};
-    width: 100%;
-    min-height: 35px;
-    font-size: 2.5em;
-    font-weight: 300;
-    padding: 5 0 5 15;
-    margin: 10 0 10 0;
-    border: none;
-    border-bottom: none;
-    outline: none;
-    overflow: auto;
-    box-shadow: none;
-    border-radius: 0px;
-    text-transform: lowercase;
-    &:focus {
-        border-bottom: none;
-    }
-    text-align: center;
-    ::placeholder {
-        color: ${colors.font1};
-    }
-`
-
 const StyledTextArea = styled.textarea`
     background: transparent;
     color: ${colors.font1};

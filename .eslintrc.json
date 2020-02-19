@@ -1,60 +1,61 @@
 {
-    /*
+  /*
 	0 - off
 	1 - warn
 	2 - error
  	*/
-    "extends": "airbnb",
-    "plugins": ["react"],
-    "env": {
-        "browser": true,
-        "node": true,
-        "es6": true,
-        "mocha": true
-    },
-    "globals": {
-        "React": true,
-        "ReactDOM": true,
-        "PropTypes": true,
-        "ReactGA": true,
-        "state": true,
-        "firebase": true,
-        "Icon": true,
-        "horizontalCenter": true,
-        "colors": true
-    },
-    "rules": {
-        "semi": [2, "never"],
-        "quotes": [2, "single"],
-        "indent": [2, 4, { "SwitchCase": 1 }],
-        "no-tabs": [0],
-        "no-debugger": [0],
-        "comma-dangle": [2, "never"],
-        "object-curly-spacing": [2, "always"],
-        "import/no-named-as-default": 0,
-        "import/no-named-as-default-member": 0,
-        "space-infix-ops": 0,
-        "no-unused-expressions": [
-            2,
-            {
-                "allowShortCircuit": true,
-                "allowTernary": true
-            }
-        ],
-        "jsx-a11y/href-no-hash": 0,
-        "jsx-a11y/anchor-is-valid": [
-            1,
-            {
-                "aspects": ["invalidHref"]
-            }
-        ],
-        "react/react-in-jsx-scope": 0,
-        "react/jsx-indent": [2, 4],
-        "react/jsx-indent-props": [2, 4],
-        "react/prop-types": 0,
-        "react/jsx-no-undef": 0,
-        "react/forbid-prop-types": 0,
-        "react/jsx-closing-bracket-location": [2, "after-props"],
-        "react/no-did-mount-set-state": 0
-    }
+  "extends": "airbnb",
+  "plugins": ["react"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "mocha": true
+  },
+  "globals": {
+    "React": true,
+    "ReactDOM": true,
+    "PropTypes": true,
+    "ReactGA": true,
+    "state": true,
+    "firebase": true,
+    "Icon": true,
+    "horizontalCenter": true,
+    "colors": true
+  },
+  "rules": {
+    "semi": [2, "never"],
+    "quotes": [2, "single"],
+    "indent": [2, 4, { "SwitchCase": 1 }],
+    "no-tabs": [0],
+    "no-debugger": [0],
+    "comma-dangle": [2, "never"],
+    "object-curly-spacing": [2, "always"],
+    "import/no-named-as-default": 0,
+    "import/no-named-as-default-member": 0,
+    "space-infix-ops": 0,
+    "no-unused-expressions": [
+      2,
+      {
+        "allowShortCircuit": true,
+        "allowTernary": true
+      }
+    ],
+    "jsx-a11y/href-no-hash": 0,
+    "jsx-a11y/anchor-is-valid": [
+      1,
+      {
+        "aspects": ["invalidHref"]
+      }
+    ],
+    "react/react-in-jsx-scope": 0,
+    "react/jsx-indent": [2, 4],
+    "react/jsx-indent-props": [2, 4],
+    "react/prop-types": 0,
+    "react/jsx-no-undef": 0,
+    "react/forbid-prop-types": 0,
+    "react/jsx-closing-bracket-location": [2, "after-props"],
+    "react/no-did-mount-set-state": 0,
+    "react/no-did-update-set-state": 0
+  }
 }

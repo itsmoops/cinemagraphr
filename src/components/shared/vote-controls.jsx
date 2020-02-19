@@ -264,21 +264,21 @@ class VoteControls extends React.PureComponent {
         }
     }
     render() {
+        const delayShow = 1000
         const { iconSize, hide, displayVotes, hasAudio } = this.props
         const { owner } = this.state
         return (
             <Container hide={hide && hide.toString()}>
-                {displayVotes &&
-                    hasAudio && (
-                        <div>
-                            <StyledIcon
-                                data-tip={'has audio'}
-                                data-for="audio"
-                                size={iconSize}
-                                icon={musicNote}
-                            />
-                        </div>
-                    )}
+                {displayVotes && hasAudio && (
+                    <div>
+                        <StyledIcon
+                            data-tip={'has audio'}
+                            data-for="audio"
+                            size={iconSize}
+                            icon={musicNote}
+                        />
+                    </div>
+                )}
                 {!owner && (
                     <div onClick={this.handleFavorite}>
                         <StyledIcon
@@ -310,10 +310,10 @@ class VoteControls extends React.PureComponent {
                     />
                     {displayVotes && <Text>{this.state.downvotes}</Text>}
                 </div>
-                <ReactTooltip id="audio" place="top" effect="solid" delayShow={1000} />
-                <ReactTooltip id="favorite" place="top" effect="solid" delayShow={1000} />
-                <ReactTooltip id="upvote" place="top" effect="solid" delayShow={1000} />
-                <ReactTooltip id="downvote" place="top" effect="solid" delayShow={1000} />
+                <ReactTooltip id="audio" place="top" effect="solid" delayShow={delayShow} />
+                <ReactTooltip id="favorite" place="top" effect="solid" delayShow={delayShow} />
+                <ReactTooltip id="upvote" place="top" effect="solid" delayShow={delayShow} />
+                <ReactTooltip id="downvote" place="top" effect="solid" delayShow={delayShow} />
             </Container>
         )
     }

@@ -123,6 +123,7 @@ class Browse extends React.Component {
     }
     fetchData = async () => {
         const db = firebase.firestore().collection('cinemagraphs')
+        debugger
         const itemsPerPage = 12
         let docRef
         if (this.state.sortBy === SORT_BY.TOP) {
